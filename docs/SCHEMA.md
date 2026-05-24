@@ -439,7 +439,7 @@ CREATE UNIQUE INDEX favorite_carinderia_unique
 | visitor_id | INT | NOT NULL FK → users ON DELETE CASCADE | |
 | housing_id | INT | NOT NULL FK → housing ON DELETE CASCADE | |
 | scheduled_at | TIMESTAMPTZ | NOT NULL | Requested visit date/time |
-| status | VARCHAR(20) | NOT NULL DEFAULT 'pending' | pending \| confirmed \| declined \| cancelled |
+| status | VARCHAR(20) | NOT NULL DEFAULT 'pending' | pending \| confirmed \| declined \| cancelled. owner → confirmed / declined; visitor → cancelled |
 | note | TEXT | | Optional message from visitor |
 | created_at | TIMESTAMPTZ | NOT NULL DEFAULT now() | |
 | updated_at | TIMESTAMPTZ | NOT NULL DEFAULT now() | |
