@@ -2,11 +2,12 @@
 
 **Project:** RenTell
 **Course:** CMSC 127 — Relational Database Management Systems
-**Team size:** 5
+**Team size:** 5 (2 technical)
 **Timeline:** ~5 days to submission
-**Status:** v1 draft — a revised PRD (with image attributes and further refinements) will supersede this document. See `DECISIONS.md` for pending changes.
+**Status:** v2 — updated for the redesigned ERD (generalized users, host ownership, images, visits, deferred messaging)
 
-> Schema source of truth: `ERD/Rentell Physical ERD (3).json`.
+> Schema source of truth: `ERD/rentell.dbml` (render at dbdiagram.io).
+> Full DDL and constraint reference: `SCHEMA.md`.
 > Stack decisions: `STACK.md`.
 > Build order: `PHASES.md`.
 
@@ -14,9 +15,15 @@
 
 ## 1. Problem Statement
 
-UP Cebu students searching for off-campus housing or nearby food options must rely on word-of-mouth, scattered Facebook posts, and informal group chats. There is no structured, searchable directory where students can find boarding houses, dormitories, and carinderias — and no verified, student-authored review system to help them evaluate options.
+Students in Cebu searching for off-campus housing near their university must rely on word-of-mouth,
+scattered Facebook posts, and informal group chats. There is no structured, searchable directory
+where students can find boarding houses, dormitories, and carinderias — and no verified,
+student-authored review system to help them evaluate options.
 
-**RenTell** solves this by providing a centralized, relational-database-backed directory where students can browse listings, read and write reviews, and save favorites — all scoped to the UP Cebu student community.
+**RenTell** solves this by providing a centralized, relational-database-backed directory where
+students can browse listings, read and write reviews, and save favorites. Property owners can list
+and manage their own housing through a host portal. The platform facilitates discovery and visit
+scheduling — actual tenancy negotiation stays face-to-face.
 
 ---
 
@@ -24,136 +31,164 @@ UP Cebu students searching for off-campus housing or nearby food options must re
 
 | User type | Description |
 |-----------|-------------|
-| **Student (primary)** | Any enrolled UP Cebu student. Browses listings, writes reviews, saves favorites. Must register with a student number. |
-| **Prospective tenant** | Student actively looking for housing. Uses search and filter heavily. |
-| **Returning user** | Student who has already settled in; contributes reviews for housing/carinderias they have experienced. |
+| **Student (browser)** | Enrolled student looking for housing. Browses listings, reads reviews, saves favorites, books visits. Optional: identifies with student_number + course. |
+| **Host (owner)** | Any user with `is_host = true`. Creates and manages housing listings, sets room availability, declares visiting hours, attaches nearby carinderias/essentials. |
+| **Contributor** | Any logged-in user who adds a carinderia or essential to the shared catalog. No proprietor account required. |
+| **Returning user** | Student who has settled in; contributes reviews for listings they have experienced. |
 
-> Non-user (v1): property owners, admins, moderators. No owner-facing portal in v1.
+> Non-users in v1: real carinderia/shop owners (no proprietor login needed), admins, moderators.
 
 ---
 
 ## 3. Core Features
 
 ### 3.1 User Authentication
-Students register and log in using their student number and a password.
 
-- Register: provide student_number, first_name, last_name, email, course, year_level, hometown, password.
-- Login: student_number + password → server validates, creates a session row, sets an HttpOnly cookie.
-- Logout: deletes the session row.
-- Protected routes: any write action (review, favorite) requires an active session.
+Users register and log in using their **email** and a password.
 
-> DB note: `Student.password_hash` and the `Session` table are schema extensions not in the ERD — documented in `DECISIONS.md`.
+- **Register:** email, password, first_name, last_name. Optional: phone_number, student_number, course, year_level, hometown.
+- **Login:** email + password → server validates, creates a `session` row, sets an HttpOnly cookie.
+- **Logout:** deletes the `session` row.
+- **Protected routes:** any write action (create listing, review, favorite, visit) requires an active session.
+- `is_host` defaults to `false`; users toggle it from their profile to access the host portal.
 
-### 3.2 Housing Directory
-Browse and view boarding houses and dormitories.
+### 3.2 Housing Directory (public browse)
 
-- Listing card: name, housing_type, address, monthly_price_min–max, proximity_to_campus_km, average rating.
-- Detail page: all Housing fields + room list (room_number, room_type, capacity, monthly_price, is_available) + amenity list + nearby essentials (name, type, distance_km) + all reviews.
-- Housing types supported: whatever values appear in `housing_type` — no hard-coded enum in v1 (use a CHECK or domain if standardized later).
+Browse and view boarding houses, dormitories, and apartments.
 
-### 3.3 Carinderia Directory
+- **Listing card:** name, housing_type, address, monthly_price_min–max, proximity_to_campus_km, primary image, average rating.
+- **Detail page:** all housing fields + room list (room_number, room_type, capacity, available_slots, monthly_price) + amenity list + nearby carinderias (name, distance_km) + nearby essentials (name, type, distance_km) + photo gallery + all reviews.
+- Publicly accessible — no login required to browse.
+
+### 3.3 Carinderia Directory (public browse)
+
 Browse and view carinderias / nearby eateries.
 
-- Listing card: name, address, description, average rating.
-- Detail page: all Carinderia fields + all reviews.
+- **Listing card:** name, address, description, primary image, average rating.
+- **Detail page:** all carinderia fields + photo gallery + all reviews.
+- Any logged-in user can add a new carinderia to the shared catalog (`added_by` attribution).
 
-> Note: `Essential` entities (groceries, laundromats, pharmacies, etc.) are supplementary proximity data attached to Housing — they are **not** independently browsable listings in v1.
+> Essentials (laundry, pharmacy, sari-sari, church, ATM) are supplementary reference data attached to housing — **not** independently browsable in v1.
 
-### 3.4 Reviews & Ratings
-Authenticated students write reviews for Housing or Carinderia listings.
+### 3.4 Host Portal
 
-- Fields: rating (1–5 stars), comment (up to 500 chars), date_posted (auto-set).
-- One student may review the same listing multiple times (no unique constraint in ERD) — but UI should surface the student's existing review if one exists.
-- Reviews display: commenter name, rating, comment, date.
-- Aggregate: average rating computed via SQL `AVG(rating)` — optionally maintained by a trigger (see PHASES.md Phase 5).
+Users with `is_host = true` can create and manage their own housing listings.
 
-### 3.5 Favorites
-Authenticated students save Housing or Carinderia listings to a personal favorites list.
+- **Create housing:** fill all housing fields; becomes `owner_id` on the new row.
+- **Manage rooms:** add/edit/delete rooms under a housing (room_number, room_type, capacity, available_slots, monthly_price). Owner manually updates `available_slots` as tenants move in/out off-platform.
+- **Manage images:** add/remove housing and room photos (stored as URLs — no file upload infra in v1).
+- **Set visiting hours:** declare availability windows per day of week (start_time, end_time).
+- **Attach nearby places:** link carinderias and essentials from the shared catalog to the listing, with distance_km.
+- **Manage amenities:** tag the housing with amenities from the catalog.
+- Hosts only see and edit their own listings.
+
+### 3.5 Reviews & Ratings
+
+Authenticated users write reviews for Housing or Carinderia listings.
+
+- **Fields:** rating (1–5 stars), comment (text), auto-set created_at.
+- Reviews display: reviewer name, rating, comment, date.
+- Aggregate: average rating computed via `AVG(rating)` subquery (or trigger in stretch phase).
+- Users may update or delete their own reviews.
+
+### 3.6 Favorites
+
+Authenticated users save Housing or Carinderia listings to a personal favorites list.
 
 - Save / unsave toggle on listing cards and detail pages.
-- Favorites list page: shows all saved listings with type badge (housing / carinderia) and date_saved.
-- Constraint: one student cannot save the same listing twice (UNIQUE enforced at DB level).
+- **Favorites page:** shows all saved listings with type badge (housing / carinderia) and date saved.
+- Constraint: one user cannot save the same listing twice (UNIQUE enforced at DB level).
 
-### 3.6 Search & Filter
-Students can search and filter the directory without logging in.
+### 3.7 Search & Filter
 
-- Search: text search across Housing name, address, description; Carinderia name, address, description.
-- Filters (Housing): housing_type, monthly_price range, proximity_to_campus_km range, amenities present, is_available rooms exist.
-- Filters (Carinderia): free-text only in v1.
-- Sort: by proximity, by price (housing), by average rating.
+Public-facing search — no login required.
+
+- **Text search:** across housing name, address, description; carinderia name, address, description.
+- **Housing filters:** housing_type, monthly_price range, proximity_to_campus_km range, amenities present, rooms with available_slots > 0.
+- **Sort:** by proximity, by price, by average rating.
+- Carinderia: text search only in v1.
+
+### 3.8 Book a Visit *(stretch — Phase 9)*
+
+Authenticated students request a visit to a housing listing.
+
+- Student selects a date/time and submits a visit request (note optional).
+- Owner confirms or declines based on declared visiting hours.
+- Visit status lifecycle: `pending → confirmed | declined | cancelled`.
+- Actual tenancy negotiation happens face-to-face after the visit.
 
 ---
 
 ## 4. Data Model Summary
 
-All entities and relationships are derived directly from `ERD/Rentell Physical ERD (3).json`.
+All entities derived from `ERD/rentell.dbml`. Full DDL in `SCHEMA.md`.
 
-### Entities
+### Entities (21 tables)
 
-| Entity | PK | Key fields | Notes |
-|--------|----|----|-------|
-| `Student` | student_number (varchar 15) | first_name, last_name, email, course, year_level, hometown, room_id (FK) | +password_hash (schema extension) |
-| `Housing` | housing_id (int) | name, housing_type, address, monthly_price_min, monthly_price_max, contact_person, contact_number, proximity_to_campus_km, description | Primary directory listing type |
-| `Room` | room_id (int) | housing_id (FK), room_number, room_type, capacity, monthly_price, is_available | Child of Housing |
-| `Carinderia` | carinderia_id (int) | name, address, description | Second directory listing type |
-| `Essential` | essential_id (int) | name, type, address, description | Supplementary; linked to Housing via junction |
-| `Amenity` | name (varchar 50) | description | Natural PK — amenity name is the key |
-| `Review` | review_id (int) | student_number (FK), listing_type, housing_id (FK nullable), carinderia_id (FK nullable), rating, comment, date_posted | Polymorphic — targets Housing OR Carinderia |
-| `Favorite` | favorite_id (int) | student_number (FK), listing_type, housing_id (FK nullable), carinderia_id (FK nullable), date_saved | Polymorphic — same pattern as Review |
-
-### Junction tables
-
-| Table | PKs | Extra column |
-|-------|-----|-------------|
-| `Housing Essential` | housing_id + essential_id | distance_km float(4,2) |
-| `Housing Amenity` | housing_id + amenity_name | — |
-
-### Schema extension (not in ERD)
-
-| Addition | Table | Rationale |
-|----------|-------|-----------|
-| `password_hash VARCHAR(255) NOT NULL` | Student | Required for auth; documented in `DECISIONS.md` |
-| `Session` table | new | session_id, student_number FK, expires_at, created_at; required for auth |
+| Entity | PK | Key fields |
+|--------|----|-----------|
+| `users` | user_id (int identity) | email UNIQUE, password_hash, first_name, last_name, is_host, student_number? UNIQUE, course?, year_level?, avatar_url? |
+| `session` | session_id (varchar) | user_id FK→users CASCADE, expires_at |
+| `housing` | housing_id (int identity) | owner_id FK→users, name, housing_type, address, lat?, lng?, price_min/max, proximity_to_campus_km? |
+| `room` | room_id (int identity) | housing_id FK CASCADE, room_type, capacity, available_slots, monthly_price |
+| `carinderia` | carinderia_id (int identity) | added_by FK→users, name, address, lat?, lng? |
+| `essential` | essential_id (int identity) | added_by FK→users, name, type, address |
+| `amenity` | name varchar(50) (natural PK) | description |
+| `housing_amenity` | (housing_id, amenity_name) | — |
+| `housing_essential` | (housing_id, essential_id) | distance_km |
+| `housing_carinderia` | (housing_id, carinderia_id) | distance_km |
+| `housing_image` | image_id (int identity) | housing_id FK CASCADE, url, is_primary, sort_order |
+| `room_image` | image_id (int identity) | room_id FK CASCADE, url, is_primary |
+| `carinderia_image` | image_id (int identity) | carinderia_id FK CASCADE, url, is_primary |
+| `review` | review_id (int identity) | reviewer_id FK→users, listing_type, housing_id? FK, carinderia_id? FK, rating, comment |
+| `favorite` | favorite_id (int identity) | user_id FK→users, listing_type, housing_id? FK, carinderia_id? FK |
+| `visit` | visit_id (int identity) | visitor_id FK→users, housing_id FK, scheduled_at, status, note? |
+| `housing_visiting_hours` | id (int identity) | housing_id FK CASCADE, day_of_week, start_time, end_time |
+| `conversation` *(deferred)* | conversation_id | user_one_id FK, user_two_id FK, housing_id? FK |
+| `message` *(deferred)* | message_id | conversation_id FK CASCADE, sender_id FK, body, read_at? |
 
 ---
 
 ## 5. DB-Level Constraints (CMSC 127 depth)
 
-These must be enforced in DDL — not just in application code.
+All enforced in DDL — not just application code. Full list in `SCHEMA.md` constraint index.
 
 | Constraint | Table | Expression |
 |-----------|-------|------------|
-| Rating range | Review | `CHECK (rating BETWEEN 1 AND 5)` |
-| listing_type values | Review, Favorite | `CHECK (listing_type IN ('housing', 'carinderia'))` |
-| Polymorphic XOR — Review | Review | `CHECK ((listing_type = 'housing' AND housing_id IS NOT NULL AND carinderia_id IS NULL) OR (listing_type = 'carinderia' AND carinderia_id IS NOT NULL AND housing_id IS NULL))` |
-| Polymorphic XOR — Favorite | Favorite | Same XOR pattern as Review |
-| No duplicate favorites | Favorite | `UNIQUE (student_number, listing_type, housing_id, carinderia_id)` |
-| Composite PKs | Housing Essential, Housing Amenity | Enforced via compound PRIMARY KEY declarations |
-| Session cascade | Session | `REFERENCES student(student_number) ON DELETE CASCADE` |
-| Auto-dates | Review, Favorite | `DEFAULT CURRENT_DATE` on date_posted / date_saved |
+| Rating range | review | `CHECK (rating BETWEEN 1 AND 5)` |
+| listing_type values | review, favorite | `CHECK (listing_type IN ('housing', 'carinderia'))` |
+| Polymorphic XOR | review, favorite | Exactly one of housing_id / carinderia_id is non-null, matching listing_type |
+| No duplicate favorites | favorite | `UNIQUE (user_id, listing_type, housing_id, carinderia_id)` |
+| Slot range | room | `CHECK (available_slots >= 0)` AND `CHECK (available_slots <= capacity)` |
+| Visit status values | visit | `CHECK (status IN ('pending','confirmed','declined','cancelled'))` |
+| Visiting hours day | housing_visiting_hours | `CHECK (day_of_week BETWEEN 0 AND 6)` |
+| Visiting hours ordering | housing_visiting_hours | `CHECK (end_time > start_time)` |
+| No dup visiting slots | housing_visiting_hours | `UNIQUE (housing_id, day_of_week, start_time)` |
+| Canonical message pair | conversation | `CHECK (user_one_id < user_two_id)` |
+| One thread per pair | conversation | `UNIQUE (user_one_id, user_two_id, housing_id)` |
+| Composite PKs | all junction tables | compound PRIMARY KEY declarations |
+| CASCADE deletes | session, room, images, review, favorite, visit, message | FK ON DELETE CASCADE where child has no value without parent |
+| Auto-timestamps | all mutable tables | `DEFAULT now()` on created_at / updated_at |
 
-### Trigger candidates (showcase for CMSC 127)
-- **Average rating trigger:** After INSERT/UPDATE/DELETE on `Review`, recompute and store average rating on `Housing` or `Carinderia` (requires adding an `avg_rating` column — document as schema extension if implemented).
-- **Room availability trigger:** After INSERT/UPDATE on `Student.room_id`, update `Room.is_available` based on current occupant count vs. capacity.
+### Trigger candidates *(optional showcase)*
 
-> These are optional showcases — implement only if time allows. Mark as such in `PHASES.md`.
+- **Auto updated_at:** AFTER UPDATE on any mutable table → set `updated_at = now()`.
+- **Average rating:** AFTER INSERT/UPDATE/DELETE on `review` → recompute `AVG(rating)` on the parent housing or carinderia (requires adding `avg_rating NUMERIC(3,2)` column — log in DECISIONS.md if implemented).
 
 ---
 
 ## 6. V1 Non-Goals
 
-These are explicitly out of scope for the initial submission. They may be addressed in a revised PRD.
-
-| Non-goal | Reason deferred |
-|----------|----------------|
-| Housing / carinderia photos | No image columns in ERD; storage setup adds scope. Flagged for revised PRD. |
-| Owner-facing portal | No property owner entity in ERD; admin scope too large for 5 days. |
-| Admin moderation | No admin role in ERD. |
-| Maps / geolocation UI | proximity_to_campus_km is a numeric field — no lat/lng in ERD. |
-| Messaging / inquiries | No messaging entity in ERD. |
+| Non-goal | Reason |
+|----------|--------|
+| Real file upload for images | Requires object storage (S3/Supabase Storage) — out of 5-day scope. Hosts enter image URLs manually in v1. |
+| Real proprietor accounts for carinderias | Contributor model (`added_by`) is sufficient. Real owners have no incentive to register. |
+| Messaging UI | Schema designed and in DB; UI implementation is a named stretch phase. |
+| Admin / moderation panel | No admin role in v1. |
+| Email notifications | No email infra in stack. |
+| Real embedded map widget | lat/lng stored; UI renders a Google Maps link (`?q=lat,lng`) only. Full embed is post-v1. |
+| Server-side pagination | v1 loads all results; optimize post-submission. |
 | Social features (likes, shares) | Out of course scope. |
-| Pagination (server-side) | v1 can load all results; optimize post-submission. |
-| Email notifications | No email infra in ERD or stack. |
 
 ---
 
@@ -163,20 +198,24 @@ For CMSC 127 submission purposes:
 
 | Metric | Target |
 |--------|--------|
-| All ERD tables created with correct types | 100% |
-| All DB-level constraints present in DDL | 100% (see Section 5) |
-| Auth flow works end-to-end | Register → login → protected action → logout |
-| Housing + Carinderia directory browsable | Both listing and detail pages functional |
+| All 21 ERD tables created with correct types | 100% |
+| All DB-level constraints present in DDL | 100% (Section 5) |
+| Auth flow end-to-end | Register → login → protected action → logout |
+| Housing directory browsable | Listing + detail pages functional with rooms, images, amenities |
+| Carinderia directory browsable | Listing + detail pages functional |
+| Host can create and manage a listing | Housing + rooms + images + visiting hours |
 | Reviews submittable and displayed | Rating + comment visible on detail page |
 | Favorites saveable and listed | Toggle works; favorites page shows saved items |
-| Search returns relevant results | At least one filter per listing type works |
-| UI is polished | Consistent design system (shadcn/ui), no broken layouts |
+| Search returns relevant results | At least text search + one filter per listing type |
+| UI polished | Consistent shadcn/ui design, no broken layouts |
 
 ---
 
-## 8. Open Questions (pending revised PRD)
+## 8. Open Questions
 
-- Will photo/image attributes be added to Housing and/or Carinderia?
-- Should `listing_type` be normalized into a lookup table, or remain a CHECK-constrained varchar?
-- Should students be able to edit or delete their own reviews?
-- Is a room assignment workflow (assign student to a room) in scope, or is `Student.room_id` populated only by admin/seed data?
+| Question | Status |
+|----------|--------|
+| Should users be able to edit their own reviews? | Assumed yes — include in Phase 5 |
+| Geocoding strategy — how do owners enter lat/lng? | Manual input in v1; coordinate picker post-v1 |
+| `listing_type` normalization if a third type is added | Deferred — current CHECK is sufficient for v1 |
+| Image URLs — hosted where? | Owner enters any public URL; no storage provisioning in v1 |

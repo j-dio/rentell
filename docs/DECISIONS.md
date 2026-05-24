@@ -130,11 +130,194 @@ must be updated and this decision revisited. Document any such change here.
 
 ---
 
+## #7 — Account generalization: `Student` → `users`
+
+**Date:** 2026-05-24
+**Status:** Accepted
+
+**Context:** The original ERD used `Student` (PK: `student_number`) as the only account entity.
+This prevented non-student landlords from owning listings, and hardwired student identity fields
+(`course`, `year_level`) into what should be a general auth entity.
+
+**Decision:** Replace `Student` with a generalized `users` table. Surrogate PK `user_id INT
+GENERATED ALWAYS AS IDENTITY`. Email as login credential. All student-specific fields
+(`student_number`, `course`, `year_level`, `hometown`) are nullable columns on the same table —
+a landlord simply leaves them blank. `is_host BOOLEAN DEFAULT false` toggles owner access.
+
+**Rejected:**
+- Two separate tables (`Student` + `Owner`) — duplicate auth logic, can't represent a student who
+  is also a host, harder FK fan-out.
+- Inheritance/subtype pattern — no native support in Postgres; requires EAV or joined-table tricks
+  that obscure the schema.
+
+**Consequences:** `student_number` is still present and UNIQUE — a student can still identify
+themselves. The course metric (which course has the most housing searches) is derivable from
+`users.course`. All FK references previously pointing to `student(student_number)` now point to
+`users(user_id)`.
+
+---
+
+## #8 — Drop occupancy; replace with `room.available_slots`
+
+**Date:** 2026-05-24
+**Status:** Accepted
+
+**Context:** The original ERD had `Student.room_id FK→room` to record which room a student
+occupies. Two problems: (1) tenancy negotiation is off-platform (face-to-face), so the DB
+would be perpetually stale; (2) it tied the account entity to a specific room, preventing
+a student from browsing other options once "placed."
+
+**Decision:** Drop the `occupies` relationship entirely. Replace `room.is_available BOOLEAN`
+with `room.available_slots SMALLINT` — the owner manually updates this as people move in/out.
+Two CHECK constraints enforce integrity: `available_slots >= 0` and `available_slots <= capacity`.
+"Available" rooms at the housing level are a derived `COUNT(*) WHERE available_slots > 0` — never
+stored, so never stale.
+
+**Rejected:** Keeping `is_available` — a boolean gives users less information than a count; a
+room might have 3 beds and 2 still open.
+
+**Consequences:** The platform shows availability counts but never tracks *who* occupies a room.
+Owners are responsible for keeping `available_slots` current. No student→room relationship in the DB.
+
+---
+
+## #9 — User↔listing interaction: "book a visit" instead of apply/accept/reject
+
+**Date:** 2026-05-24
+**Status:** Accepted
+
+**Context:** The original ERD had no user↔listing interaction at all. The team considered an
+"apply to rent" flow (apply → accept/reject). The problem: what criteria determine acceptance?
+The platform would need to arbitrate tenancy, which is legally and practically out of scope.
+
+**Decision:** Implement a "book a visit" flow. A user selects a date/time and submits a `visit`
+row (`visitor_id`, `housing_id`, `scheduled_at`, `status`, `note`). The owner confirms or
+declines. Actual tenancy is negotiated face-to-face after the visit. A companion table
+`housing_visiting_hours` lets owners declare their available days/times so students only request
+slots that make sense.
+
+**Rejected:** Apply/accept/reject tenancy — would require income verification, documentation
+upload, and legal liability; far exceeds the 5-day scope.
+
+**Consequences:** The visit workflow is a stretch phase (after the directory MVP). The schema
+is built now so no migration is needed when it's implemented.
+
+---
+
+## #10 — Carinderia/essential ownership: contributor `added_by`, no proprietor login
+
+**Date:** 2026-05-24
+**Status:** Accepted
+
+**Context:** Carinderias and essentials are real-world POIs near student housing. Who adds them
+to the system? Requiring actual eatery/shop owners to register and log in would add onboarding
+friction for businesses with no direct incentive.
+
+**Decision:** Any logged-in user (student or host) can add a carinderia or essential. `added_by`
+records the *contributor* (who entered the row), not the real-world proprietor. Carinderias are
+first-class: reviewable, favoritable, have their own image table, and can be attached to multiple
+housings via `housing_carinderia`. Essentials are a shared reference catalog (not reviewable).
+
+**Rejected:**
+- Admin/seed-only — requires an admin role and manual curation we don't have capacity to build.
+- Real-owner claim with nullable `owner_id` — over-engineered for a 5-day build.
+
+**Consequences:** Data quality is crowd-sourced. Duplicate entries are possible (two users add
+the same carinderia). A future moderation or de-duplication pass can address this post-v1.
+Real proprietors never need to interact with the platform.
+
+---
+
+## #11 — `housing_carinderia` junction (new)
+
+**Date:** 2026-05-24
+**Status:** Accepted
+
+**Context:** Hosts want to list nearby carinderias to make their listing more attractive.
+Two options: (a) copy carinderia fields into the housing listing, or (b) link via a junction.
+
+**Decision:** New `housing_carinderia` junction table — composite PK `(housing_id, carinderia_id)`,
+plus `distance_km`. Mirrors the existing `housing_essential` pattern. Carinderias live in their
+own table once; a housing can link to many, and a carinderia can appear near many housings.
+
+**Rejected:** Copying carinderia data into the housing row — denormalized, can't be reviewed
+independently, no shared identity across housings.
+
+**Consequences:** Carinderia data is entered once into the `carinderia` table and referenced by
+any number of housings. Owners manage the links via the housing_carinderia junction.
+
+---
+
+## #12 — Coordinates: `latitude`/`longitude` columns now, embedded map deferred
+
+**Date:** 2026-05-24
+**Status:** Accepted
+
+**Context:** Maps are important for a housing directory but full map embed (Google Maps API,
+Mapbox) adds auth, billing, and complexity beyond the 5-day scope.
+
+**Decision:** Add `latitude NUMERIC(9,6)` and `longitude NUMERIC(9,6)` to `housing`, `carinderia`,
+and `essential` now. In the UI, render a simple Google Maps link
+(`https://maps.google.com/?q=lat,lng`) — no embed, no API key needed. A real embedded map widget
+is a post-v1 feature.
+
+**Rejected:** Storing coordinates only as a text address — requires geocoding on read, no
+coordinate-based proximity queries possible.
+
+**Consequences:** The schema is map-ready. Proximity queries (`ORDER BY distance`) are possible
+once coordinates are populated. Owners enter coordinates manually for now (or the team pre-seeds
+via a geocoding script).
+
+---
+
+## #13 — Per-entity image tables instead of a generic `media` table
+
+**Date:** 2026-05-24
+**Status:** Accepted
+
+**Context:** Images are needed for housing listings, individual rooms, and carinderias. Two
+structural options: one generic `media` table (polymorphic, entity_type + entity_id) or separate
+tables per entity (`housing_image`, `room_image`, `carinderia_image`).
+
+**Decision:** Separate tables per entity. Each has: `image_id PK`, parent FK with CASCADE delete,
+`url TEXT`, `caption`, `is_primary BOOLEAN`, and `created_at`. `housing_image` adds `sort_order`
+for gallery control. User profile pictures use `users.avatar_url TEXT` — no separate table.
+
+**Rejected:** Generic `media` table — same polymorphic pattern pitfalls as a single listing table
+(no FK enforcement on entity_id, harder to query, no type safety).
+
+**Consequences:** Three image tables to maintain, but each has a clean FK to its parent and
+CASCADE delete (delete housing → images gone). Adding a new entity type later requires a new
+image table — acceptable trade-off.
+
+---
+
+## #14 — Messaging: design now, implement later
+
+**Date:** 2026-05-24
+**Status:** Accepted
+
+**Context:** Direct messaging between students and hosts is a desirable feature. The question
+was whether to design and build it in v1, design only, or omit entirely.
+
+**Decision:** Design the schema now (`conversation` + `message` tables), skip the UI in v1.
+`conversation` uses a canonical pair ordering CHECK (`user_one_id < user_two_id`) + UNIQUE
+`(user_one_id, user_two_id, housing_id)` to prevent duplicate threads. `message.read_at` is
+nullable (NULL = unread).
+
+**Rejected:** Omitting the schema — would require a breaking migration later. Building the UI in
+v1 — messaging is a stretch feature; the MVP is the directory + auth + reviews + visits.
+
+**Consequences:** Tables exist in the DB from day one. Implementation is a named stretch phase.
+The canonical pair ordering means inserting a conversation always requires sorting user IDs:
+`user_one_id = MIN(a, b)`, `user_two_id = MAX(a, b)`.
+
+---
+
 ## Pending decisions
 
 | # | Topic | Status |
 |---|-------|--------|
-| — | Image/photo attributes for Housing and Carinderia | Open — pending revised PRD |
-| — | Whether students can edit or delete their own reviews | Open — pending revised PRD |
-| — | Room assignment workflow (admin vs. self-service) | Open — pending revised PRD |
+| — | Whether users can edit or delete their own reviews | Open — pending PRD update |
 | — | `listing_type` normalization if a third listing type is added | Deferred to post-v1 |
+| — | Geocoding strategy (who enters lat/lng, any automation?) | Open — pending Phase 3 |

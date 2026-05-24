@@ -12,23 +12,26 @@
 
 ## Phase Overview
 
-| # | Phase | Suggested Day | Status |
-|---|-------|--------------|--------|
-| 0 | Project Setup & Config | Day 1 AM | [ ] Not started |
-| 1 | Database Schema (DDL) | Day 1 PM | [ ] Not started |
-| 2 | Auth | Day 2 | [ ] Not started |
-| 3 | Core Directory | Day 3 | [ ] Not started |
-| 4 | Reviews & Ratings | Day 4 AM | [ ] Not started |
-| 5 | Favorites | Day 4 PM | [ ] Not started |
-| 6 | Search & Filter | Day 5 AM | [ ] Not started |
-| 7 | UI Polish | Day 5 PM | [ ] Not started |
-| 8 | Trigger Showcases *(optional)* | Day 5 evening | [ ] Not started |
+| # | Phase | Suggested Day | Scope | Status |
+|---|-------|--------------|-------|--------|
+| 0 | Project Setup & Config | Day 1 AM | MVP | [ ] Not started |
+| 1 | Database Schema (DDL) | Day 1 PM | MVP | [ ] Not started |
+| 2 | Auth | Day 2 AM | MVP | [ ] Not started |
+| 3 | Core Directory | Day 2 PM – Day 3 AM | MVP | [ ] Not started |
+| 4 | Host Portal | Day 3 PM | MVP | [ ] Not started |
+| 5 | Reviews & Ratings | Day 4 AM | MVP | [ ] Not started |
+| 6 | Favorites | Day 4 PM | MVP | [ ] Not started |
+| 7 | Search & Filter | Day 5 AM | MVP | [ ] Not started |
+| 8 | UI Polish | Day 5 PM | MVP | [ ] Not started |
+| 9 | Book a Visit | If time permits | Stretch | [ ] Not started |
+| 10 | Trigger Showcases | If time permits | Stretch | [ ] Not started |
+| 11 | Messaging UI | Post-submission | Stretch | [ ] Not started |
 
 ---
 
 ## Phase 0 — Project Setup & Configuration
 
-**Goal:** Working Next.js app connected to Neon. Every team member can run the project and query the database.
+**Goal:** Working Next.js app connected to Neon. Every team member can run the project and query the DB.
 
 **PRD ref:** N/A (prerequisite)
 
@@ -37,193 +40,233 @@
 - `next.config.ts`
 - `.env.local` — `DATABASE_URL`, `SESSION_SECRET` (never commit)
 - `.gitignore` — must include `.env.local`
-- `lib/db.ts` — single exported `sql` client (postgres.js instance, shared across the app)
+- `lib/db.ts` — single exported `sql` client (postgres.js instance)
 - `tailwind.config.ts`, `postcss.config.js`
 
 ### Acceptance criteria
 - [ ] `npm run dev` starts with no errors
-- [ ] `lib/db.ts` exports a working `sql` client; a test query `SELECT 1` returns successfully
+- [ ] `lib/db.ts` exports a working `sql` client; `SELECT 1` returns successfully
 - [ ] `.env.local` is in `.gitignore` and never pushed
 - [ ] All 5 team members have cloned the repo, copied `.env.local`, and can run `npm run dev`
-- [ ] DBeaver (or equivalent) connected to Neon for all team members
+- [ ] DBeaver (or equivalent) connected to Neon for at least the 2 technical members
 
 ---
 
 ## Phase 1 — Database Schema (DDL)
 
-**Goal:** All tables created in Neon with correct column types, primary keys, foreign keys, and constraints. Seed data loaded.
+**Goal:** All 21 tables created in Neon with correct column types, PKs, FKs, and constraints. Seed data loaded.
 
 **PRD ref:** Section 4 (Data Model), Section 5 (DB-Level Constraints)
 
-### Tables created
-All tables from ERD + schema extensions:
+### Tables (creation order — respects FK dependencies)
 
-| Table | Source |
+| Group | Tables |
 |-------|--------|
-| `student` | ERD + `password_hash` extension |
-| `housing` | ERD |
-| `room` | ERD |
-| `carinderia` | ERD |
-| `essential` | ERD |
-| `amenity` | ERD |
-| `housing_essential` | ERD junction |
-| `housing_amenity` | ERD junction |
-| `review` | ERD |
-| `favorite` | ERD |
-| `session` | Schema extension (auth) |
+| Accounts | `users`, `session` |
+| Listings | `housing`, `room`, `carinderia`, `essential` |
+| Catalog | `amenity` |
+| Junctions | `housing_amenity`, `housing_essential`, `housing_carinderia` |
+| Media | `housing_image`, `room_image`, `carinderia_image` |
+| Reviews & Favorites | `review`, `favorite` |
+| Visits | `housing_visiting_hours`, `visit` |
+| Messaging (schema only) | `conversation`, `message` |
 
 ### Files
-- `db/schema.sql` — full DDL: all CREATE TABLE statements, constraints, defaults
-- `db/seed.sql` — 3–5 housing records, 2–3 carinderia records, sample amenities/essentials, 1–2 test students
+- `db/schema.sql` — full DDL in dependency order (copy from `SCHEMA.md` Full DDL section)
+- `db/seed.sql` — 3–5 housing records (with rooms + images + amenities), 2–3 carinderia records, sample essentials, 2 test users (one student, one host)
 
-### Constraints to include (from PRD Section 5)
+### Constraints to verify after running DDL
+- `available_slots >= 0` AND `available_slots <= capacity` on `room`
 - `CHECK (rating BETWEEN 1 AND 5)` on `review`
-- `CHECK (listing_type IN ('housing', 'carinderia'))` on `review` and `favorite`
-- XOR CHECK on `review`: exactly one of `housing_id` / `carinderia_id` is non-null, matching `listing_type`
-- XOR CHECK on `favorite`: same pattern
-- `UNIQUE (student_number, listing_type, housing_id, carinderia_id)` on `favorite`
-- `DEFAULT CURRENT_DATE` on `review.date_posted` and `favorite.date_saved`
-- `DEFAULT NOW()` on `session.created_at`
-- Composite PKs on `housing_essential` and `housing_amenity`
-- `session.student_number REFERENCES student(student_number) ON DELETE CASCADE`
+- XOR CHECK on `review` and `favorite`
+- `UNIQUE (user_id, listing_type, housing_id, carinderia_id)` on `favorite`
+- `CHECK (status IN (...))` on `visit`
+- `CHECK (end_time > start_time)` on `housing_visiting_hours`
+- `CHECK (user_one_id < user_two_id)` on `conversation`
 
 ### Acceptance criteria
-- [ ] All 11 tables visible in DBeaver/Neon console
-- [ ] `\d tablename` (or DBeaver table inspector) shows all columns, types, PKs, FKs
-- [ ] Inserting a review with `rating = 0` or `rating = 6` is rejected by DB
-- [ ] Inserting a review with both `housing_id` and `carinderia_id` non-null is rejected
-- [ ] Inserting a duplicate favorite (same student + listing) is rejected
-- [ ] Seed data is queryable: `SELECT * FROM housing` returns rows
+- [ ] All 21 tables visible in DBeaver / Neon console
+- [ ] `available_slots = -1` on room insert is rejected
+- [ ] `rating = 6` on review insert is rejected
+- [ ] Review with both `housing_id` and `carinderia_id` non-null is rejected
+- [ ] Duplicate favorite (same user + listing) is rejected
+- [ ] `end_time < start_time` on visiting_hours insert is rejected
+- [ ] Seed data queryable: `SELECT * FROM housing` returns rows
 
 ---
 
 ## Phase 2 — Auth
 
-**Goal:** Students can register, log in, and log out. Session stored in DB. Protected routes redirect unauthenticated users.
+**Goal:** Users can register, log in, and log out. Session stored in DB. Protected routes redirect unauthenticated users.
 
 **PRD ref:** Section 3.1
 
 ### Files
 - `lib/auth.ts` — `hashPassword`, `verifyPassword` (bcryptjs wrappers)
-- `lib/session.ts` — `createSession`, `getSession`, `deleteSession` (jose + DB queries against `session` table)
-- `app/api/auth/register/route.ts` — POST: validate input (Zod), insert Student row, hash password
-- `app/api/auth/login/route.ts` — POST: lookup student, verify hash, INSERT session row, set cookie
+- `lib/session.ts` — `createSession`, `getSession`, `deleteSession` (jose + DB queries on `session` table)
+- `app/api/auth/register/route.ts` — POST: Zod validate, INSERT users row, hash password
+- `app/api/auth/login/route.ts` — POST: lookup by email, verify hash, INSERT session, set cookie
 - `app/api/auth/logout/route.ts` — POST: DELETE session row, clear cookie
 - `middleware.ts` — redirect unauthenticated requests on protected paths
 - `app/(auth)/register/page.tsx` — registration form (shadcn/ui Form)
 - `app/(auth)/login/page.tsx` — login form (shadcn/ui Form)
-- `components/UserNav.tsx` — shows student name + logout button when logged in
+- `components/UserNav.tsx` — shows user name + logout button when logged in
 
 ### Tables touched
-`student` (INSERT, SELECT), `session` (INSERT, SELECT, DELETE)
+`users` (INSERT, SELECT), `session` (INSERT, SELECT, DELETE)
 
 ### Acceptance criteria
-- [ ] New student can register; row appears in `student` table with hashed (not plain-text) password
-- [ ] Registered student can log in; row appears in `session` table; cookie is set
+- [ ] New user can register; row appears in `users` table with hashed (not plain-text) password
+- [ ] Registered user can log in; row appears in `session` table; cookie is set
 - [ ] Navigating to a protected page without a session redirects to `/login`
 - [ ] Logging out deletes the session row; cookie is cleared
-- [ ] Registering with an already-used `student_number` returns an error (PK violation handled gracefully)
-- [ ] Zod validates all required fields on register and login before touching the DB
+- [ ] Registering with a duplicate email returns an error (UNIQUE violation handled gracefully)
+- [ ] Zod validates all required fields before touching the DB
 
 ---
 
 ## Phase 3 — Core Directory
 
-**Goal:** Housing and Carinderia listing pages (browse) and detail pages (full info) are functional.
+**Goal:** Housing and Carinderia listing and detail pages are functional for public browse.
 
 **PRD ref:** Sections 3.2, 3.3
 
 ### Files
-- `lib/queries/housing.ts` — `getAllHousing()`, `getHousingById(id)` (raw SQL via `lib/db.ts`)
+- `lib/queries/housing.ts` — `getAllHousing()`, `getHousingById(id)`
 - `lib/queries/carinderia.ts` — `getAllCarinderias()`, `getCarinderiaById(id)`
-- `app/(directory)/housing/page.tsx` — listing page: cards with name, type, price range, proximity, avg rating
-- `app/(directory)/housing/[id]/page.tsx` — detail page: all Housing fields + room list + amenities + nearby essentials + reviews (reviews displayed, not writable yet)
-- `app/(directory)/carinderias/page.tsx` — listing page: cards with name, address, avg rating
-- `app/(directory)/carinderias/[id]/page.tsx` — detail page: all Carinderia fields + reviews
+- `app/(directory)/housing/page.tsx` — listing page: cards with name, type, price range, proximity, primary image, avg rating
+- `app/(directory)/housing/[id]/page.tsx` — detail: all fields + room list (with available_slots) + amenities + nearby carinderias + nearby essentials + photo gallery + reviews section
+- `app/(directory)/carinderias/page.tsx` — listing page: cards with name, address, primary image, avg rating
+- `app/(directory)/carinderias/[id]/page.tsx` — detail: all fields + photo gallery + reviews section
 - `components/HousingCard.tsx`, `components/CarinderiaCard.tsx`
-- `components/RoomList.tsx`, `components/AmenityList.tsx`, `components/EssentialList.tsx`
+- `components/RoomList.tsx`, `components/AmenityList.tsx`, `components/NearbyList.tsx`
+- `components/ImageGallery.tsx`
 - `app/layout.tsx` — shared nav (links to Housing, Carinderias, Login/Register or UserNav)
 
 ### Tables touched
-`housing`, `room`, `carinderia`, `essential`, `amenity`, `housing_essential`, `housing_amenity`
+`housing`, `room`, `carinderia`, `essential`, `amenity`, `housing_amenity`, `housing_essential`, `housing_carinderia`, `housing_image`, `room_image`, `carinderia_image`
 
 ### Key SQL patterns
-- Detail page housing query: JOIN `room`, JOIN `housing_amenity` + `amenity`, JOIN `housing_essential` + `essential`
-- Average rating: subquery `(SELECT AVG(rating) FROM review WHERE housing_id = $1)`
+- Detail page housing: JOIN room, JOIN housing_amenity + amenity, JOIN housing_carinderia + carinderia, JOIN housing_essential + essential, JOIN housing_image
+- Avg rating: subquery `(SELECT AVG(rating) FROM review WHERE housing_id = $1 AND listing_type = 'housing')`
+- Primary image: `WHERE is_primary = true LIMIT 1` (fallback to first image if none marked primary)
+- Available rooms count: `SELECT COUNT(*) FROM room WHERE housing_id = $1 AND available_slots > 0`
 
 ### Acceptance criteria
-- [ ] `/housing` lists all housing records from DB; each card shows name, type, price range, proximity, rating
-- [ ] `/housing/[id]` shows full detail for one Housing record including rooms, amenities, essentials
+- [ ] `/housing` lists all housing records; each card shows name, type, price range, proximity, image, avg rating
+- [ ] `/housing/[id]` shows full detail including rooms with available_slots, amenities, nearby places, gallery
 - [ ] `/carinderias` lists all carinderia records
-- [ ] `/carinderias/[id]` shows full carinderia detail
+- [ ] `/carinderias/[id]` shows full carinderia detail with gallery
 - [ ] All queries are raw SQL in `lib/queries/` — no ORM calls
-- [ ] Pages work for unauthenticated users (public browse)
+- [ ] Pages work for unauthenticated users
 
 ---
 
-## Phase 4 — Reviews & Ratings
+## Phase 4 — Host Portal
 
-**Goal:** Authenticated students can submit reviews for Housing and Carinderia listings. Reviews display on detail pages.
+**Goal:** Users with `is_host = true` can create and manage housing listings, rooms, images, visiting hours, and nearby-place links.
 
 **PRD ref:** Section 3.4
 
 ### Files
-- `lib/queries/reviews.ts` — `getReviewsByHousing(id)`, `getReviewsByCarinderia(id)`, `createReview(data)`
-- `app/api/reviews/route.ts` — POST: auth check, Zod validate, INSERT into `review`
-- `components/ReviewForm.tsx` — star rating selector (1–5) + comment textarea + submit; shown only when logged in
-- `components/ReviewList.tsx` — renders list of reviews with student name, rating, comment, date
-- Update `app/(directory)/housing/[id]/page.tsx` — include ReviewForm + ReviewList
-- Update `app/(directory)/carinderias/[id]/page.tsx` — include ReviewForm + ReviewList
+- `lib/queries/host.ts` — `createHousing`, `updateHousing`, `deleteHousing`, `createRoom`, `updateRoom`, `deleteRoom`, `addHousingImage`, `removeHousingImage`, `setVisitingHours`, `linkCarinderia`, `unlinkCarinderia`, `linkEssential`, `unlinkEssential`, `tagAmenity`, `untagAmenity`
+- `app/api/host/housing/route.ts` — POST (create), GET (list own)
+- `app/api/host/housing/[id]/route.ts` — PUT (update), DELETE
+- `app/api/host/housing/[id]/rooms/route.ts` — POST, PUT, DELETE
+- `app/api/host/housing/[id]/images/route.ts` — POST (add URL), DELETE
+- `app/api/host/housing/[id]/visiting-hours/route.ts` — POST, DELETE
+- `app/api/host/housing/[id]/nearby/route.ts` — POST/DELETE for carinderia + essential links
+- `app/(host)/dashboard/page.tsx` — lists owner's housing listings
+- `app/(host)/dashboard/new/page.tsx` — create housing form
+- `app/(host)/dashboard/[id]/page.tsx` — manage a single listing (rooms, images, hours, nearby, amenities)
+- `components/host/RoomForm.tsx`, `ImageURLForm.tsx`, `VisitingHoursForm.tsx`, `NearbyAttachForm.tsx`
+- `app/profile/page.tsx` — profile page with "Become a host" toggle (sets `is_host = true`)
 
 ### Tables touched
-`review` (INSERT, SELECT), `student` (SELECT name for display)
+`housing`, `room`, `housing_image`, `room_image`, `housing_visiting_hours`, `housing_amenity`, `housing_essential`, `housing_carinderia`, `users` (is_host update)
+
+### Notes
+- Images stored as URLs only — no file upload in v1. Hosts paste a public image URL.
+- Only the listing's `owner_id` may edit it (enforce in API: `WHERE owner_id = session.user_id`).
 
 ### Acceptance criteria
-- [ ] Logged-in student can submit a review; row appears in `review` table
-- [ ] Rating outside 1–5 is rejected by the DB CHECK constraint (test with direct insert)
-- [ ] Review appears immediately on the listing detail page after submission
-- [ ] Unauthenticated users see reviews but not the form
-- [ ] `listing_type` + XOR FK are correctly set by the API (housing or carinderia, not both)
-- [ ] Reviewer's `first_name` and `last_name` display alongside the review
+- [ ] User can toggle `is_host` from profile; `users.is_host` updates in DB
+- [ ] Host can create a housing listing; row appears in `housing` table with correct `owner_id`
+- [ ] Host can add/edit/delete rooms; `available_slots` is editable and constrained by DB CHECK
+- [ ] Host can add image URLs; rows appear in `housing_image`
+- [ ] Host can set visiting hours; rows appear in `housing_visiting_hours`; duplicate slot is rejected
+- [ ] Host can link carinderias and essentials to their listing with distance_km
+- [ ] Non-owner cannot edit another host's listing (returns 403)
+- [ ] Newly created listing appears on public `/housing` page
 
 ---
 
-## Phase 5 — Favorites
+## Phase 5 — Reviews & Ratings
 
-**Goal:** Authenticated students can save and unsave listings. A dedicated favorites page shows all saved items.
+**Goal:** Authenticated users can submit, edit, and delete reviews for Housing and Carinderia listings.
 
 **PRD ref:** Section 3.5
 
 ### Files
-- `lib/queries/favorites.ts` — `getFavoritesByStudent(student_number)`, `addFavorite(data)`, `removeFavorite(data)`, `isFavorited(student_number, listingType, id)`
-- `app/api/favorites/route.ts` — POST (add), DELETE (remove): auth check, Zod validate, INSERT/DELETE `favorite`
-- `components/FavoriteButton.tsx` — heart/bookmark toggle; calls API; shown only when logged in
-- `app/favorites/page.tsx` — protected page; lists all saved listings with type badge + date_saved; links to detail pages
+- `lib/queries/reviews.ts` — `getReviewsByHousing(id)`, `getReviewsByCarinderia(id)`, `createReview`, `updateReview`, `deleteReview`
+- `app/api/reviews/route.ts` — POST: auth check, Zod validate, INSERT review
+- `app/api/reviews/[id]/route.ts` — PUT (update), DELETE: auth check, verify reviewer_id = session user
+- `components/ReviewForm.tsx` — star selector (1–5) + comment textarea; shown only when logged in
+- `components/ReviewList.tsx` — reviewer name, rating, comment, date; edit/delete buttons for own reviews
+- Update `app/(directory)/housing/[id]/page.tsx` — include ReviewForm + ReviewList
+- Update `app/(directory)/carinderias/[id]/page.tsx` — include ReviewForm + ReviewList
+
+### Tables touched
+`review` (INSERT, SELECT, UPDATE, DELETE), `users` (SELECT name for display)
+
+### Acceptance criteria
+- [ ] Logged-in user can submit a review; row appears in `review` table
+- [ ] `rating = 0` or `rating = 6` is rejected by DB CHECK
+- [ ] Review appears on listing detail page after submission
+- [ ] Unauthenticated users see reviews but not the form
+- [ ] User can edit their own review; updated_at changes
+- [ ] User can delete their own review; row removed from DB
+- [ ] User cannot edit or delete another user's review (403)
+- [ ] XOR FK is correctly set (housing or carinderia, not both)
+
+---
+
+## Phase 6 — Favorites
+
+**Goal:** Authenticated users can save and unsave listings. A dedicated favorites page shows all saved items.
+
+**PRD ref:** Section 3.6
+
+### Files
+- `lib/queries/favorites.ts` — `getFavoritesByUser(user_id)`, `addFavorite`, `removeFavorite`, `isFavorited`
+- `app/api/favorites/route.ts` — POST (add), DELETE (remove): auth check, Zod validate
+- `components/FavoriteButton.tsx` — heart toggle; calls API; shown only when logged in
+- `app/favorites/page.tsx` — protected; lists all saved listings with type badge and date; links to detail pages
 - Update Housing and Carinderia listing/detail pages to include `FavoriteButton`
 
 ### Tables touched
 `favorite` (INSERT, SELECT, DELETE), `housing` (SELECT for display), `carinderia` (SELECT for display)
 
 ### Acceptance criteria
-- [ ] Logged-in student can save a listing; row appears in `favorite` table
-- [ ] Saving the same listing twice is rejected by the UNIQUE constraint (handled gracefully in UI)
-- [ ] Unsaving removes the row from `favorite`
-- [ ] `/favorites` shows all saved listings for the current student only
-- [ ] Unauthenticated users cannot access `/favorites` (redirected to login)
+- [ ] Logged-in user can save a listing; row appears in `favorite` table
+- [ ] Saving the same listing twice is rejected by UNIQUE constraint (handled gracefully in UI)
+- [ ] Unsaving removes the row
+- [ ] `/favorites` shows all saved listings for the current user only
+- [ ] Unauthenticated access to `/favorites` redirects to login
 - [ ] `FavoriteButton` reflects current saved state on page load
 
 ---
 
-## Phase 6 — Search & Filter
+## Phase 7 — Search & Filter
 
-**Goal:** Students can search listings by text and filter Housing by type, price range, proximity, and amenities.
+**Goal:** Users can search listings by text and filter Housing by type, price, proximity, and amenities.
 
-**PRD ref:** Section 3.6
+**PRD ref:** Section 3.7
 
 ### Files
 - `lib/queries/search.ts` — parameterized SQL with dynamic WHERE clauses for housing and carinderia
 - `components/SearchBar.tsx` — text input, updates URL query params
-- `components/HousingFilterPanel.tsx` — housing_type select, price range inputs, proximity slider, amenity checkboxes, sort select
+- `components/HousingFilterPanel.tsx` — housing_type select, price range, proximity range, amenity checkboxes, available-only toggle, sort select
 - Update `app/(directory)/housing/page.tsx` — read URL search params, pass to query, render FilterPanel
 - Update `app/(directory)/carinderias/page.tsx` — text search only in v1
 
@@ -231,61 +274,115 @@ All tables from ERD + schema extensions:
 `housing`, `carinderia`, `housing_amenity` (JOIN for amenity filter), `review` (subquery for avg rating sort)
 
 ### Key SQL pattern
-Build parameterized WHERE clause server-side — never interpolate unsanitized user input. Use the `postgres` tagged-template approach for all dynamic values.
+Build parameterized WHERE clause server-side. Never interpolate unsanitized user input — use postgres.js tagged-template for all dynamic values.
 
 ### Acceptance criteria
-- [ ] Text search on Housing returns listings matching name, address, or description
+- [ ] Text search on Housing matches name, address, or description
 - [ ] housing_type filter returns only matching types
-- [ ] Price range filter returns listings within the selected min/max
-- [ ] Proximity filter returns listings within the specified km
-- [ ] Sort by proximity and sort by average rating both work
+- [ ] Price range filter works
+- [ ] Proximity filter works
+- [ ] "Available rooms only" filter returns only housing with `available_slots > 0` on at least one room
+- [ ] Sort by proximity and by average rating both work
 - [ ] All filters combinable (AND logic)
-- [ ] Empty results state displays a helpful message
-- [ ] Text search on Carinderia returns matching carinderias
+- [ ] Empty results shows a helpful message
+- [ ] Text search on Carinderia returns matching results
 
 ---
 
-## Phase 7 — UI Polish
+## Phase 8 — UI Polish
 
-**Goal:** Consistent, polished design across all pages. Loading states, empty states, and error messages present. Responsive on common screen sizes.
+**Goal:** Consistent, polished design across all pages. Loading states, empty states, and error messages present.
 
 **PRD ref:** Section 7 (success metrics — UI polished)
 
 ### Files
 - `app/layout.tsx` — finalize nav, footer, global font
 - `app/globals.css` — Tailwind base, custom tokens if any
-- All page and component files — add `loading.tsx` / `error.tsx` siblings where missing
-- `components/ui/` — verify shadcn/ui component usage is consistent (no mixed raw HTML tables and shadcn cards)
-- `components/RatingStars.tsx` — visual star display for average ratings on cards
+- All page files — add `loading.tsx` / `error.tsx` siblings where missing
+- `components/ui/` — verify consistent shadcn/ui usage
+- `components/RatingStars.tsx` — visual star display for average ratings on cards and detail pages
 
 ### Acceptance criteria
-- [ ] All pages use shadcn/ui components consistently (no unstyled raw `<table>` or `<button>`)
-- [ ] Each page that fetches data has a loading state (Next.js `loading.tsx` or Suspense)
+- [ ] All pages use shadcn/ui components consistently
+- [ ] Each data-fetching page has a loading state
 - [ ] Each listing page has an empty-state message when no results exist
-- [ ] Form errors display inline (Zod validation messages surface in the UI)
-- [ ] Nav shows correct state: login/register links when logged out; student name + logout when logged in
-- [ ] Layout does not break at 768px (tablet) and 1280px (desktop) widths
+- [ ] Form errors display inline (Zod messages surfaced in UI)
+- [ ] Nav shows correct state (logged out vs logged in)
+- [ ] Layout holds at 768px (tablet) and 1280px (desktop)
+- [ ] No console errors on any page
 
 ---
 
-## Phase 8 — Trigger Showcases *(optional — only if time permits)*
+## Phase 9 — Book a Visit *(stretch)*
 
-**Goal:** Demonstrate DB-level automation with PostgreSQL triggers for extra CMSC 127 depth.
+**Goal:** Students can request a visit to a housing listing; owners confirm or decline.
+
+**PRD ref:** Section 3.8
+
+### Files
+- `lib/queries/visits.ts` — `createVisit`, `getVisitsByHousing(id)`, `getVisitsByUser(id)`, `updateVisitStatus`
+- `app/api/visits/route.ts` — POST: auth check, Zod validate, INSERT visit
+- `app/api/visits/[id]/route.ts` — PUT (status update): auth check, verify owner or visitor
+- `components/VisitRequestForm.tsx` — date/time picker + note; shown on housing detail when logged in
+- `app/(host)/dashboard/[id]/visits/page.tsx` — owner view: list of pending/confirmed visits; confirm/decline buttons
+- `app/visits/page.tsx` — visitor view: own visit requests and their statuses
+- Update `app/(directory)/housing/[id]/page.tsx` — add VisitRequestForm + display visiting hours
+
+### Tables touched
+`visit` (INSERT, SELECT, UPDATE), `housing_visiting_hours` (SELECT for display), `housing`, `users`
+
+### Acceptance criteria
+- [ ] Logged-in student can submit a visit request; row appears with status `pending`
+- [ ] Invalid status value is rejected by DB CHECK
+- [ ] Owner can confirm or decline a pending visit
+- [ ] Student can cancel their own pending visit
+- [ ] Visiting hours display on housing detail page
+- [ ] Host dashboard lists visits grouped by status
+
+---
+
+## Phase 10 — Trigger Showcases *(stretch)*
+
+**Goal:** Demonstrate DB-level automation with PostgreSQL triggers.
 
 **PRD ref:** Section 5 (Trigger candidates)
 
-### Trigger 1 — Average rating (denormalized)
-- Add `avg_rating NUMERIC(3,2)` column to `housing` and `carinderia` (schema extension — log in `DECISIONS.md`)
-- Create trigger: AFTER INSERT / UPDATE / DELETE on `review` → recompute `AVG(rating)` and UPDATE the parent listing
-- Replaces the subquery approach used in Phase 3
+### Trigger 1 — Auto `updated_at`
+- Function: `SET NEW.updated_at = now()` on BEFORE UPDATE.
+- Apply to: `users`, `housing`, `room`, `carinderia`, `review`, `visit`.
 
-### Trigger 2 — Room availability
-- Create trigger: AFTER INSERT / UPDATE / DELETE on `student` (on `room_id`) → count students in the room; set `room.is_available = (count < capacity)`
+### Trigger 2 — Average rating (denormalized)
+- Add `avg_rating NUMERIC(3,2)` column to `housing` and `carinderia` (log in DECISIONS.md).
+- Trigger: AFTER INSERT / UPDATE / DELETE on `review` → recompute `AVG(rating)`, UPDATE parent.
+- Replaces the subquery used in Phase 3 detail queries.
 
 ### Files
-- `db/triggers.sql` — trigger function definitions and CREATE TRIGGER statements
+- `db/triggers.sql` — all trigger function definitions and CREATE TRIGGER statements
 
 ### Acceptance criteria
-- [ ] Inserting a new review updates `housing.avg_rating` or `carinderia.avg_rating` automatically (verify with SELECT after INSERT)
-- [ ] Assigning a student to a room that is at capacity sets `room.is_available = false`
-- [ ] Triggers survive a Neon connection reset (they are DDL-level, not app-level)
+- [ ] `UPDATE housing SET name = name` changes `updated_at` automatically
+- [ ] Inserting a new review updates `housing.avg_rating` or `carinderia.avg_rating` (verify with SELECT after INSERT)
+- [ ] Deleting a review also recalculates avg_rating correctly
+- [ ] Triggers survive a Neon connection reset (DDL-level, not app-level)
+
+---
+
+## Phase 11 — Messaging UI *(post-submission stretch)*
+
+**Goal:** Direct messaging between students and hosts.
+
+**Note:** `conversation` and `message` tables already exist in the DB from Phase 1. This phase builds only the UI and API layer.
+
+### Files
+- `lib/queries/messages.ts` — `getOrCreateConversation`, `getMessages`, `sendMessage`, `markRead`
+- `app/api/messages/route.ts`, `app/api/messages/[id]/route.ts`
+- `app/messages/page.tsx` — inbox: list conversations
+- `app/messages/[id]/page.tsx` — thread view: message history + send form
+- `components/MessageBubble.tsx`, `components/ConversationList.tsx`
+
+### Acceptance criteria
+- [ ] User can start a conversation with a host from a housing detail page
+- [ ] Messages thread displays in chronological order
+- [ ] `read_at` updates when recipient views the message
+- [ ] `user_one_id < user_two_id` canonical ordering is enforced when creating conversations
+- [ ] User cannot read conversations they are not part of

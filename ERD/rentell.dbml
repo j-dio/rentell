@@ -1,0 +1,250 @@
+// RenTell — Physical ERD (DBML)
+// Paste at https://dbdiagram.io to render the diagram.
+// Surrogate PKs: GENERATED ALWAYS AS IDENTITY (integer).
+// All mutable tables: created_at / updated_at TIMESTAMPTZ DEFAULT now().
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+Enum listing_type {
+  housing
+  carinderia
+}
+
+Enum visit_status {
+  pending
+  confirmed
+  declined
+  cancelled
+}
+
+// ─── Accounts ─────────────────────────────────────────────────────────────────
+
+Table users {
+  user_id     integer     [pk, increment]
+  email       varchar     [unique, not null]
+  password_hash varchar   [not null]
+  first_name  varchar     [not null]
+  last_name   varchar     [not null]
+  phone_number varchar
+  avatar_url  text        [note: 'Profile picture stored as URL; no separate image table']
+  bio         text
+  is_host     boolean     [default: false, not null]
+
+  // Optional student identity fields
+  student_number varchar  [unique, note: 'Null for non-student users']
+  course      varchar
+  year_level  smallint
+  hometown    varchar
+
+  created_at  timestamptz [default: `now()`, not null]
+  updated_at  timestamptz [default: `now()`, not null]
+}
+
+Table session {
+  session_id  varchar     [pk, note: 'Opaque random token (e.g. crypto.randomUUID)']
+  user_id     integer     [not null, ref: > users.user_id]
+  expires_at  timestamptz [not null]
+  created_at  timestamptz [default: `now()`, not null]
+}
+
+// ─── Listings ─────────────────────────────────────────────────────────────────
+
+Table housing {
+  housing_id            integer  [pk, increment]
+  owner_id              integer  [not null, ref: > users.user_id]
+  name                  varchar  [not null]
+  housing_type          varchar  [not null, note: 'dormitory | boarding_house | apartment | other']
+  address               text     [not null]
+  latitude              numeric
+  longitude             numeric
+  monthly_price_min     numeric
+  monthly_price_max     numeric
+  contact_person        varchar
+  contact_number        varchar
+  proximity_to_campus_km numeric
+  description           text
+  created_at            timestamptz [default: `now()`, not null]
+  updated_at            timestamptz [default: `now()`, not null]
+}
+
+Table room {
+  room_id         integer  [pk, increment]
+  housing_id      integer  [not null, ref: > housing.housing_id]
+  room_number     varchar
+  room_type       varchar  [not null, note: 'private | shared | bedspacer']
+  capacity        smallint [not null, note: 'Total beds/slots in the room']
+  available_slots smallint [not null, note: 'Owner-managed open slots (0..capacity). CHECK (available_slots BETWEEN 0 AND capacity). "Available" = available_slots > 0.']
+  monthly_price   numeric  [not null]
+  created_at      timestamptz [default: `now()`, not null]
+  updated_at      timestamptz [default: `now()`, not null]
+}
+
+Table carinderia {
+  carinderia_id integer  [pk, increment]
+  added_by      integer  [not null, ref: > users.user_id, note: 'Contributor attribution — not necessarily the real proprietor']
+  name          varchar  [not null]
+  address       text     [not null]
+  latitude      numeric
+  longitude     numeric
+  description   text
+  created_at    timestamptz [default: `now()`, not null]
+  updated_at    timestamptz [default: `now()`, not null]
+}
+
+Table essential {
+  essential_id integer  [pk, increment]
+  added_by     integer  [not null, ref: > users.user_id, note: 'Contributor attribution']
+  name         varchar  [not null]
+  type         varchar  [not null, note: 'laundry | pharmacy | sari-sari | church | atm | other']
+  address      text     [not null]
+  latitude     numeric
+  longitude    numeric
+  description  text
+  created_at   timestamptz [default: `now()`, not null]
+  updated_at   timestamptz [default: `now()`, not null]
+}
+
+// ─── Catalog & Nearby-Place Junctions ─────────────────────────────────────────
+
+Table amenity {
+  name        varchar(50) [pk, note: 'Natural-key catalog (e.g. WiFi, AC, Water)']
+  description text
+}
+
+Table housing_amenity {
+  housing_id   integer    [ref: > housing.housing_id]
+  amenity_name varchar(50) [ref: > amenity.name]
+
+  indexes {
+    (housing_id, amenity_name) [pk]
+  }
+}
+
+Table housing_essential {
+  housing_id   integer [ref: > housing.housing_id]
+  essential_id integer [ref: > essential.essential_id]
+  distance_km  numeric [note: 'Walking distance estimate in km']
+
+  indexes {
+    (housing_id, essential_id) [pk]
+  }
+}
+
+Table housing_carinderia {
+  housing_id    integer [ref: > housing.housing_id]
+  carinderia_id integer [ref: > carinderia.carinderia_id]
+  distance_km   numeric [note: 'Walking distance estimate in km']
+
+  indexes {
+    (housing_id, carinderia_id) [pk]
+  }
+}
+
+// ─── Media ────────────────────────────────────────────────────────────────────
+
+Table housing_image {
+  image_id   integer  [pk, increment]
+  housing_id integer  [not null, ref: > housing.housing_id]
+  url        text     [not null]
+  caption    varchar
+  is_primary boolean  [default: false, not null]
+  sort_order smallint [default: 0, not null]
+  created_at timestamptz [default: `now()`, not null]
+}
+
+Table room_image {
+  image_id   integer  [pk, increment]
+  room_id    integer  [not null, ref: > room.room_id]
+  url        text     [not null]
+  caption    varchar
+  is_primary boolean  [default: false, not null]
+  created_at timestamptz [default: `now()`, not null]
+}
+
+Table carinderia_image {
+  image_id      integer  [pk, increment]
+  carinderia_id integer  [not null, ref: > carinderia.carinderia_id]
+  url           text     [not null]
+  caption       varchar
+  is_primary    boolean  [default: false, not null]
+  created_at    timestamptz [default: `now()`, not null]
+}
+
+// ─── Reviews & Favorites (polymorphic over housing | carinderia) ───────────────
+
+Table review {
+  review_id     integer       [pk, increment]
+  reviewer_id   integer       [not null, ref: > users.user_id]
+  listing_type  listing_type  [not null, note: 'Discriminator: housing or carinderia']
+  housing_id    integer       [ref: > housing.housing_id,   note: 'NULL when listing_type = carinderia']
+  carinderia_id integer       [ref: > carinderia.carinderia_id, note: 'NULL when listing_type = housing']
+  rating        smallint      [not null, note: 'CHECK (rating BETWEEN 1 AND 5)']
+  comment       text
+  created_at    timestamptz   [default: `now()`, not null]
+  updated_at    timestamptz   [default: `now()`, not null]
+
+  Note: 'XOR constraint: exactly one of housing_id / carinderia_id must be non-NULL, matching listing_type'
+}
+
+Table favorite {
+  favorite_id   integer       [pk, increment]
+  user_id       integer       [not null, ref: > users.user_id]
+  listing_type  listing_type  [not null, note: 'Discriminator: housing or carinderia']
+  housing_id    integer       [ref: > housing.housing_id,   note: 'NULL when listing_type = carinderia']
+  carinderia_id integer       [ref: > carinderia.carinderia_id, note: 'NULL when listing_type = housing']
+  created_at    timestamptz   [default: `now()`, not null]
+
+  indexes {
+    (user_id, listing_type, housing_id, carinderia_id) [unique, note: 'Prevents duplicate saves']
+  }
+
+  Note: 'XOR constraint: exactly one of housing_id / carinderia_id must be non-NULL, matching listing_type'
+}
+
+// ─── Visits ───────────────────────────────────────────────────────────────────
+
+Table visit {
+  visit_id     integer      [pk, increment]
+  visitor_id   integer      [not null, ref: > users.user_id]
+  housing_id   integer      [not null, ref: > housing.housing_id]
+  scheduled_at timestamptz  [not null]
+  status       visit_status [not null, default: 'pending']
+  note         text         [note: 'Optional message from visitor']
+  created_at   timestamptz  [default: `now()`, not null]
+  updated_at   timestamptz  [default: `now()`, not null]
+}
+
+Table housing_visiting_hours {
+  id          integer  [pk, increment]
+  housing_id  integer  [not null, ref: > housing.housing_id]
+  day_of_week smallint [not null, note: 'CHECK BETWEEN 0 (Sun) AND 6 (Sat)']
+  start_time  time     [not null]
+  end_time    time     [not null, note: 'CHECK (end_time > start_time)']
+
+  indexes {
+    (housing_id, day_of_week, start_time) [unique]
+  }
+}
+
+// ─── Messaging (designed now — implementation deferred) ───────────────────────
+
+Table conversation {
+  conversation_id integer  [pk, increment]
+  user_one_id     integer  [not null, ref: > users.user_id, note: 'CHECK (user_one_id < user_two_id) — canonical pair ordering']
+  user_two_id     integer  [not null, ref: > users.user_id]
+  housing_id      integer  [ref: > housing.housing_id, note: 'Optional listing context for the conversation']
+  created_at      timestamptz [default: `now()`, not null]
+
+  indexes {
+    (user_one_id, user_two_id, housing_id) [unique, note: 'One conversation per pair per listing context']
+  }
+}
+
+Table message {
+  message_id      integer  [pk, increment]
+  conversation_id integer  [not null, ref: > conversation.conversation_id]
+  sender_id       integer  [not null, ref: > users.user_id]
+  body            text     [not null]
+  created_at      timestamptz [default: `now()`, not null]
+  read_at         timestamptz [note: 'NULL = unread']
+}
