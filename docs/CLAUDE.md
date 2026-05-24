@@ -106,13 +106,105 @@ Do not proceed to the next file until the user gives explicit approval after rea
 
 ## 7. Key Project References
 
-| File                                | Purpose                                                                                     |
-| ----------------------------------- | ------------------------------------------------------------------------------------------- |
-| `MISTAKES.md`                       | Append-only error log — read at every session start                                         |
-| `STACK.md`                          | Locked technology decisions                                                                 |
-| `PRD.md`                            | Feature scope, non-goals, success metrics                                                   |
-| `PHASES.md`                         | Phased build tracker — source of truth for what is in scope right now                       |
-| `SCHEMA.md`                         | Canonical data dictionary and DDL intent (single source of truth for columns + constraints) |
-| `DECISIONS.md`                      | Lightweight ADR log for schema deviations and architectural choices                         |
-| `SETUP.md`                          | Onboarding for all 5 team members (env vars, Neon connection, GUI client)                   |
-| `ERD/Rentell Physical ERD (3).json` | ERD source of truth — read before any schema work                                           |
+| File                  | Purpose                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------- |
+| `MISTAKES.md`         | Append-only error log — read at every session start                                         |
+| `STACK.md`            | Locked technology decisions                                                                 |
+| `PRD.md`              | Feature scope, non-goals, success metrics                                                   |
+| `PHASES.md`           | Phased build tracker — source of truth for what is in scope right now                       |
+| `SCHEMA.md`           | Canonical data dictionary and DDL intent (single source of truth for columns + constraints) |
+| `DECISIONS.md`        | Lightweight ADR log for schema deviations and architectural choices                         |
+| `SETUP.md`            | Onboarding for all 5 team members (env vars, Neon connection, GUI client)                   |
+| `ERD/rentell.dbml`    | ERD source of truth — paste into dbdiagram.io to render the physical diagram                |
+
+---
+
+## 8. MCP Servers & CLI Tools Worth Installing
+
+These integrations let Claude interact directly with the project's tools — running queries, managing
+diagrams, checking deployments — instead of just generating code for you to copy-paste.
+Install whichever is relevant to the current phase.
+
+---
+
+### Neon MCP *(highest priority — install before Phase 1)*
+
+Lets Claude run SQL directly against your Neon database: apply migrations, run sanity-check
+inserts, inspect table structure, and verify constraints — all from the conversation.
+
+**Why it matters for this project:** Phase 1 acceptance criteria require constraint testing
+(reject bad rating, bad XOR FK, duplicate favorite, etc.). With Neon MCP, Claude can run those
+tests itself instead of asking you to copy-paste SQL into DBeaver.
+
+**Docs:** https://neon.tech/docs/ai/neon-mcp-server
+
+**Quick setup** (run in terminal, then restart Claude Code):
+```bash
+# Install the Neon MCP server globally
+npm install -g @neondatabase/mcp-server-neon
+
+# Then add to Claude Code's MCP config (~/.claude/mcp.json or via Settings > MCP):
+# {
+#   "mcpServers": {
+#     "neon": {
+#       "command": "npx",
+#       "args": ["-y", "@neondatabase/mcp-server-neon", "start"],
+#       "env": { "DATABASE_URL": "<your Neon connection string>" }
+#     }
+#   }
+# }
+```
+
+---
+
+### Lucidchart MCP *(already available — just needs activation)*
+
+Claude already has the Lucidchart MCP tools loaded in this environment. They allow programmatic
+creation and editing of diagrams — Claude can build or update the physical ERD diagram directly
+in Lucidchart without manual drag-and-drop.
+
+**Why it matters:** Once the DBML is finalized, Claude can use Lucidchart MCP to generate the
+physical ERD diagram programmatically from the schema, saving the team the manual layout work.
+
+**To use:** Just ask — e.g. "Use Lucidchart MCP to create the physical ERD from rentell.dbml."
+No extra installation needed; the tools are already connected.
+
+**Docs (if you need to re-authenticate):** https://lucid.co/developers/mcp
+
+---
+
+### Vercel CLI *(install before deployment)*
+
+Lets Claude deploy the Next.js app, inspect environment variables, and check build logs from
+the conversation.
+
+**Why it matters:** Neon's `DATABASE_URL` needs to be added as a Vercel environment variable.
+With Vercel CLI configured, Claude can verify the deployment and env setup instead of you
+navigating the dashboard manually.
+
+**Docs:** https://vercel.com/docs/cli
+
+```bash
+npm install -g vercel
+vercel login   # run this yourself — opens browser for auth
+```
+
+---
+
+### shadcn CLI *(available now via npx — no install needed)*
+
+Already works via `npx shadcn@latest add <component>`. Claude can invoke this directly to
+scaffold components (Button, Card, Form, Dialog, etc.) into the project without copying from docs.
+
+**No setup required.** Claude will use `npx shadcn@latest add` as needed during UI phases.
+
+---
+
+### When to prompt Claude to use these
+
+| Task | Tool |
+|------|------|
+| Run DDL / verify constraints / seed data | Neon MCP |
+| Update or generate the ERD diagram | Lucidchart MCP |
+| Deploy app / set env vars on Vercel | Vercel CLI |
+| Add a new shadcn/ui component | shadcn CLI (npx) |

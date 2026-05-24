@@ -44,9 +44,9 @@
 - `tailwind.config.ts`, `postcss.config.js`
 
 ### Acceptance criteria
-- [ ] `npm run dev` starts with no errors
-- [ ] `lib/db.ts` exports a working `sql` client; `SELECT 1` returns successfully
-- [ ] `.env.local` is in `.gitignore` and never pushed
+- [x] `npm run dev` starts with no errors
+- [x] `lib/db.ts` exports a working `sql` client; `SELECT 1` returns successfully
+- [x] `.env.local` is in `.gitignore` and never pushed
 - [ ] All 5 team members have cloned the repo, copied `.env.local`, and can run `npm run dev`
 - [ ] DBeaver (or equivalent) connected to Neon for at least the 2 technical members
 
