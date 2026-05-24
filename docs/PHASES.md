@@ -17,7 +17,7 @@
 | 0 | Project Setup & Config | Day 1 AM | MVP | [x]  |
 | 1 | Database Schema (DDL) | Day 1 PM | MVP | [x] Done |
 | 2 | Auth | Day 2 AM | MVP | [x] Done |
-| 3 | Core Directory | Day 2 PM – Day 3 AM | MVP | [ ] Not started |
+| 3 | Core Directory | Day 2 PM – Day 3 AM | MVP | [x] Done |
 | 4 | Host Portal | Day 3 PM | MVP | [ ] Not started |
 | 5 | Reviews & Ratings | Day 4 AM | MVP | [ ] Not started |
 | 6 | Favorites | Day 4 PM | MVP | [ ] Not started |
@@ -153,12 +153,12 @@
 - Available rooms count: `SELECT COUNT(*) FROM room WHERE housing_id = $1 AND available_slots > 0`
 
 ### Acceptance criteria
-- [ ] `/housing` lists all housing records; each card shows name, type, price range, proximity, image, avg rating
-- [ ] `/housing/[id]` shows full detail including rooms with available_slots, amenities, nearby places, gallery
-- [ ] `/carinderias` lists all carinderia records
-- [ ] `/carinderias/[id]` shows full carinderia detail with gallery
-- [ ] All queries are raw SQL in `lib/queries/` — no ORM calls
-- [ ] Pages work for unauthenticated users
+- [x] `/housing` lists all housing records; each card shows name, type, price range, proximity, image, avg rating
+- [x] `/housing/[id]` shows full detail including rooms with available_slots, amenities, nearby places, gallery
+- [x] `/carinderias` lists all carinderia records
+- [x] `/carinderias/[id]` shows full carinderia detail with gallery
+- [x] All queries are raw SQL in `lib/queries/` — no ORM calls
+- [x] Pages work for unauthenticated users
 
 ---
 
