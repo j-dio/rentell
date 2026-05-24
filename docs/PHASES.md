@@ -16,7 +16,7 @@
 |---|-------|--------------|-------|--------|
 | 0 | Project Setup & Config | Day 1 AM | MVP | [x]  |
 | 1 | Database Schema (DDL) | Day 1 PM | MVP | [x] Done |
-| 2 | Auth | Day 2 AM | MVP | [ ] Not started |
+| 2 | Auth | Day 2 AM | MVP | [x] Done |
 | 3 | Core Directory | Day 2 PM – Day 3 AM | MVP | [ ] Not started |
 | 4 | Host Portal | Day 3 PM | MVP | [ ] Not started |
 | 5 | Reviews & Ratings | Day 4 AM | MVP | [ ] Not started |
@@ -116,12 +116,12 @@
 `users` (INSERT, SELECT), `session` (INSERT, SELECT, DELETE)
 
 ### Acceptance criteria
-- [ ] New user can register; row appears in `users` table with hashed (not plain-text) password
-- [ ] Registered user can log in; row appears in `session` table; cookie is set
-- [ ] Navigating to a protected page without a session redirects to `/login`
-- [ ] Logging out deletes the session row; cookie is cleared
-- [ ] Registering with a duplicate email returns an error (UNIQUE violation handled gracefully)
-- [ ] Zod validates all required fields before touching the DB
+- [x] New user can register; row appears in `users` table with hashed (not plain-text) password
+- [x] Registered user can log in; row appears in `session` table; cookie is set
+- [x] Navigating to a protected page without a session redirects to `/login`
+- [x] Logging out deletes the session row; cookie is cleared
+- [x] Registering with a duplicate email returns an error (UNIQUE violation handled gracefully)
+- [x] Zod validates all required fields before touching the DB
 
 ---
 
