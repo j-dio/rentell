@@ -123,7 +123,7 @@ Authenticated students request a visit to a housing listing.
 
 All entities derived from `ERD/rentell.dbml`. Full DDL in `SCHEMA.md`.
 
-### Entities (21 tables)
+### Entities (19 tables)
 
 | Entity | PK | Key fields |
 |--------|----|-----------|
@@ -198,7 +198,7 @@ For CMSC 127 submission purposes:
 
 | Metric | Target |
 |--------|--------|
-| All 21 ERD tables created with correct types | 100% |
+| All 19 ERD tables created with correct types | 100% |
 | All DB-level constraints present in DDL | 100% (Section 5) |
 | Auth flow end-to-end | Register → login → protected action → logout |
 | Housing directory browsable | Listing + detail pages functional with rooms, images, amenities |

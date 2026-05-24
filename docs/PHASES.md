@@ -14,8 +14,8 @@
 
 | # | Phase | Suggested Day | Scope | Status |
 |---|-------|--------------|-------|--------|
-| 0 | Project Setup & Config | Day 1 AM | MVP | [ ] Not started |
-| 1 | Database Schema (DDL) | Day 1 PM | MVP | [ ] Not started |
+| 0 | Project Setup & Config | Day 1 AM | MVP | [x]  |
+| 1 | Database Schema (DDL) | Day 1 PM | MVP | [x] Done |
 | 2 | Auth | Day 2 AM | MVP | [ ] Not started |
 | 3 | Core Directory | Day 2 PM – Day 3 AM | MVP | [ ] Not started |
 | 4 | Host Portal | Day 3 PM | MVP | [ ] Not started |
@@ -54,7 +54,7 @@
 
 ## Phase 1 — Database Schema (DDL)
 
-**Goal:** All 21 tables created in Neon with correct column types, PKs, FKs, and constraints. Seed data loaded.
+**Goal:** All 19 tables created in Neon with correct column types, PKs, FKs, and constraints. Seed data loaded.
 
 **PRD ref:** Section 4 (Data Model), Section 5 (DB-Level Constraints)
 
@@ -85,13 +85,13 @@
 - `CHECK (user_one_id < user_two_id)` on `conversation`
 
 ### Acceptance criteria
-- [ ] All 21 tables visible in DBeaver / Neon console
-- [ ] `available_slots = -1` on room insert is rejected
-- [ ] `rating = 6` on review insert is rejected
-- [ ] Review with both `housing_id` and `carinderia_id` non-null is rejected
-- [ ] Duplicate favorite (same user + listing) is rejected
-- [ ] `end_time < start_time` on visiting_hours insert is rejected
-- [ ] Seed data queryable: `SELECT * FROM housing` returns rows
+- [x] All 19 tables visible in DBeaver / Neon console
+- [x] `available_slots = -1` on room insert is rejected
+- [x] `rating = 6` on review insert is rejected
+- [x] Review with both `housing_id` and `carinderia_id` non-null is rejected
+- [x] Duplicate favorite (same user + listing) is rejected --> PASSED AFTER UNIQUE constraint fix in DECISIONS.md #15
+- [x] `end_time < start_time` on visiting_hours insert is rejected
+- [x] Seed data queryable: `SELECT * FROM housing` returns rows
 
 ---
 

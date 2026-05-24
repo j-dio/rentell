@@ -6,7 +6,7 @@ Do not invent columns not listed here without updating this file and `DECISIONS.
 
 ---
 
-## Tables (21 total)
+## Tables (19 total)
 
 ### `users`
 
@@ -413,9 +413,20 @@ CREATE TABLE favorite (
   CHECK (
     (listing_type = 'housing'    AND housing_id    IS NOT NULL AND carinderia_id IS NULL) OR
     (listing_type = 'carinderia' AND carinderia_id IS NOT NULL AND housing_id    IS NULL)
-  ),
-  UNIQUE (user_id, listing_type, housing_id, carinderia_id)
+  )
 );
+
+-- UNIQUE replaced by partial indexes (see DECISIONS.md #15):
+-- PostgreSQL treats NULLs as distinct in table-level UNIQUE constraints,
+-- so UNIQUE(user_id, listing_type, housing_id, carinderia_id) fails to
+-- catch duplicates when the unused FK column is NULL.
+CREATE UNIQUE INDEX favorite_housing_unique
+  ON favorite (user_id, listing_type, housing_id)
+  WHERE carinderia_id IS NULL;
+
+CREATE UNIQUE INDEX favorite_carinderia_unique
+  ON favorite (user_id, listing_type, carinderia_id)
+  WHERE housing_id IS NULL;
 ```
 
 ---
@@ -768,7 +779,7 @@ Any other combination is rejected at the DB level.
 | review | rating range | `rating BETWEEN 1 AND 5` |
 | review | XOR FK | listing_type matches the one non-null FK |
 | favorite | XOR FK | listing_type matches the one non-null FK |
-| favorite | no duplicates | UNIQUE (user_id, listing_type, housing_id, carinderia_id) |
+| favorite | no duplicates | Partial unique indexes: `favorite_housing_unique` (WHERE carinderia_id IS NULL), `favorite_carinderia_unique` (WHERE housing_id IS NULL) — see DECISIONS.md #15 |
 | visit | status values | `status IN ('pending','confirmed','declined','cancelled')` |
 | housing_visiting_hours | day range | `day_of_week BETWEEN 0 AND 6` |
 | housing_visiting_hours | time ordering | `end_time > start_time` |

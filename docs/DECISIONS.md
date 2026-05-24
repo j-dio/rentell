@@ -314,6 +314,40 @@ The canonical pair ordering means inserting a conversation always requires sorti
 
 ---
 
+## #15 — `favorite` uniqueness: partial indexes over table-level UNIQUE
+
+**Date:** 2026-05-24
+**Status:** Accepted
+
+**Context:** The original schema used `UNIQUE (user_id, listing_type, housing_id, carinderia_id)`
+to prevent a user from saving the same listing twice. During Phase 1 constraint testing, this
+was discovered to be ineffective: PostgreSQL treats NULLs as distinct in UNIQUE constraints, so
+two rows with `(user_id, 'housing', housing_id, NULL)` pass the constraint without error.
+
+**Decision:** Drop the table-level UNIQUE constraint. Replace with two partial unique indexes
+that each operate on a single XOR branch where the FK values are all concrete (non-null):
+
+```sql
+CREATE UNIQUE INDEX favorite_housing_unique
+  ON favorite (user_id, listing_type, housing_id)
+  WHERE carinderia_id IS NULL;
+
+CREATE UNIQUE INDEX favorite_carinderia_unique
+  ON favorite (user_id, listing_type, carinderia_id)
+  WHERE housing_id IS NULL;
+```
+
+**Rejected:** Coalesce trick (`COALESCE(housing_id, 0), COALESCE(carinderia_id, 0)`) — obscures
+intent, relies on the assumption that 0 is never a valid FK value (identity columns start at 1,
+but it's a fragile assumption).
+
+**Consequences:** The `favorite` table in `db/schema.sql` and `docs/SCHEMA.md` no longer has a
+`UNIQUE(...)` clause in the `CREATE TABLE` body. The indexes are created as separate DDL
+statements after the table. App-level duplicate handling (`ON CONFLICT`) must reference the index
+name: `ON CONFLICT ON CONSTRAINT` will not work — use `INSERT … ON CONFLICT DO NOTHING` instead.
+
+---
+
 ## Pending decisions
 
 | # | Topic | Status |
