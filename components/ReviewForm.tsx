@@ -62,7 +62,7 @@ export default function ReviewForm({ listingType, listingId }: Props) {
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       <div className="space-y-1">
-        <Label>Rating *</Label>
+        <Label>Rating</Label>
         <div className="flex gap-1">
           {STARS.map((s) => (
             <button
