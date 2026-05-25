@@ -18,7 +18,7 @@
 | 1 | Database Schema (DDL) | Day 1 PM | MVP | [x] Done |
 | 2 | Auth | Day 2 AM | MVP | [x] Done |
 | 3 | Core Directory | Day 2 PM – Day 3 AM | MVP | [x] Done |
-| 4 | Host Portal | Day 3 PM | MVP | [ ] Not started |
+| 4 | Host Portal | Day 3 PM | MVP | [x] Done |
 | 5 | Reviews & Ratings | Day 4 AM | MVP | [ ] Not started |
 | 6 | Favorites | Day 4 PM | MVP | [ ] Not started |
 | 7 | Search & Filter | Day 5 AM | MVP | [ ] Not started |
@@ -190,14 +190,14 @@
 - Only the listing's `owner_id` may edit it (enforce in API: `WHERE owner_id = session.user_id`).
 
 ### Acceptance criteria
-- [ ] User can toggle `is_host` from profile; `users.is_host` updates in DB
-- [ ] Host can create a housing listing; row appears in `housing` table with correct `owner_id`
-- [ ] Host can add/edit/delete rooms; `available_slots` is editable and constrained by DB CHECK
-- [ ] Host can add image URLs; rows appear in `housing_image`
-- [ ] Host can set visiting hours; rows appear in `housing_visiting_hours`; duplicate slot is rejected
-- [ ] Host can link carinderias and essentials to their listing with distance_km
-- [ ] Non-owner cannot edit another host's listing (returns 403)
-- [ ] Newly created listing appears on public `/housing` page
+- [x] User can toggle `is_host` from profile; `users.is_host` updates in DB
+- [x] Host can create a housing listing; row appears in `housing` table with correct `owner_id`
+- [x] Host can add/edit/delete rooms; `available_slots` is editable and constrained by DB CHECK
+- [x] Host can add image URLs; rows appear in `housing_image`
+- [x] Host can set visiting hours; rows appear in `housing_visiting_hours`; duplicate slot is rejected
+- [x] Host can link carinderias and essentials to their listing with distance_km
+- [x] Non-owner cannot edit another host's listing (returns 403)
+- [x] Newly created listing appears on public `/housing` page
 
 ---
 

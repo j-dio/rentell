@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import type { SessionUser } from '@/lib/session'
 
@@ -22,9 +23,12 @@ export default function UserNav({ user }: UserNavProps) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-sm text-muted-foreground">
+      <Link
+        href="/profile"
+        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
         {user.firstName} {user.lastName}
-      </span>
+      </Link>
       <Button variant="outline" size="sm" onClick={handleLogout} disabled={loading}>
         {loading ? 'Logging out…' : 'Log out'}
       </Button>
