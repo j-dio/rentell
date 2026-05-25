@@ -49,6 +49,14 @@ export default async function RootLayout({
               >
                 Carinderias
               </Link>
+              {user?.isHost && (
+                <Link
+                  href="/dashboard"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Dashboard
+                </Link>
+              )}
             </div>
             <div>
               {user ? (

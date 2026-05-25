@@ -6,6 +6,9 @@ if (!process.env.DATABASE_URL) {
 
 const sql = postgres(process.env.DATABASE_URL, {
   ssl: 'require',
+  connect_timeout: 15,
+  idle_timeout: 20,
+  max_lifetime: 1800,
 })
 
 export default sql
