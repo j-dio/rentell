@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import Link from "next/link";
+import Image from "next/image";
 import "./globals.css";
 import { getSession } from "@/lib/session";
 import UserNav from "@/components/UserNav";
@@ -34,8 +35,14 @@ export default async function RootLayout({
         <header className="border-b">
           <nav className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
             <div className="flex items-center gap-6">
-              <Link href="/" className="font-bold text-lg">
-                RenTell
+              <Link href="/" className="flex items-center">
+                <Image
+                  src="/rentell-logo.svg"
+                  alt="RenTell"
+                  width={100}
+                  height={32}
+                  priority
+                />
               </Link>
               <Link
                 href="/housing"
