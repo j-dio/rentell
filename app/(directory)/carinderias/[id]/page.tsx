@@ -1,6 +1,10 @@
 import { notFound } from 'next/navigation'
 import { getCarinderiaById } from '@/lib/queries/carinderia'
+import { getReviewsByCarinderia } from '@/lib/queries/reviews'
+import { getSession } from '@/lib/session'
 import ImageGallery from '@/components/ImageGallery'
+import ReviewList from '@/components/ReviewList'
+import ReviewForm from '@/components/ReviewForm'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,7 +14,11 @@ export default async function CarinderiaDetailPage({ params }: Props) {
   const id = Number(params.id)
   if (isNaN(id)) notFound()
 
-  const carinderia = await getCarinderiaById(id)
+  const [carinderia, reviews, session] = await Promise.all([
+    getCarinderiaById(id),
+    getReviewsByCarinderia(id),
+    getSession(),
+  ])
   if (!carinderia) notFound()
 
   const { name, address, description, avg_rating, images } = carinderia
@@ -35,6 +43,16 @@ export default async function CarinderiaDetailPage({ params }: Props) {
           <p className="text-sm text-muted-foreground whitespace-pre-line">{description}</p>
         </div>
       )}
+
+      <div>
+        <h2 className="text-lg font-semibold mb-3">Reviews</h2>
+        <div className="space-y-4">
+          {session && (
+            <ReviewForm listingType="carinderia" listingId={id} />
+          )}
+          <ReviewList reviews={reviews} currentUserId={session?.userId} />
+        </div>
+      </div>
     </main>
   )
 }

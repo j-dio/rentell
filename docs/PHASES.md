@@ -19,7 +19,7 @@
 | 2 | Auth | Day 2 AM | MVP | [x] Done |
 | 3 | Core Directory | Day 2 PM – Day 3 AM | MVP | [x] Done |
 | 4 | Host Portal | Day 3 PM | MVP | [x] Done |
-| 5 | Reviews & Ratings | Day 4 AM | MVP | [ ] Not started |
+| 5 | Reviews & Ratings | Day 4 AM | MVP | [x] Done |
 | 6 | Favorites | Day 4 PM | MVP | [ ] Not started |
 | 7 | Search & Filter | Day 5 AM | MVP | [ ] Not started |
 | 8 | UI Polish | Day 5 PM | MVP | [ ] Not started |

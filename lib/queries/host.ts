@@ -218,7 +218,7 @@ export async function linkCarinderia(housingId: number, ownerId: number, carinde
     FROM housing
     WHERE housing_id = ${housingId}
       AND owner_id   = ${ownerId}
-    ON CONFLICT (housing_id, carinderia_id) DO NOTHING
+    ON CONFLICT (housing_id, carinderia_id) DO UPDATE SET distance_km = EXCLUDED.distance_km
     RETURNING housing_id
   `
   return rows[0] as { housing_id: number } | undefined
@@ -248,7 +248,7 @@ export async function linkEssential(housingId: number, ownerId: number, essentia
     FROM housing
     WHERE housing_id = ${housingId}
       AND owner_id   = ${ownerId}
-    ON CONFLICT (housing_id, essential_id) DO NOTHING
+    ON CONFLICT (housing_id, essential_id) DO UPDATE SET distance_km = EXCLUDED.distance_km
     RETURNING housing_id
   `
   return rows[0] as { housing_id: number } | undefined
