@@ -87,7 +87,22 @@ Claude **must not** do any of the following without an explicit user instruction
 
 ---
 
-## 6. Change Summary Format
+## 6. Team Sync Reminders
+
+After running any DDL against Neon (schema changes) or re-seeding (`db/seed.sql`), Claude must
+append the following reminder at the end of the response — no exceptions:
+
+```
+---
+⚠️ TEAM SYNC REQUIRED
+You just changed the shared Neon DB. Message the group now:
+"I updated the DB — pull main before continuing."
+---
+```
+
+---
+
+## 7. Change Summary Format
 
 After every file change, output a summary in this exact structure:
 
