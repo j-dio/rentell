@@ -47,8 +47,8 @@
 - [x] `npm run dev` starts with no errors
 - [x] `lib/db.ts` exports a working `sql` client; `SELECT 1` returns successfully
 - [x] `.env.local` is in `.gitignore` and never pushed
-- [ ] All 5 team members have cloned the repo, copied `.env.local`, and can run `npm run dev`
-- [ ] DBeaver (or equivalent) connected to Neon for at least the 2 technical members
+- [x] All 5 team members have cloned the repo, copied `.env.local`, and can run `npm run dev`
+- [x] DBeaver (or equivalent) connected to Neon for at least the 2 technical members
 
 ---
 
@@ -220,14 +220,14 @@
 `review` (INSERT, SELECT, UPDATE, DELETE), `users` (SELECT name for display)
 
 ### Acceptance criteria
-- [ ] Logged-in user can submit a review; row appears in `review` table
-- [ ] `rating = 0` or `rating = 6` is rejected by DB CHECK
-- [ ] Review appears on listing detail page after submission
-- [ ] Unauthenticated users see reviews but not the form
-- [ ] User can edit their own review; updated_at changes
-- [ ] User can delete their own review; row removed from DB
-- [ ] User cannot edit or delete another user's review (403)
-- [ ] XOR FK is correctly set (housing or carinderia, not both)
+- [x] Logged-in user can submit a review; row appears in `review` table
+- [x] `rating = 0` or `rating = 6` is rejected by DB CHECK
+- [x] Review appears on listing detail page after submission
+- [x] Unauthenticated users see reviews but not the form
+- [x] User can edit their own review; updated_at changes
+- [x] User can delete their own review; row removed from DB
+- [x] User cannot edit or delete another user's review (403)
+- [x] XOR FK is correctly set (housing or carinderia, not both)
 
 ---
 
