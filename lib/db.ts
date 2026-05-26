@@ -6,7 +6,7 @@ if (!process.env.DATABASE_URL) {
 
 const sql = postgres(process.env.DATABASE_URL, {
   ssl: 'require',
-  connect_timeout: 15,
+  connect_timeout: 30,
   idle_timeout: 20,
   max_lifetime: 1800,
 })

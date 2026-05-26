@@ -31,13 +31,19 @@ export default async function HousingPage({ searchParams }: PageProps) {
 
   const availableOnly = raw.available === 'true'
 
-  const [listings, session, amenityRows] = await Promise.all([
+  const [listings, amenityRows] = await Promise.all([
     searchHousing({ query, housingType, priceMin, priceMax, maxProximity, amenities, availableOnly, sortBy }),
-    getSession(),
     sql<{ name: string }[]>`SELECT name FROM amenity ORDER BY name ASC`,
   ])
 
   const allAmenities = amenityRows.map((r) => r.name)
+
+  let session = null
+  try {
+    session = await getSession()
+  } catch {
+    // DB cold-start timeout — treat as logged out
+  }
 
   const favoritedIds: number[] = []
   if (session) {
