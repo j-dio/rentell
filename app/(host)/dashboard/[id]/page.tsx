@@ -59,13 +59,21 @@ export default async function ManageListingPage({ params }: Params) {
             {housing.housing_type.replace('_', ' ')} · {housing.address}
           </p>
         </div>
-        <Link
-          href={`/housing/${housingId}`}
-          className="text-sm text-primary hover:underline shrink-0"
-          target="_blank"
-        >
-          View public page ↗
-        </Link>
+        <div className="flex flex-col items-end gap-2 shrink-0">
+          <Link
+            href={`/housing/${housingId}`}
+            className="text-sm text-primary hover:underline"
+            target="_blank"
+          >
+            View public page ↗
+          </Link>
+          <Link
+            href={`/dashboard/${housingId}/visits`}
+            className="text-sm text-primary hover:underline"
+          >
+            Manage visits →
+          </Link>
+        </div>
       </div>
 
       {/* Rooms */}

@@ -33,6 +33,12 @@ const DASHBOARD_NAV: NavItem = {
   match: (pathname) => pathname === '/dashboard' || pathname.startsWith('/dashboard/'),
 }
 
+const VISITS_NAV: NavItem = {
+  href: '/visits',
+  label: 'My Visits',
+  match: (pathname) => pathname === '/visits',
+}
+
 function NavPill({ items }: { items: NavItem[] }) {
   const pathname = usePathname()
 
@@ -77,7 +83,11 @@ type SiteNavProps = {
 }
 
 export default function SiteNav({ user }: SiteNavProps) {
-  const navItems = user?.isHost ? [...BASE_NAV, DASHBOARD_NAV] : BASE_NAV
+  const navItems = user
+    ? user.isHost
+      ? [...BASE_NAV, DASHBOARD_NAV, VISITS_NAV]
+      : [...BASE_NAV, VISITS_NAV]
+    : BASE_NAV
 
   return (
     <header className="sticky top-0 z-40 h-[var(--site-header-height)] border-y border-primary/20 bg-[oklch(0.965_0.018_152)]/95 backdrop-blur-md">
