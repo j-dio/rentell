@@ -31,7 +31,7 @@ export default async function CarinderiasPage({ searchParams }: PageProps) {
   const hasFilters = !!query
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-8">
+    <main className="max-w-screen-xl mx-auto px-6 py-8">
       <h1 className="text-2xl font-bold mb-6">Carinderias</h1>
 
       <div className="mb-6 max-w-lg">

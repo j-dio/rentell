@@ -2,50 +2,49 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 
 const HOUSING_TYPES = [
-  { value: 'dormitory',     label: 'Dormitory' },
+  { value: 'dormitory',      label: 'Dormitory' },
   { value: 'boarding_house', label: 'Boarding House' },
-  { value: 'apartment',     label: 'Apartment' },
+  { value: 'apartment',      label: 'Apartment' },
 ]
 
 const SORT_OPTIONS = [
   { value: '',           label: 'Newest first' },
-  { value: 'proximity',  label: 'Nearest to campus' },
+  { value: 'proximity',  label: 'Nearest campus' },
   { value: 'avg_rating', label: 'Highest rated' },
 ]
 
-type Props = {
-  amenities: string[]
-}
+const CHEVRON_SVG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`
+
+type Props = { amenities: string[] }
 
 type FilterState = {
-  type: string
-  priceMin: string
-  priceMax: string
-  proximity: string
+  q:                 string
+  type:              string
+  priceMin:          string
+  priceMax:          string
+  proximity:         string
   selectedAmenities: string[]
-  availableOnly: boolean
-  sort: string
+  availableOnly:     boolean
+  sort:              string
 }
 
-function readFromParams(searchParams: ReturnType<typeof useSearchParams>): FilterState {
+function readFromParams(sp: ReturnType<typeof useSearchParams>): FilterState {
   return {
-    type:               searchParams.get('type')      ?? '',
-    priceMin:           searchParams.get('price_min') ?? '',
-    priceMax:           searchParams.get('price_max') ?? '',
-    proximity:          searchParams.get('proximity') ?? '',
-    selectedAmenities:  searchParams.getAll('amenities'),
-    availableOnly:      searchParams.get('available') === 'true',
-    sort:               searchParams.get('sort')      ?? '',
+    q:                 sp.get('q')        ?? '',
+    type:              sp.get('type')      ?? '',
+    priceMin:          sp.get('price_min') ?? '',
+    priceMax:          sp.get('price_max') ?? '',
+    proximity:         sp.get('proximity') ?? '',
+    selectedAmenities: sp.getAll('amenities'),
+    availableOnly:     sp.get('available') === 'true',
+    sort:              sp.get('sort')      ?? '',
   }
 }
 
 export default function HousingFilterPanel({ amenities }: Props) {
-  const router = useRouter()
+  const router     = useRouter()
   const searchParams = useSearchParams()
   const [filters, setFilters] = useState<FilterState>(() => readFromParams(searchParams))
 
@@ -66,172 +65,220 @@ export default function HousingFilterPanel({ amenities }: Props) {
     }))
   }
 
-  function applyFilters() {
+  function apply() {
     const params = new URLSearchParams()
-    // Preserve text search query
-    const q = searchParams.get('q')
-    if (q) params.set('q', q)
-
-    if (filters.type)      params.set('type',      filters.type)
-    if (filters.priceMin)  params.set('price_min', filters.priceMin)
-    if (filters.priceMax)  params.set('price_max', filters.priceMax)
-    if (filters.proximity) params.set('proximity', filters.proximity)
-    if (filters.availableOnly) params.set('available', 'true')
-    if (filters.sort)      params.set('sort',      filters.sort)
+    if (filters.q.trim())      params.set('q',         filters.q.trim())
+    if (filters.type)          params.set('type',       filters.type)
+    if (filters.priceMin)      params.set('price_min',  filters.priceMin)
+    if (filters.priceMax)      params.set('price_max',  filters.priceMax)
+    if (filters.proximity)     params.set('proximity',  filters.proximity)
+    if (filters.availableOnly) params.set('available',  'true')
+    if (filters.sort)          params.set('sort',       filters.sort)
     for (const a of filters.selectedAmenities) params.append('amenities', a)
-
     router.push(`?${params.toString()}`)
   }
 
-  function resetFilters() {
-    const params = new URLSearchParams()
-    const q = searchParams.get('q')
-    if (q) params.set('q', q)
-    router.push(`?${params.toString()}`)
+  function reset() {
+    router.push('?')
   }
 
-  const hasActiveFilters =
-    !!filters.type ||
-    !!filters.priceMin ||
-    !!filters.priceMax ||
-    !!filters.proximity ||
-    filters.selectedAmenities.length > 0 ||
-    filters.availableOnly ||
-    !!filters.sort
+  const hasActiveFilters = !!(
+    filters.q || filters.type || filters.priceMin || filters.priceMax ||
+    filters.proximity || filters.selectedAmenities.length || filters.availableOnly || filters.sort
+  )
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-5 shadow-sm">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-gray-900">Filters</h2>
-        {hasActiveFilters && (
-          <button
-            type="button"
-            onClick={resetFilters}
-            className="text-xs text-blue-600 hover:underline"
-          >
-            Reset all
-          </button>
-        )}
-      </div>
+    <div className="w-full bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
 
-      {/* Housing type */}
-      <div className="space-y-1.5">
-        <Label htmlFor="type-select" className="text-xs font-medium text-gray-700">
-          Housing type
-        </Label>
-        <select
-          id="type-select"
-          value={filters.type}
-          onChange={(e) => set('type', e.target.value)}
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">All types</option>
-          {HOUSING_TYPES.map((t) => (
-            <option key={t.value} value={t.value}>{t.label}</option>
-          ))}
-        </select>
-      </div>
+      {/* ── Row 1: main filters ── */}
+      <div className="px-5 pt-4 pb-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_10rem_14rem_9rem] gap-3">
 
-      {/* Price range */}
-      <div className="space-y-1.5">
-        <Label className="text-xs font-medium text-gray-700">Monthly price (₱)</Label>
-        <div className="flex items-center gap-2">
-          <Input
-            type="number"
-            min={0}
-            placeholder="Min"
-            value={filters.priceMin}
-            onChange={(e) => set('priceMin', e.target.value)}
-            className="text-sm"
-          />
-          <span className="text-gray-400 text-sm shrink-0">–</span>
-          <Input
-            type="number"
-            min={0}
-            placeholder="Max"
-            value={filters.priceMax}
-            onChange={(e) => set('priceMax', e.target.value)}
-            className="text-sm"
-          />
-        </div>
-      </div>
-
-      {/* Max proximity */}
-      <div className="space-y-1.5">
-        <Label htmlFor="proximity-input" className="text-xs font-medium text-gray-700">
-          Max distance from campus (km)
-        </Label>
-        <Input
-          id="proximity-input"
-          type="number"
-          min={0}
-          step={0.1}
-          placeholder="e.g. 2.5"
-          value={filters.proximity}
-          onChange={(e) => set('proximity', e.target.value)}
-          className="text-sm"
-        />
-      </div>
-
-      {/* Amenities */}
-      {amenities.length > 0 && (
-        <div className="space-y-2">
-          <Label className="text-xs font-medium text-gray-700">Amenities</Label>
-          <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
-            {amenities.map((name) => (
-              <label key={name} className="flex items-center gap-2 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={filters.selectedAmenities.includes(name)}
-                  onChange={() => toggleAmenity(name)}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-700">{name}</span>
-              </label>
-            ))}
+        {/* Search */}
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
+            Search
+          </p>
+          <div className="relative">
+            <svg
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
+                d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+            </svg>
+            <input
+              type="text"
+              value={filters.q}
+              onChange={(e) => set('q', e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && apply()}
+              placeholder="Name, address, description…"
+              className="w-full h-10 pl-8 pr-3 rounded-lg border border-border bg-muted text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent focus:bg-card transition-colors"
+            />
           </div>
         </div>
-      )}
 
-      {/* Available rooms only */}
-      <label className="flex items-center gap-2.5 cursor-pointer select-none">
-        <div
-          role="switch"
-          aria-checked={filters.availableOnly}
-          onClick={() => set('availableOnly', !filters.availableOnly)}
-          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none ${
-            filters.availableOnly ? 'bg-blue-600' : 'bg-gray-200'
-          }`}
-        >
-          <span
-            className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow transform transition-transform ${
-              filters.availableOnly ? 'translate-x-4' : 'translate-x-0'
-            }`}
-          />
+        {/* Housing type */}
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
+            Type
+          </p>
+          <select
+            value={filters.type}
+            onChange={(e) => set('type', e.target.value)}
+            className="w-full h-10 px-3 rounded-lg border border-border bg-muted text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:bg-card transition-colors cursor-pointer appearance-none"
+            style={{
+              backgroundImage: CHEVRON_SVG,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 10px center',
+              backgroundSize: '13px',
+              paddingRight: '30px',
+            }}
+          >
+            <option value="">All types</option>
+            {HOUSING_TYPES.map((t) => (
+              <option key={t.value} value={t.value}>{t.label}</option>
+            ))}
+          </select>
         </div>
-        <span className="text-sm text-gray-700">Available rooms only</span>
-      </label>
 
-      {/* Sort */}
-      <div className="space-y-1.5">
-        <Label htmlFor="sort-select" className="text-xs font-medium text-gray-700">
-          Sort by
-        </Label>
-        <select
-          id="sort-select"
-          value={filters.sort}
-          onChange={(e) => set('sort', e.target.value)}
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          {SORT_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
+        {/* Price range */}
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
+            Monthly price (₱)
+          </p>
+          <div className="flex items-center h-10 rounded-lg border border-border bg-muted focus-within:ring-2 focus-within:ring-ring focus-within:border-transparent focus-within:bg-card transition-colors overflow-hidden">
+            <input
+              type="number"
+              min={0}
+              placeholder="Min"
+              value={filters.priceMin}
+              onChange={(e) => set('priceMin', e.target.value)}
+              className="flex-1 h-full px-3 bg-transparent text-sm text-foreground placeholder-muted-foreground focus:outline-none w-0 min-w-0"
+            />
+            <span className="text-border text-sm select-none shrink-0">|</span>
+            <input
+              type="number"
+              min={0}
+              placeholder="Max"
+              value={filters.priceMax}
+              onChange={(e) => set('priceMax', e.target.value)}
+              className="flex-1 h-full px-3 bg-transparent text-sm text-foreground placeholder-muted-foreground focus:outline-none w-0 min-w-0"
+            />
+          </div>
+        </div>
+
+        {/* Proximity */}
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
+            Max distance
+          </p>
+          <div className="relative">
+            <input
+              type="number"
+              min={0}
+              step={0.1}
+              placeholder="Any"
+              value={filters.proximity}
+              onChange={(e) => set('proximity', e.target.value)}
+              className="w-full h-10 pl-3 pr-9 rounded-lg border border-border bg-muted text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent focus:bg-card transition-colors"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium pointer-events-none select-none">
+              km
+            </span>
+          </div>
+        </div>
       </div>
 
-      <Button onClick={applyFilters} className="w-full">
-        Apply filters
-      </Button>
+      {/* Divider */}
+      <div className="h-px bg-border" />
+
+      {/* ── Row 2: amenity pills + secondary controls ── */}
+      <div className="px-5 py-3 flex items-center gap-3 flex-wrap">
+
+        {/* Amenity pills */}
+        {amenities.length > 0 && (
+          <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
+            {amenities.map((name) => {
+              const active = filters.selectedAmenities.includes(name)
+              return (
+                <button
+                  key={name}
+                  type="button"
+                  onClick={() => toggleAmenity(name)}
+                  className={`h-7 px-3 rounded-full text-xs font-medium border transition-all active:scale-95 ${
+                    active
+                      ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                      : 'bg-card text-muted-foreground border-border hover:border-primary/50 hover:text-foreground'
+                  }`}
+                >
+                  {name}
+                  {active && <span className="ml-1 opacity-60 text-[10px]">✕</span>}
+                </button>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Right-side controls */}
+        <div className="flex items-center gap-2.5 ml-auto shrink-0 flex-wrap justify-end">
+
+          {/* Available only */}
+          <button
+            type="button"
+            onClick={() => set('availableOnly', !filters.availableOnly)}
+            className={`h-7 px-3 rounded-full text-xs font-medium border transition-all active:scale-95 flex items-center gap-1.5 ${
+              filters.availableOnly
+                ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                : 'bg-card text-muted-foreground border-border hover:border-primary/50 hover:text-foreground'
+            }`}
+          >
+            <span className={`inline-flex items-center justify-center w-3.5 h-3.5 rounded-full border text-[8px] transition-colors ${
+              filters.availableOnly ? 'bg-white/30 border-white/50' : 'border-border'
+            }`}>
+              {filters.availableOnly ? '✓' : ''}
+            </span>
+            Available only
+          </button>
+
+          {/* Sort */}
+          <select
+            value={filters.sort}
+            onChange={(e) => set('sort', e.target.value)}
+            className="h-7 pl-3 rounded-full border border-border bg-card text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer appearance-none"
+            style={{
+              backgroundImage: CHEVRON_SVG,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 8px center',
+              backgroundSize: '11px',
+              paddingRight: '26px',
+            }}
+          >
+            {SORT_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+
+          {/* Clear */}
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={reset}
+              className="h-7 px-3 rounded-full border border-border text-xs text-muted-foreground hover:text-destructive hover:border-destructive/40 active:scale-95 transition-all"
+            >
+              Clear all
+            </button>
+          )}
+
+          {/* Apply */}
+          <button
+            type="button"
+            onClick={apply}
+            className="h-7 px-4 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 active:scale-95 transition-all"
+          >
+            Apply
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

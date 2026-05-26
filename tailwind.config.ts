@@ -43,6 +43,16 @@ const config: Config = {
         border: "var(--border)",
         input: "var(--input)",
         ring: "var(--ring)",
+        /* Brand extras */
+        gold: "var(--gold)",
+        cta: {
+          DEFAULT: "var(--cta)",
+          foreground: "var(--cta-foreground)",
+        },
+      },
+      fontFamily: {
+        sans: ["var(--font-geist-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
       },
       borderRadius: {
         lg: "var(--radius)",
