@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getHousingById } from '@/lib/queries/housing'
 import { getReviewsByHousing } from '@/lib/queries/reviews'
+import { getVisitingHoursByHousing } from '@/lib/queries/visits'
 import { getSession } from '@/lib/session'
 import ImageGallery from '@/components/ImageGallery'
 import RoomList from '@/components/RoomList'
@@ -8,6 +9,7 @@ import AmenityList from '@/components/AmenityList'
 import NearbyList from '@/components/NearbyList'
 import ReviewList from '@/components/ReviewList'
 import ReviewForm from '@/components/ReviewForm'
+import VisitRequestForm from '@/components/VisitRequestForm'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,9 +19,10 @@ export default async function HousingDetailPage({ params }: Props) {
   const id = Number(params.id)
   if (isNaN(id)) notFound()
 
-  const [housing, reviews, session] = await Promise.all([
+  const [housing, reviews, visitingHours, session] = await Promise.all([
     getHousingById(id),
     getReviewsByHousing(id),
+    getVisitingHoursByHousing(id),
     getSession(),
   ])
   if (!housing) notFound()
@@ -121,6 +124,13 @@ export default async function HousingDetailPage({ params }: Props) {
         <h2 className="text-lg font-semibold mb-3">Nearby Essentials</h2>
         <NearbyList type="essential" items={nearby_essentials} />
       </div>
+
+      {session && (
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Book a Visit</h2>
+          <VisitRequestForm housingId={id} visitingHours={visitingHours} />
+        </div>
+      )}
 
       <div>
         <h2 className="text-lg font-semibold mb-3">Reviews</h2>

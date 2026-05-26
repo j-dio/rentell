@@ -23,7 +23,7 @@
 | 6 | Favorites | Day 4 PM | MVP | [x] Done |
 | 7 | Search & Filter | Day 5 AM | MVP | [ ] Not started |
 | 8 | UI Polish | Day 5 PM | MVP | [ ] Not started |
-| 9 | Book a Visit | If time permits | Stretch | [ ] Not started |
+| 9 | Book a Visit | If time permits | Stretch | [x] Done |
 | 10 | Trigger Showcases | If time permits | Stretch | [x] Done |
 | 11 | Messaging UI | Post-submission | Stretch | [ ] Not started |
 
@@ -332,12 +332,12 @@ Build parameterized WHERE clause server-side. Never interpolate unsanitized user
 `visit` (INSERT, SELECT, UPDATE), `housing_visiting_hours` (SELECT for display), `housing`, `users`
 
 ### Acceptance criteria
-- [ ] Logged-in student can submit a visit request; row appears with status `pending`
-- [ ] Invalid status value is rejected by DB CHECK
-- [ ] Owner can confirm or decline a pending visit
-- [ ] Student can cancel their own pending visit
-- [ ] Visiting hours display on housing detail page
-- [ ] Host dashboard lists visits grouped by status
+- [x] Logged-in student can submit a visit request; row appears with status `pending`
+- [x] Invalid status value is rejected by DB CHECK
+- [x] Owner can confirm or decline a pending visit
+- [x] Student can cancel their own pending visit
+- [x] Visiting hours display on housing detail page
+- [x] Host dashboard lists visits grouped by status
 
 ---
 
