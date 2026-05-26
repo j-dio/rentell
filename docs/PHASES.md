@@ -277,15 +277,15 @@
 Build parameterized WHERE clause server-side. Never interpolate unsanitized user input — use postgres.js tagged-template for all dynamic values.
 
 ### Acceptance criteria
-- [ ] Text search on Housing matches name, address, or description
-- [ ] housing_type filter returns only matching types
-- [ ] Price range filter works
-- [ ] Proximity filter works
-- [ ] "Available rooms only" filter returns only housing with `available_slots > 0` on at least one room
-- [ ] Sort by proximity and by average rating both work
-- [ ] All filters combinable (AND logic)
-- [ ] Empty results shows a helpful message
-- [ ] Text search on Carinderia returns matching results
+- [x] Text search on Housing matches name, address, or description
+- [x] housing_type filter returns only matching types
+- [x] Price range filter works
+- [x] Proximity filter works
+- [x] "Available rooms only" filter returns only housing with `available_slots > 0` on at least one room
+- [x] Sort by proximity and by average rating both work
+- [x] All filters combinable (AND logic)
+- [x] Empty results shows a helpful message
+- [x] Text search on Carinderia returns matching results
 
 ---
 
