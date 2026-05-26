@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getSession } from '@/lib/session'
 import { getOwnHousing } from '@/lib/queries/host'
+import DeleteListingButton from '@/components/DeleteListingButton'
 
 export default async function DashboardPage() {
   const session = await getSession()
@@ -66,12 +67,18 @@ export default async function DashboardPage() {
                 )}
               </div>
 
-              <Link
-                href={`/dashboard/${l.housing_id}`}
-                className="shrink-0 text-sm text-primary hover:underline"
-              >
-                Manage →
-              </Link>
+              <div className="flex items-center gap-3 shrink-0">
+                <DeleteListingButton
+                  housingId={l.housing_id as number}
+                  listingName={l.name as string}
+                />
+                <Link
+                  href={`/dashboard/${l.housing_id}`}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Manage →
+                </Link>
+              </div>
             </li>
           ))}
         </ul>
