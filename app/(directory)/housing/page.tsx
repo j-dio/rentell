@@ -1,46 +1,64 @@
-import { getAllHousing } from '@/lib/queries/housing'
+import sql from '@/lib/db'
+import { searchHousing } from '@/lib/queries/search'
 import { getFavoritesByUser } from '@/lib/queries/favorites'
 import { getSession } from '@/lib/session'
-import HousingCard from '@/components/HousingCard'
-import FavoriteButton from '@/components/FavoriteButton'
+import HousingPageShell from '@/components/HousingPageShell'
 
 export const dynamic = 'force-dynamic'
 
-export default async function HousingPage() {
-  const [listings, session] = await Promise.all([getAllHousing(), getSession()])
+type PageProps = {
+  searchParams: { [key: string]: string | string[] | undefined }
+}
 
-  const favoritedIds = new Set<number>()
+export default async function HousingPage({ searchParams }: PageProps) {
+  const raw = searchParams
+
+  const query        = typeof raw.q         === 'string' ? raw.q         : undefined
+  const housingType  = typeof raw.type      === 'string' ? raw.type      : undefined
+  const sortParam    = typeof raw.sort      === 'string' ? raw.sort      : undefined
+  const sortBy       = sortParam === 'proximity' || sortParam === 'avg_rating'
+                         ? sortParam : undefined
+
+  const priceMin     = typeof raw.price_min  === 'string' ? (Number(raw.price_min)  || undefined) : undefined
+  const priceMax     = typeof raw.price_max  === 'string' ? (Number(raw.price_max)  || undefined) : undefined
+  const maxProximity = typeof raw.proximity  === 'string' ? (Number(raw.proximity)  || undefined) : undefined
+
+  const amenities    = typeof raw.amenities === 'string'
+                         ? [raw.amenities]
+                         : Array.isArray(raw.amenities)
+                         ? raw.amenities
+                         : undefined
+
+  const availableOnly = raw.available === 'true'
+
+  const [listings, session, amenityRows] = await Promise.all([
+    searchHousing({ query, housingType, priceMin, priceMax, maxProximity, amenities, availableOnly, sortBy }),
+    getSession(),
+    sql<{ name: string }[]>`SELECT name FROM amenity ORDER BY name ASC`,
+  ])
+
+  const allAmenities = amenityRows.map((r) => r.name)
+
+  const favoritedIds: number[] = []
   if (session) {
     const favs = await getFavoritesByUser(session.userId)
     for (const f of favs) {
-      if (f.listing_type === 'housing' && f.housing_id) favoritedIds.add(f.housing_id)
+      if (f.listing_type === 'housing' && f.housing_id) favoritedIds.push(f.housing_id)
     }
   }
 
-  return (
-    <main className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Housing Listings</h1>
+  const hasFilters = !!(
+    query || housingType || priceMin || priceMax || maxProximity ||
+    amenities?.length || availableOnly || sortBy
+  )
 
-      {listings.length === 0 ? (
-        <p className="text-muted-foreground">No housing listings yet.</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {listings.map((housing) => (
-            <div key={housing.housing_id} className="relative">
-              <HousingCard housing={housing} />
-              {session && (
-                <div className="absolute top-2 right-2 z-10">
-                  <FavoriteButton
-                    listingType="housing"
-                    listingId={housing.housing_id}
-                    initialFavorited={favoritedIds.has(housing.housing_id)}
-                  />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </main>
+  return (
+    <HousingPageShell
+      listings={listings}
+      favoritedIds={favoritedIds}
+      isLoggedIn={!!session}
+      allAmenities={allAmenities}
+      hasFilters={hasFilters}
+    />
   )
 }

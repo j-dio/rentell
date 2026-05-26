@@ -33,7 +33,7 @@ export default async function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <header className="border-b">
-          <nav className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+          <nav className="max-w-screen-xl mx-auto px-6 h-14 flex items-center justify-between">
             <div className="flex items-center gap-6">
               <Link href="/" className="flex items-center">
                 <Image
@@ -78,7 +78,8 @@ export default async function RootLayout({
                   </Link>
                   <Link
                     href="/register"
-                    className="text-sm font-medium bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:opacity-90 transition-opacity"
+                    className="text-sm font-medium px-3 py-1.5 rounded-md transition-all hover:opacity-90 active:scale-[0.97]"
+                    style={{ backgroundColor: 'var(--cta)', color: 'var(--cta-foreground)' }}
                   >
                     Register
                   </Link>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
 
 type Props = {
   listingType: 'housing' | 'carinderia'
@@ -33,15 +34,24 @@ export default function FavoriteButton({ listingType, listingId, initialFavorite
   }
 
   return (
-    <button
+    <motion.button
       onClick={toggle}
       disabled={loading}
       aria-label={favorited ? 'Remove from favorites' : 'Save to favorites'}
-      className={`w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-md transition-all disabled:opacity-50 hover:scale-110 ${
-        favorited ? 'text-red-500' : 'text-gray-400 hover:text-red-400'
+      className={`w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-md transition-colors disabled:opacity-50 ${
+        favorited ? 'text-cta' : 'text-muted-foreground hover:text-cta'
       }`}
+      whileTap={{ scale: 0.82 }}
     >
-      <span className="text-lg leading-none">{favorited ? '♥' : '♡'}</span>
-    </button>
+      <motion.span
+        key={favorited ? 'filled' : 'empty'}
+        initial={{ scale: 0.6, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+        className="text-lg leading-none"
+      >
+        {favorited ? '♥' : '♡'}
+      </motion.span>
+    </motion.button>
   )
 }
