@@ -80,8 +80,8 @@ export default function SiteNav({ user }: SiteNavProps) {
   const navItems = user?.isHost ? [...BASE_NAV, DASHBOARD_NAV] : BASE_NAV
 
   return (
-    <header className="sticky top-0 z-40 border-y border-primary/20 bg-[oklch(0.965_0.018_152)]/95 backdrop-blur-md">
-      <nav className="mx-auto flex h-16 max-w-screen-2xl items-center justify-between gap-4 px-4 sm:h-[4.5rem] sm:gap-6 sm:px-6">
+    <header className="sticky top-0 z-40 h-[var(--site-header-height)] border-y border-primary/20 bg-[oklch(0.965_0.018_152)]/95 backdrop-blur-md">
+      <nav className="mx-auto flex h-full max-w-screen-2xl items-center justify-between gap-4 px-4 sm:gap-6 sm:px-6">
         <div className="flex min-w-0 items-center gap-4 sm:gap-6">
           <Link href="/" className="flex shrink-0 items-center">
             <Image

@@ -91,7 +91,7 @@ export default function HousingPageShell({
             animate={{ x: 0 }}
             exit={{ x: PANEL_W }}
             transition={{ type: 'spring', stiffness: 280, damping: 36 }}
-            className="fixed right-0 top-14 z-30 h-[calc(100vh-3.5rem)] overflow-hidden border-l border-border shadow-2xl"
+            className="fixed right-0 top-[var(--site-header-height)] z-30 h-[calc(100vh-var(--site-header-height))] overflow-hidden border-l border-border shadow-2xl"
             style={{ width: PANEL_W }}
           >
             <HousingOverviewPanel

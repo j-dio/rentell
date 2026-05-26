@@ -63,6 +63,9 @@
     --cta: #e54a24;
     --cta-foreground: #ffffff;
 
+    /* Sticky site header — keep panel offsets in sync */
+    --site-header-height: 4rem;
+
     /* Sidebar */
     --sidebar: oklch(0.97 0.01 152);
     --sidebar-foreground: oklch(0.14 0.01 155);
@@ -135,5 +138,11 @@
 
   html {
     @apply font-sans;
+  }
+
+  @media (min-width: 640px) {
+    :root {
+      --site-header-height: 4.5rem;
+    }
   }
 }
