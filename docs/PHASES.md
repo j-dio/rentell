@@ -20,7 +20,7 @@
 | 3 | Core Directory | Day 2 PM – Day 3 AM | MVP | [x] Done |
 | 4 | Host Portal | Day 3 PM | MVP | [x] Done |
 | 5 | Reviews & Ratings | Day 4 AM | MVP | [x] Done |
-| 6 | Favorites | Day 4 PM | MVP | [ ] Not started |
+| 6 | Favorites | Day 4 PM | MVP | [x] Done |
 | 7 | Search & Filter | Day 5 AM | MVP | [ ] Not started |
 | 8 | UI Polish | Day 5 PM | MVP | [ ] Not started |
 | 9 | Book a Visit | If time permits | Stretch | [ ] Not started |
@@ -248,12 +248,12 @@
 `favorite` (INSERT, SELECT, DELETE), `housing` (SELECT for display), `carinderia` (SELECT for display)
 
 ### Acceptance criteria
-- [ ] Logged-in user can save a listing; row appears in `favorite` table
-- [ ] Saving the same listing twice is rejected by UNIQUE constraint (handled gracefully in UI)
-- [ ] Unsaving removes the row
-- [ ] `/favorites` shows all saved listings for the current user only
-- [ ] Unauthenticated access to `/favorites` redirects to login
-- [ ] `FavoriteButton` reflects current saved state on page load
+- [x] Logged-in user can save a listing; row appears in `favorite` table
+- [x] Saving the same listing twice is rejected by UNIQUE constraint (handled gracefully in UI)
+- [x] Unsaving removes the row
+- [x] `/favorites` shows all saved listings for the current user only
+- [x] Unauthenticated access to `/favorites` redirects to login
+- [x] `FavoriteButton` reflects current saved state on page load
 
 ---
 
