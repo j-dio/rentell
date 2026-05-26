@@ -32,7 +32,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <header className="border-b">
+        <header className="sticky top-0 z-40 bg-background border-b">
           <nav className="max-w-screen-xl mx-auto px-6 h-14 flex items-center justify-between">
             <div className="flex items-center gap-6">
               <Link href="/" className="flex items-center">
