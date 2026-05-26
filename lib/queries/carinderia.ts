@@ -42,12 +42,7 @@ export async function getAllCarinderias(): Promise<CarinderiaListItem[]> {
         ORDER BY is_primary DESC
         LIMIT 1
       ) AS primary_image_url,
-      (
-        SELECT ROUND(AVG(rating)::numeric, 1)
-        FROM review
-        WHERE carinderia_id = c.carinderia_id
-          AND listing_type = 'carinderia'
-      ) AS avg_rating
+      c.avg_rating
     FROM carinderia c
     ORDER BY c.created_at DESC
   `
@@ -65,12 +60,7 @@ export async function getCarinderiaById(id: number): Promise<CarinderiaDetail | 
       c.description,
       c.created_at,
       c.updated_at,
-      (
-        SELECT ROUND(AVG(rating)::numeric, 1)
-        FROM review
-        WHERE carinderia_id = c.carinderia_id
-          AND listing_type = 'carinderia'
-      ) AS avg_rating
+      c.avg_rating
     FROM carinderia c
     WHERE c.carinderia_id = ${id}
   `

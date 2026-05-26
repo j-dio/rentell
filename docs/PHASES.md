@@ -24,7 +24,7 @@
 | 7 | Search & Filter | Day 5 AM | MVP | [ ] Not started |
 | 8 | UI Polish | Day 5 PM | MVP | [ ] Not started |
 | 9 | Book a Visit | If time permits | Stretch | [ ] Not started |
-| 10 | Trigger Showcases | If time permits | Stretch | [ ] Not started |
+| 10 | Trigger Showcases | If time permits | Stretch | [x] Done |
 | 11 | Messaging UI | Post-submission | Stretch | [ ] Not started |
 
 ---
@@ -360,10 +360,10 @@ Build parameterized WHERE clause server-side. Never interpolate unsanitized user
 - `db/triggers.sql` — all trigger function definitions and CREATE TRIGGER statements
 
 ### Acceptance criteria
-- [ ] `UPDATE housing SET name = name` changes `updated_at` automatically
-- [ ] Inserting a new review updates `housing.avg_rating` or `carinderia.avg_rating` (verify with SELECT after INSERT)
-- [ ] Deleting a review also recalculates avg_rating correctly
-- [ ] Triggers survive a Neon connection reset (DDL-level, not app-level)
+- [x] `UPDATE housing SET name = name` changes `updated_at` automatically
+- [x] Inserting a new review updates `housing.avg_rating` or `carinderia.avg_rating` (verify with SELECT after INSERT)
+- [x] Deleting a review also recalculates avg_rating correctly
+- [x] Triggers survive a Neon connection reset (DDL-level, not app-level)
 
 ---
 

@@ -85,12 +85,7 @@ export async function getAllHousing(): Promise<HousingListItem[]> {
         ORDER BY is_primary DESC, sort_order ASC
         LIMIT 1
       ) AS primary_image_url,
-      (
-        SELECT ROUND(AVG(rating)::numeric, 1)
-        FROM review
-        WHERE housing_id = h.housing_id
-          AND listing_type = 'housing'
-      ) AS avg_rating
+      h.avg_rating
     FROM housing h
     ORDER BY h.created_at DESC
   `
@@ -114,12 +109,7 @@ export async function getHousingById(id: number): Promise<HousingDetail | null> 
       h.description,
       h.created_at,
       h.updated_at,
-      (
-        SELECT ROUND(AVG(rating)::numeric, 1)
-        FROM review
-        WHERE housing_id = h.housing_id
-          AND listing_type = 'housing'
-      ) AS avg_rating
+      h.avg_rating
     FROM housing h
     WHERE h.housing_id = ${id}
   `

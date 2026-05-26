@@ -348,6 +348,29 @@ name: `ON CONFLICT ON CONSTRAINT` will not work — use `INSERT … ON CONFLICT 
 
 ---
 
+## #16 — Denormalized `avg_rating` on `housing` and `carinderia`
+
+**Date:** 2026-05-26
+**Status:** Accepted
+
+**Context:** Phase 3 queries computed average rating inline as a correlated subquery on every
+page load. Phase 10 adds a trigger that maintains the value automatically after every review
+INSERT/UPDATE/DELETE.
+
+**Decision:** Add `avg_rating NUMERIC(3,2)` to `housing` and `carinderia`. A PostgreSQL
+`AFTER INSERT OR UPDATE OR DELETE` trigger on `review` (`trg_review_avg_rating`) recomputes and
+writes the value back to the parent listing. Existing rows were backfilled at migration time.
+All DDL lives in `db/triggers.sql`.
+
+**Rejected:** Keeping the inline subquery — correct but recomputes on every request; the trigger
+approach is faster at read time and demonstrates DB-level automation for the CMSC 127 submission.
+
+**Consequences:** `housing.avg_rating` and `carinderia.avg_rating` are now real columns.
+Queries in `lib/queries/housing.ts` and `lib/queries/carinderia.ts` should read the column
+directly instead of computing AVG inline. The column is nullable — NULL means no reviews yet.
+
+---
+
 ## Pending decisions
 
 | # | Topic | Status |
