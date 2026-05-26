@@ -8,6 +8,7 @@ import HousingResults from '@/components/HousingResults'
 import HousingOverviewPanel from '@/components/HousingOverviewPanel'
 
 const PANEL_W = 420
+const PANEL_GAP = 16
 
 type Props = {
   listings: HousingListItem[]
@@ -32,8 +33,8 @@ export default function HousingPageShell({
     <>
       {/* Main — right padding grows when panel opens, compressing content left */}
       <motion.main
-        className="max-w-screen-xl mx-auto pl-6 py-8 space-y-6"
-        animate={{ paddingRight: isOpen ? PANEL_W + 24 : 24 }}
+        className="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 py-8 space-y-6"
+        animate={{ paddingRight: isOpen ? PANEL_W + PANEL_GAP : 24 }}
         initial={{ paddingRight: 24 }}
         transition={{ type: 'spring', stiffness: 280, damping: 36 }}
       >
