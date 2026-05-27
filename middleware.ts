@@ -9,6 +9,7 @@ const PROTECTED_PREFIXES = [
   '/visits',
   '/messages',
   '/host',
+  '/carinderias/new',
 ]
 
 function getSecret(): Uint8Array {
@@ -47,5 +48,6 @@ export const config = {
     '/visits/:path*',
     '/messages/:path*',
     '/host/:path*',
+    '/carinderias/new',
   ],
 }

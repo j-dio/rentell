@@ -21,6 +21,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
 
-  const result = await createCarinderia(session.userId, parsed.data)
-  return NextResponse.json(result, { status: 201 })
+  try {
+    const result = await createCarinderia(session.userId, parsed.data)
+    return NextResponse.json(result, { status: 201 })
+  } catch {
+    return NextResponse.json({ error: 'Failed to create carinderia' }, { status: 500 })
+  }
 }
