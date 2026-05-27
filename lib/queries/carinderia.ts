@@ -99,3 +99,41 @@ export async function createCarinderia(
   `
   return row
 }
+
+// ── Carinderia Images ─────────────────────────────────────────────────────────
+
+export async function addCarinderiaImage(
+  carinderiaId: number,
+  addedBy: number,
+  url: string,
+  caption?: string | null,
+  isPrimary = false,
+): Promise<{ image_id: number } | undefined> {
+  const rows = await sql<{ image_id: number }[]>`
+    INSERT INTO carinderia_image (carinderia_id, url, caption, is_primary)
+    SELECT ${carinderiaId}, ${url}, ${caption ?? null}, ${isPrimary}
+    FROM carinderia
+    WHERE carinderia_id = ${carinderiaId}
+      AND added_by      = ${addedBy}
+    RETURNING image_id
+  `
+  return rows[0]
+}
+
+export async function removeCarinderiaImage(
+  imageId: number,
+  carinderiaId: number,
+  addedBy: number,
+): Promise<boolean> {
+  const rows = await sql`
+    DELETE FROM carinderia_image
+    WHERE image_id      = ${imageId}
+      AND carinderia_id IN (
+        SELECT carinderia_id FROM carinderia
+        WHERE carinderia_id = ${carinderiaId}
+          AND added_by      = ${addedBy}
+      )
+    RETURNING image_id
+  `
+  return rows.length > 0
+}
