@@ -13,6 +13,15 @@ type Props = {
   visitingHours: VisitingHour[]
 }
 
+/** Formats a Date as the value `datetime-local` inputs expect: "YYYY-MM-DDTHH:MM" */
+function toDatetimeLocalMin(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return (
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
+    `T${pad(d.getHours())}:${pad(d.getMinutes())}`
+  )
+}
+
 export default function VisitRequestForm({ housingId, visitingHours }: Props) {
   const router = useRouter()
   const [scheduledAt, setScheduledAt] = useState('')
@@ -96,6 +105,7 @@ export default function VisitRequestForm({ housingId, visitingHours }: Props) {
             id="scheduled_at"
             type="datetime-local"
             value={scheduledAt}
+            min={toDatetimeLocalMin(new Date())}
             onChange={(e) => setScheduledAt(e.target.value)}
             required
             className="w-full border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring"
