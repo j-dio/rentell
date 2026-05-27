@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,12 +15,12 @@ type CarinderiaImage = {
 
 export default function CarinderiaImageForm({
   carinderiaId,
-  images,
+  images: initialImages,
 }: {
   carinderiaId: number
   images: CarinderiaImage[]
 }) {
-  const router = useRouter()
+  const [images, setImages] = useState<CarinderiaImage[]>(initialImages)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [deleting, setDeleting] = useState<number | null>(null)
@@ -56,8 +55,9 @@ export default function CarinderiaImageForm({
         )
         return
       }
+      const newImage: CarinderiaImage = await res.json()
+      setImages((prev) => [...prev, newImage])
       ;(e.target as HTMLFormElement).reset()
-      router.refresh()
     } catch {
       setError('Network error. Please try again.')
     } finally {
@@ -78,7 +78,7 @@ export default function CarinderiaImageForm({
         setError(data.error ?? 'Failed to remove image')
         return
       }
-      router.refresh()
+      setImages((prev) => prev.filter((img) => img.image_id !== imageId))
     } catch {
       setError('Network error. Please try again.')
     } finally {

@@ -9,6 +9,7 @@ const PROTECTED_PREFIXES = [
   '/visits',
   '/messages',
   '/host',
+  '/listings',
   '/carinderias/new',
 ]
 
@@ -48,6 +49,8 @@ export const config = {
     '/visits/:path*',
     '/messages/:path*',
     '/host/:path*',
+    '/listings/:path*',
+    '/listings',
     '/carinderias/new',
   ],
 }

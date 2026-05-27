@@ -1,5 +1,4 @@
 import { Suspense } from 'react'
-import Link from 'next/link'
 import { searchCarinderias } from '@/lib/queries/search'
 import { getFavoritesByUser } from '@/lib/queries/favorites'
 import { getSession } from '@/lib/session'
@@ -35,14 +34,6 @@ export default async function CarinderiasPage({ searchParams }: PageProps) {
     <main className="max-w-screen-xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Carinderias</h1>
-        {session && (
-          <Link
-            href="/carinderias/new"
-            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            + Add carinderia
-          </Link>
-        )}
       </div>
 
       <div className="mb-6 max-w-lg">

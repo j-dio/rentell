@@ -5,7 +5,6 @@ import { getSession } from '@/lib/session'
 import ImageGallery from '@/components/ImageGallery'
 import ReviewList from '@/components/ReviewList'
 import ReviewForm from '@/components/ReviewForm'
-import CarinderiaImageForm from '@/components/CarinderiaImageForm'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,13 +41,6 @@ export default async function CarinderiaDetailPage({ params }: Props) {
         <div>
           <h2 className="text-lg font-semibold mb-2">About</h2>
           <p className="text-sm text-muted-foreground whitespace-pre-line">{description}</p>
-        </div>
-      )}
-
-      {session?.userId === carinderia.added_by && (
-        <div>
-          <h2 className="text-lg font-semibold mb-3">Images</h2>
-          <CarinderiaImageForm carinderiaId={id} images={carinderia.images} />
         </div>
       )}
 

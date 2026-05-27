@@ -74,10 +74,10 @@ export default function NewListingPage() {
   return (
     <main className="max-w-2xl mx-auto px-4 py-10">
       <div className="mb-8">
-        <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Back to dashboard
+        <Link href="/listings" className="text-sm text-muted-foreground hover:text-foreground">
+          ← My Listings
         </Link>
-        <h1 className="text-2xl font-bold mt-3">New listing</h1>
+        <h1 className="text-2xl font-bold mt-3">New Housing Listing</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

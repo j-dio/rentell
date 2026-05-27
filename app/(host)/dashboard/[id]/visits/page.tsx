@@ -27,7 +27,7 @@ export default async function OwnerVisitsPage({ params }: Params) {
 
   const housing = await getHousingById(housingId)
   if (!housing) notFound()
-  if (housing.owner_id !== session.userId) redirect('/dashboard')
+  if (housing.owner_id !== session.userId) redirect('/listings')
 
   const visits = await getVisitsByHousing(housingId)
 
