@@ -40,7 +40,7 @@ export default function ReviewList({ reviews, currentUserId }: Props) {
       if (!res.ok) {
         const data = await res.json()
         const e = data.error
-        setError(typeof e === 'string' ? e : e?.formErrors?.[0] ?? Object.values(e?.fieldErrors ?? {})?.[0]?.[0] ?? 'Failed to update')
+        setError(typeof e === 'string' ? e : e?.formErrors?.[0] ?? (Object.values(e?.fieldErrors ?? {}) as string[][])?.[0]?.[0] ?? 'Failed to update')
         return
       }
       setEditing(null)

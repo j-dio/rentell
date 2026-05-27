@@ -26,15 +26,24 @@ export default function NewListingPage() {
 
     const fd = new FormData(e.currentTarget)
 
+    const priceMin = fd.get('monthly_price_min') ? Number(fd.get('monthly_price_min')) : null
+    const priceMax = fd.get('monthly_price_max') ? Number(fd.get('monthly_price_max')) : null
+
+    if (priceMin != null && priceMax != null && priceMin > priceMax) {
+      setError('Min price cannot be greater than max price.')
+      setSubmitting(false)
+      return
+    }
+
     const body = {
       name: fd.get('name') as string,
       housing_type: fd.get('housing_type') as string,
       address: fd.get('address') as string,
       contact_person: (fd.get('contact_person') as string) || null,
       contact_number: (fd.get('contact_number') as string) || null,
-      description: (fd.get('description') as string) || null,
-      monthly_price_min: fd.get('monthly_price_min') ? Number(fd.get('monthly_price_min')) : null,
-      monthly_price_max: fd.get('monthly_price_max') ? Number(fd.get('monthly_price_max')) : null,
+      description: (fd.get('description') as string).trim() || null,
+      monthly_price_min: priceMin,
+      monthly_price_max: priceMax,
       proximity_to_campus_km: fd.get('proximity_to_campus_km')
         ? Number(fd.get('proximity_to_campus_km'))
         : null,

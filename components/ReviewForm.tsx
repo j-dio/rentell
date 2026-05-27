@@ -41,7 +41,7 @@ export default function ReviewForm({ listingType, listingId }: Props) {
       if (!res.ok) {
         const data = await res.json()
         const e = data.error
-        setError(typeof e === 'string' ? e : e?.formErrors?.[0] ?? Object.values(e?.fieldErrors ?? {})?.[0]?.[0] ?? 'Failed to submit review')
+        setError(typeof e === 'string' ? e : e?.formErrors?.[0] ?? (Object.values(e?.fieldErrors ?? {}) as string[][])?.[0]?.[0] ?? 'Failed to submit review')
         return
       }
 
