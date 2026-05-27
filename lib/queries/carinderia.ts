@@ -76,3 +76,26 @@ export async function getCarinderiaById(id: number): Promise<CarinderiaDetail | 
 
   return { ...carinderia, images }
 }
+
+export type CreateCarinderiaData = {
+  name: string
+  address: string
+  description?: string | null
+}
+
+export async function createCarinderia(
+  addedBy: number,
+  data: CreateCarinderiaData,
+): Promise<{ carinderia_id: number }> {
+  const [row] = await sql<{ carinderia_id: number }[]>`
+    INSERT INTO carinderia (added_by, name, address, description)
+    VALUES (
+      ${addedBy},
+      ${data.name},
+      ${data.address},
+      ${data.description ?? null}
+    )
+    RETURNING carinderia_id
+  `
+  return row
+}
