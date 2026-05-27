@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,12 +16,12 @@ type HousingImage = {
 
 export default function ImageURLForm({
   housingId,
-  images,
+  images: initialImages,
 }: {
   housingId: number
   images: HousingImage[]
 }) {
-  const router = useRouter()
+  const [images, setImages] = useState<HousingImage[]>(initialImages)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [deleting, setDeleting] = useState<number | null>(null)
@@ -51,8 +50,9 @@ export default function ImageURLForm({
         setError(data.error?.formErrors?.[0] ?? data.error ?? 'Failed to add image')
         return
       }
+      const newImage: HousingImage = await res.json()
+      setImages((prev) => [...prev, newImage])
       ;(e.target as HTMLFormElement).reset()
-      router.refresh()
     } catch {
       setError('Network error. Please try again.')
     } finally {
@@ -73,7 +73,7 @@ export default function ImageURLForm({
         setError(data.error ?? 'Failed to remove image')
         return
       }
-      router.refresh()
+      setImages((prev) => prev.filter((img) => img.image_id !== imageId))
     } catch {
       setError('Network error. Please try again.')
     } finally {

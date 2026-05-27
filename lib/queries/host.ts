@@ -142,6 +142,14 @@ export async function deleteRoom(roomId: number, housingId: number, ownerId: num
 
 // ── Housing Images ────────────────────────────────────────────────────────────
 
+export type HousingImageRow = {
+  image_id: number
+  url: string
+  caption: string | null
+  is_primary: boolean
+  sort_order: number
+}
+
 export async function addHousingImage(
   housingId: number,
   ownerId: number,
@@ -149,16 +157,16 @@ export async function addHousingImage(
   caption?: string | null,
   isPrimary = false,
   sortOrder = 0,
-) {
-  const rows = await sql`
+): Promise<HousingImageRow | undefined> {
+  const rows = await sql<HousingImageRow[]>`
     INSERT INTO housing_image (housing_id, url, caption, is_primary, sort_order)
     SELECT ${housingId}, ${url}, ${caption ?? null}, ${isPrimary}, ${sortOrder}
     FROM housing
     WHERE housing_id = ${housingId}
       AND owner_id   = ${ownerId}
-    RETURNING image_id
+    RETURNING image_id, url, caption, is_primary, sort_order
   `
-  return rows[0] as { image_id: number } | undefined
+  return rows[0]
 }
 
 export async function removeHousingImage(imageId: number, housingId: number, ownerId: number) {

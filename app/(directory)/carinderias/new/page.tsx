@@ -7,50 +7,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import CarinderiaImageForm from '@/components/CarinderiaImageForm'
+import StepIndicator from '@/components/StepIndicator'
 
 type Step = 'form' | 'images'
 
-function StepIndicator({ current }: { current: Step }) {
-  return (
-    <div className="flex items-center gap-2 mb-8 text-sm">
-      <span
-        className={`flex items-center gap-1.5 font-medium ${
-          current === 'form' ? 'text-primary' : 'text-muted-foreground'
-        }`}
-      >
-        <span
-          className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold ${
-            current === 'images'
-              ? 'bg-primary/15 text-primary'
-              : 'bg-primary text-primary-foreground'
-          }`}
-        >
-          {current === 'images' ? '✓' : '1'}
-        </span>
-        Basic Info
-      </span>
-
-      <span className="text-muted-foreground">›</span>
-
-      <span
-        className={`flex items-center gap-1.5 font-medium ${
-          current === 'images' ? 'text-primary' : 'text-muted-foreground'
-        }`}
-      >
-        <span
-          className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold ${
-            current === 'images'
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground'
-          }`}
-        >
-          2
-        </span>
-        Add Photos
-      </span>
-    </div>
-  )
-}
+const STEPS = ['Basic Info', 'Add Photos']
 
 export default function NewCarinderiaPage() {
   const router = useRouter()
@@ -120,7 +81,7 @@ export default function NewCarinderiaPage() {
           <h1 className="text-2xl font-bold mt-3">Add a carinderia</h1>
         </div>
 
-        <StepIndicator current="images" />
+        <StepIndicator steps={STEPS} current={1} />
 
         <div className="mb-6 p-4 rounded-lg bg-primary/5 border border-primary/20">
           <p className="text-sm font-medium text-primary">
@@ -163,7 +124,7 @@ export default function NewCarinderiaPage() {
         <h1 className="text-2xl font-bold mt-3">Add a carinderia</h1>
       </div>
 
-      <StepIndicator current="form" />
+      <StepIndicator steps={STEPS} current={0} />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (

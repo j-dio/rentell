@@ -6,6 +6,11 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import StepIndicator from '@/components/StepIndicator'
+import ImageURLForm from '@/components/host/ImageURLForm'
+import RoomForm from '@/components/host/RoomForm'
+
+const STEPS = ['Basic Info', 'Add Photos', 'Add Rooms']
 
 const HOUSING_TYPES = [
   { value: 'dormitory', label: 'Dormitory' },
@@ -14,8 +19,13 @@ const HOUSING_TYPES = [
   { value: 'other', label: 'Other' },
 ]
 
+type Step = 'form' | 'photos' | 'rooms'
+
 export default function NewListingPage() {
   const router = useRouter()
+  const [step, setStep] = useState<Step>('form')
+  const [housingId, setHousingId] = useState<number | null>(null)
+  const [housingName, setHousingName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -25,7 +35,7 @@ export default function NewListingPage() {
     setSubmitting(true)
 
     const fd = new FormData(e.currentTarget)
-
+    const name = (fd.get('name') as string).trim()
     const priceMin = fd.get('monthly_price_min') ? Number(fd.get('monthly_price_min')) : null
     const priceMax = fd.get('monthly_price_max') ? Number(fd.get('monthly_price_max')) : null
 
@@ -36,11 +46,11 @@ export default function NewListingPage() {
     }
 
     const body = {
-      name: fd.get('name') as string,
+      name,
       housing_type: fd.get('housing_type') as string,
-      address: fd.get('address') as string,
-      contact_person: (fd.get('contact_person') as string) || null,
-      contact_number: (fd.get('contact_number') as string) || null,
+      address: (fd.get('address') as string).trim(),
+      contact_person: (fd.get('contact_person') as string).trim() || null,
+      contact_number: (fd.get('contact_number') as string).trim() || null,
       description: (fd.get('description') as string).trim() || null,
       monthly_price_min: priceMin,
       monthly_price_max: priceMax,
@@ -63,7 +73,9 @@ export default function NewListingPage() {
       }
 
       const { housing_id } = await res.json()
-      router.push(`/dashboard/${housing_id}`)
+      setHousingId(housing_id)
+      setHousingName(name)
+      setStep('photos')
     } catch {
       setError('Network error. Please try again.')
     } finally {
@@ -71,14 +83,95 @@ export default function NewListingPage() {
     }
   }
 
+  const stepIndex = step === 'form' ? 0 : step === 'photos' ? 1 : 2
+
+  const header = (
+    <div className="mb-2">
+      <Link href="/listings" className="text-sm text-muted-foreground hover:text-foreground">
+        ← My Listings
+      </Link>
+      <h1 className="text-2xl font-bold mt-3">New Housing Listing</h1>
+    </div>
+  )
+
+  // ── Step 3: Add Rooms ─────────────────────────────────────────────────────
+  if (step === 'rooms' && housingId !== null) {
+    return (
+      <main className="max-w-2xl mx-auto px-4 py-10">
+        {header}
+        <StepIndicator steps={STEPS} current={stepIndex} />
+
+        <div className="mb-6 p-4 rounded-lg bg-primary/5 border border-primary/20">
+          <p className="text-sm font-medium text-primary">Almost there!</p>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Add the rooms or unit types available in your property.{' '}
+            <span className="italic">You can skip this and add them later.</span>
+          </p>
+        </div>
+
+        <RoomForm housingId={housingId} rooms={[]} />
+
+        <div className="flex flex-wrap items-center gap-3 mt-8 pt-6 border-t">
+          <Button onClick={() => router.push('/listings')}>
+            Done — Go to My Listings →
+          </Button>
+          <Button variant="outline" onClick={() => router.push('/listings')}>
+            Skip for now
+          </Button>
+          <Link
+            href={`/dashboard/${housingId}`}
+            className="ml-auto text-sm text-muted-foreground hover:text-foreground"
+          >
+            Full listing setup ↗
+          </Link>
+        </div>
+      </main>
+    )
+  }
+
+  // ── Step 2: Add Photos ────────────────────────────────────────────────────
+  if (step === 'photos' && housingId !== null) {
+    return (
+      <main className="max-w-2xl mx-auto px-4 py-10">
+        {header}
+        <StepIndicator steps={STEPS} current={stepIndex} />
+
+        <div className="mb-6 p-4 rounded-lg bg-primary/5 border border-primary/20">
+          <p className="text-sm font-medium text-primary">
+            ✓ &ldquo;{housingName}&rdquo; was created!
+          </p>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Add photos to showcase your property.{' '}
+            <span className="italic">This step is optional.</span>
+          </p>
+        </div>
+
+        <ImageURLForm housingId={housingId} images={[]} />
+
+        <div className="flex flex-wrap items-center gap-3 mt-8 pt-6 border-t">
+          <Button onClick={() => setStep('rooms')}>
+            Continue to Add Rooms →
+          </Button>
+          <Button variant="outline" onClick={() => router.push('/listings')}>
+            Skip remaining steps
+          </Button>
+          <Link
+            href={`/housing/${housingId}`}
+            target="_blank"
+            className="ml-auto text-sm text-muted-foreground hover:text-foreground"
+          >
+            View listing ↗
+          </Link>
+        </div>
+      </main>
+    )
+  }
+
+  // ── Step 1: Basic Info ────────────────────────────────────────────────────
   return (
     <main className="max-w-2xl mx-auto px-4 py-10">
-      <div className="mb-8">
-        <Link href="/listings" className="text-sm text-muted-foreground hover:text-foreground">
-          ← My Listings
-        </Link>
-        <h1 className="text-2xl font-bold mt-3">New Housing Listing</h1>
-      </div>
+      {header}
+      <StepIndicator steps={STEPS} current={stepIndex} />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (
@@ -151,7 +244,7 @@ export default function NewListingPage() {
 
         <div className="flex gap-3 pt-2">
           <Button type="submit" disabled={submitting}>
-            {submitting ? 'Creating…' : 'Create listing'}
+            {submitting ? 'Creating…' : 'Save & Add Photos →'}
           </Button>
           <Button type="button" variant="outline" onClick={() => router.back()}>
             Cancel
