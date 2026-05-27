@@ -10,6 +10,7 @@ import ImageURLForm from '@/components/host/ImageURLForm'
 import VisitingHoursForm from '@/components/host/VisitingHoursForm'
 import NearbyAttachForm from '@/components/host/NearbyAttachForm'
 import HousingDetailsForm from '@/components/host/HousingDetailsForm'
+import AmenityTagForm from '@/components/host/AmenityTagForm'
 
 type VisitingHour = { id: number; day_of_week: number; start_time: string; end_time: string }
 type Carinderia   = { carinderia_id: number; name: string; address: string }
@@ -45,7 +46,6 @@ export default async function ManageListingPage({ params }: Params) {
 
   const linkedCarinderiaIds = new Set(housing.nearby_carinderias.map((c) => c.carinderia_id))
   const linkedEssentialIds  = new Set(housing.nearby_essentials.map((e) => e.essential_id))
-  const taggedAmenities     = new Set(housing.amenities)
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-10 space-y-12">
@@ -127,29 +127,11 @@ export default async function ManageListingPage({ params }: Params) {
       {/* Amenities */}
       <section>
         <h2 className="text-lg font-semibold mb-4">Amenities</h2>
-        {housing.amenities.length > 0 ? (
-          <div className="flex flex-wrap gap-2 mb-2">
-            {housing.amenities.map((a) => (
-              <span key={a} className="text-sm bg-muted px-3 py-1 rounded-full">{a}</span>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground mb-2">No amenities tagged.</p>
-        )}
-        {allAmenities.filter((a) => !taggedAmenities.has(a.name)).length > 0 && (
-          <div className="mt-3">
-            <p className="text-xs text-muted-foreground mb-2">Available to tag:</p>
-            <div className="flex flex-wrap gap-2">
-              {allAmenities
-                .filter((a) => !taggedAmenities.has(a.name))
-                .map((a) => (
-                  <span key={a.name} className="text-sm border px-3 py-1 rounded-full text-muted-foreground">
-                    {a.name}
-                  </span>
-                ))}
-            </div>
-          </div>
-        )}
+        <AmenityTagForm
+          housingId={housingId}
+          allAmenities={allAmenities.map((a) => a.name)}
+          taggedAmenities={housing.amenities}
+        />
       </section>
     </main>
   )

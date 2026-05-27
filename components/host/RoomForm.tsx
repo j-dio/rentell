@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,12 +22,12 @@ const ROOM_TYPES = [
 
 export default function RoomForm({
   housingId,
-  rooms,
+  rooms: initialRooms,
 }: {
   housingId: number
   rooms: Room[]
 }) {
-  const router = useRouter()
+  const [rooms, setRooms] = useState<Room[]>(initialRooms)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [deleting, setDeleting] = useState<number | null>(null)
@@ -60,8 +59,19 @@ export default function RoomForm({
         setError(data.error?.formErrors?.[0] ?? data.error ?? 'Failed to add room')
         return
       }
+      const { room_id } = await res.json() as { room_id: number }
+      setRooms((prev) => [
+        ...prev,
+        {
+          room_id,
+          room_number: body.room_number ?? null,
+          room_type: body.room_type,
+          capacity: body.capacity,
+          available_slots: body.available_slots,
+          monthly_price: String(body.monthly_price),
+        },
+      ])
       ;(e.target as HTMLFormElement).reset()
-      router.refresh()
     } catch {
       setError('Network error. Please try again.')
     } finally {
@@ -94,9 +104,24 @@ export default function RoomForm({
         setError(msg)
         return
       }
+      setRooms((prev) =>
+        prev.map((r) =>
+          r.room_id === roomId
+            ? {
+                ...r,
+                room_type: editValues.room_type ?? r.room_type,
+                room_number: editValues.room_number !== undefined ? editValues.room_number : r.room_number,
+                capacity: editValues.capacity ?? r.capacity,
+                available_slots: editValues.available_slots ?? r.available_slots,
+                monthly_price: editValues.monthly_price !== undefined
+                  ? String(editValues.monthly_price)
+                  : r.monthly_price,
+              }
+            : r,
+        ),
+      )
       setEditingId(null)
       setEditValues({})
-      router.refresh()
     } catch {
       setError('Network error. Please try again.')
     } finally {
@@ -118,7 +143,7 @@ export default function RoomForm({
         setError(data.error ?? 'Failed to delete room')
         return
       }
-      router.refresh()
+      setRooms((prev) => prev.filter((r) => r.room_id !== roomId))
     } catch {
       setError('Network error. Please try again.')
     } finally {

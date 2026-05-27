@@ -22,10 +22,11 @@
 | 5 | Reviews & Ratings | Day 4 AM | MVP | [x] Done |
 | 6 | Favorites | Day 4 PM | MVP | [x] Done |
 | 7 | Search & Filter | Day 5 AM | MVP | [ ] Not started |
-| 8 | UI Polish | Day 5 PM | MVP | [ ] Not started |
+| 8 | UI Polish | Day 5 PM | MVP | [x] Done (partial) |
 | 9 | Book a Visit | If time permits | Stretch | [x] Done |
 | 10 | Trigger Showcases | If time permits | Stretch | [x] Done |
 | 11 | Messaging UI | Post-submission | Stretch | [ ] Not started |
+| 12 | Carinderia Management & Unified Listings | Post-submission | Stretch | [x] Done |
 
 ---
 
@@ -137,7 +138,7 @@
 - `app/(directory)/housing/page.tsx` — listing page: cards with name, type, price range, proximity, primary image, avg rating
 - `app/(directory)/housing/[id]/page.tsx` — detail: all fields + room list (with available_slots) + amenities + nearby carinderias + nearby essentials + photo gallery + reviews section
 - `app/(directory)/carinderias/page.tsx` — listing page: cards with name, address, primary image, avg rating
-- `app/(directory)/carinderias/[id]/page.tsx` — detail: all fields + photo gallery + reviews section
+- `app/(directory)/carinderias/[id]/page.tsx` — detail: all fields + photo gallery + reviews section *(image management for contributors was moved to `/carinderias/[id]/manage` in Phase 12 — this page no longer contains `CarinderiaImageForm`)*
 - `components/HousingCard.tsx`, `components/CarinderiaCard.tsx`
 - `components/RoomList.tsx`, `components/AmenityList.tsx`, `components/NearbyList.tsx`
 - `components/ImageGallery.tsx`
@@ -176,11 +177,17 @@
 - `app/api/host/housing/[id]/images/route.ts` — POST (add URL), DELETE
 - `app/api/host/housing/[id]/visiting-hours/route.ts` — POST, DELETE
 - `app/api/host/housing/[id]/nearby/route.ts` — POST/DELETE for carinderia + essential links
-- `app/(host)/dashboard/page.tsx` — lists owner's housing listings
-- `app/(host)/dashboard/new/page.tsx` — create housing form
+- `app/(host)/dashboard/page.tsx` — redirects to `/listings` (see Phase 12); originally listed owner's housing listings
+- `app/(host)/dashboard/new/page.tsx` — create housing form (multi-step: Basic Info → Add Photos → Add Rooms; see Phase 12 for StepIndicator)
 - `app/(host)/dashboard/[id]/page.tsx` — manage a single listing (rooms, images, hours, nearby, amenities)
 - `components/host/RoomForm.tsx`, `ImageURLForm.tsx`, `VisitingHoursForm.tsx`, `NearbyAttachForm.tsx`
 - `app/profile/page.tsx` — profile page with "Become a host" toggle (sets `is_host = true`)
+- `app/listings/page.tsx` — unified listings page for all authenticated users (added Phase 12)
+- `app/(directory)/carinderias/[id]/manage/page.tsx` — carinderia management page for contributors (added Phase 12)
+- `components/CarinderiaEditForm.tsx` — inline edit form for carinderia fields (added Phase 12)
+- `components/DeleteCarinderiaButton.tsx` — confirm-and-delete button for carinderias (added Phase 12)
+- `components/host/HousingDetailsForm.tsx` — basic-details edit form for housing (added Phase 12)
+- `components/StepIndicator.tsx` — shared progress indicator for multi-step creation flows (added Phase 12)
 
 ### Tables touched
 `housing`, `room`, `housing_image`, `room_image`, `housing_visiting_hours`, `housing_amenity`, `housing_essential`, `housing_carinderia`, `users` (is_host update)
@@ -310,6 +317,8 @@ Build parameterized WHERE clause server-side. Never interpolate unsanitized user
 - [ ] Nav shows correct state (logged out vs logged in)
 - [ ] Layout holds at 768px (tablet) and 1280px (desktop)
 - [ ] No console errors on any page
+- [x] `/carinderias/new` uses a 2-step inline flow (Basic Info → Add Photos) with `StepIndicator`
+- [x] `/dashboard/new` uses a 3-step inline flow (Basic Info → Add Photos → Add Rooms) with `StepIndicator`
 
 ---
 
@@ -386,3 +395,47 @@ Build parameterized WHERE clause server-side. Never interpolate unsanitized user
 - [ ] `read_at` updates when recipient views the message
 - [ ] `user_one_id < user_two_id` canonical ordering is enforced when creating conversations
 - [ ] User cannot read conversations they are not part of
+
+---
+
+## Phase 12 — Carinderia Management & Unified Listings *(post-submission stretch)*
+
+**Goal:** Any logged-in user has a single place (`/listings`) to manage all their listings. Carinderias get full CRUD with image management. Housing gets basic-detail inline editing. New-listing creation uses multi-step flows with a shared `StepIndicator`.
+
+**PRD ref:** Phase 12 scope (post-submission)
+
+### Files
+- `app/listings/page.tsx` — unified listings page; hosts see housing + carinderias sections, regular users see carinderias only; middleware-protected
+- `app/(directory)/carinderias/[id]/manage/page.tsx` — carinderia management page for the contributor: inline edit, image management, delete
+- `app/(host)/dashboard/page.tsx` — now simply redirects to `/listings`
+- `app/(host)/dashboard/new/page.tsx` — housing creation using 3-step inline flow (Basic Info → Add Photos → Add Rooms)
+- `app/carinderias/new/page.tsx` — carinderia creation using 2-step inline flow (Basic Info → Add Photos)
+- `components/CarinderiaEditForm.tsx` — inline form to edit carinderia name, address, description, coordinates
+- `components/DeleteCarinderiaButton.tsx` — confirm-and-delete button; calls DELETE API; redirects to `/listings` on success
+- `components/host/HousingDetailsForm.tsx` — inline form to edit basic housing fields (name, type, price range, address, description, capacity, proximity)
+- `components/StepIndicator.tsx` — shared step progress bar; accepts `steps: string[]` and `currentStep: number`
+- `components/CarinderiaImageForm.tsx` — image add/delete for carinderias; now manages its own `images` list in `useState` (no `router.refresh`)
+- `components/host/ImageURLForm.tsx` — housing image add/delete; migrated to local `useState` list management
+- `components/host/RoomForm.tsx` — room add/delete; migrated to local `useState` list management
+
+### Tables touched
+`carinderia` (UPDATE, DELETE), `carinderia_image` (INSERT, DELETE), `housing` (UPDATE), `housing_image` (INSERT, DELETE), `room` (INSERT, DELETE)
+
+### API routes
+- `app/api/carinderias/[id]/route.ts` — PUT (update fields), DELETE (remove carinderia + cascade images)
+- `app/api/carinderias/[id]/images/route.ts` — POST (add image URL), DELETE (remove image)
+- `app/api/host/housing/[id]/route.ts` (existing) — PUT extended to accept basic-detail edits from `HousingDetailsForm`
+
+### Acceptance criteria
+- [x] All authenticated users see "My Listings" in the nav; `/listings` is middleware-protected
+- [x] Hosts see a Housing section and a Carinderias section on `/listings`; regular users see only the Carinderias section
+- [x] Contributor can edit carinderia name, address, description, and coordinates from `/carinderias/[id]/manage`
+- [x] Contributor can add and delete carinderia images from `/carinderias/[id]/manage`; list updates without page reload
+- [x] Contributor can delete their carinderia; row removed from DB and redirected to `/listings`
+- [x] Non-contributor cannot access `/carinderias/[id]/manage` for another user's carinderia (403)
+- [x] Host can edit basic housing details (name, type, price range, address, description) from the housing manage page
+- [x] `/dashboard` (root) redirects to `/listings`; all housing sub-routes (`/dashboard/[id]`, `/dashboard/new`) remain unchanged
+- [x] `/carinderias/new` 2-step flow: step 1 creates the carinderia row, step 2 adds photos, Done goes to `/listings`
+- [x] `/dashboard/new` 3-step flow: step 1 creates the housing row, step 2 adds images, step 3 adds rooms, Done goes to `/listings`
+- [x] `StepIndicator` shows current step highlighted; completed steps visually distinct
+- [x] `ImageURLForm` and `RoomForm` manage their displayed lists in local `useState` — no `router.refresh()` needed
