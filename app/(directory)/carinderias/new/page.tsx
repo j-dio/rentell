@@ -33,6 +33,10 @@ export default function NewCarinderiaPage() {
       })
 
       if (!res.ok) {
+        if (res.status === 401) {
+          router.push('/login?next=/carinderias/new')
+          return
+        }
         const data = await res.json()
         const e = data.error
         setError(
