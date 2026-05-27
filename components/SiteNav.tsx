@@ -27,10 +27,13 @@ const BASE_NAV: NavItem[] = [
   },
 ]
 
-const DASHBOARD_NAV: NavItem = {
-  href: '/dashboard',
-  label: 'Dashboard',
-  match: (pathname) => pathname === '/dashboard' || pathname.startsWith('/dashboard/'),
+const LISTINGS_NAV: NavItem = {
+  href: '/listings',
+  label: 'My Listings',
+  match: (pathname) =>
+    pathname === '/listings' ||
+    pathname === '/dashboard' ||
+    pathname.startsWith('/dashboard/'),
 }
 
 const VISITS_NAV: NavItem = {
@@ -84,9 +87,7 @@ type SiteNavProps = {
 
 export default function SiteNav({ user }: SiteNavProps) {
   const navItems = user
-    ? user.isHost
-      ? [...BASE_NAV, DASHBOARD_NAV, VISITS_NAV]
-      : [...BASE_NAV, VISITS_NAV]
+    ? [...BASE_NAV, LISTINGS_NAV, VISITS_NAV]
     : BASE_NAV
 
   return (

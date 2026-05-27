@@ -44,6 +44,20 @@ indexed columns can be NULL.
 
 ---
 
+## 2026-05-27 — Price range stored backwards (min > max) with no validation
+**Pattern:** `monthly_price_min` and `monthly_price_max` were each validated independently with `z.number().positive()` in the Zod schemas for the POST and PUT housing routes. There was no cross-field `.refine()` check. The creation form also performed no client-side comparison before submission. A host could enter a higher value for min than max and the data was saved to the database without rejection, producing displays like "₱20,000 – ₱10,000".
+**Fix:** (1) Add a client-side guard in the form's `handleSubmit` that returns early with a user-visible error message if `priceMin > priceMax`. (2) Add `.refine()` on the Zod object in both the POST (`route.ts`) and PUT (`[id]/route.ts`) API schemas that rejects payloads where both values are present and min > max.
+**Prevention:** Any pair of fields that encode a range (`_min` / `_max`, `_start` / `_end`, etc.) must have a cross-field Zod `.refine()` constraint at the API layer AND a matching client-side guard before the fetch call. Never rely on field-level validation alone for ordering relationships.
+
+---
+
+## 2026-05-27 — Description whitespace preserved, expanding the listing page
+**Pattern:** The `description` textarea was submitted raw — `(fd.get('description') as string) || null` — with no `.trim()`. The Zod schemas (`z.string().nullable().optional()`) also performed no trimming. The listing page renders description with `whitespace-pre-line`, which preserves every trailing newline, making the "About" section grow visually with empty space.
+**Fix:** Add `.trim()` to the form assignment (`(fd.get('description') as string).trim() || null`) and add `.trim()` to the Zod schema in both the POST and PUT routes (`z.string().trim().nullable().optional()`). The chained `.trim()` before `.nullable()` is valid in Zod and runs before the null check.
+**Prevention:** Any `<textarea>` or free-text `<input>` value must be `.trim()`-ed before inclusion in the fetch body. Any string field in a Zod schema that feeds a displayed block (`whitespace-pre-line`, `whitespace-pre-wrap`) must have `.trim()` in the schema.
+
+---
+
 ## How to add an entry
 
 ```

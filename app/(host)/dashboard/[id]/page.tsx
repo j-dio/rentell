@@ -9,6 +9,7 @@ import RoomForm from '@/components/host/RoomForm'
 import ImageURLForm from '@/components/host/ImageURLForm'
 import VisitingHoursForm from '@/components/host/VisitingHoursForm'
 import NearbyAttachForm from '@/components/host/NearbyAttachForm'
+import HousingDetailsForm from '@/components/host/HousingDetailsForm'
 
 type VisitingHour = { id: number; day_of_week: number; start_time: string; end_time: string }
 type Carinderia   = { carinderia_id: number; name: string; address: string }
@@ -51,8 +52,8 @@ export default async function ManageListingPage({ params }: Params) {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">
-            ← Dashboard
+          <Link href="/listings" className="text-sm text-muted-foreground hover:text-foreground">
+            ← My Listings
           </Link>
           <h1 className="text-2xl font-bold mt-2">{housing.name}</h1>
           <p className="text-sm text-muted-foreground capitalize mt-0.5">
@@ -75,6 +76,23 @@ export default async function ManageListingPage({ params }: Params) {
           </Link>
         </div>
       </div>
+
+      {/* Basic Details */}
+      <section>
+        <h2 className="text-lg font-semibold mb-4">Basic Details</h2>
+        <HousingDetailsForm
+          housingId={housingId}
+          initialName={housing.name}
+          initialType={housing.housing_type}
+          initialAddress={housing.address}
+          initialPriceMin={housing.monthly_price_min}
+          initialPriceMax={housing.monthly_price_max}
+          initialContactPerson={housing.contact_person}
+          initialContactNumber={housing.contact_number}
+          initialProximity={housing.proximity_to_campus_km}
+          initialDescription={housing.description}
+        />
+      </section>
 
       {/* Rooms */}
       <section>

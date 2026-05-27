@@ -90,7 +90,7 @@ export default function RoomForm({
         const e = data.error
         const msg = typeof e === 'string'
           ? e
-          : e?.formErrors?.[0] ?? Object.values(e?.fieldErrors ?? {})?.[0]?.[0] ?? 'Failed to update room'
+          : e?.formErrors?.[0] ?? (Object.values(e?.fieldErrors ?? {}) as string[][])?.[0]?.[0] ?? 'Failed to update room'
         setError(msg)
         return
       }

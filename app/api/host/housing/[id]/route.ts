@@ -3,19 +3,27 @@ import { z } from 'zod'
 import { getSession } from '@/lib/session'
 import { updateHousing, deleteHousing } from '@/lib/queries/host'
 
-const updateHousingSchema = z.object({
-  name: z.string().min(1).max(100).optional(),
-  housing_type: z.enum(['dormitory', 'boarding_house', 'apartment', 'other']).optional(),
-  address: z.string().min(1).optional(),
-  latitude: z.number().nullable().optional(),
-  longitude: z.number().nullable().optional(),
-  monthly_price_min: z.number().positive().nullable().optional(),
-  monthly_price_max: z.number().positive().nullable().optional(),
-  contact_person: z.string().max(100).nullable().optional(),
-  contact_number: z.string().max(20).nullable().optional(),
-  proximity_to_campus_km: z.number().nonnegative().nullable().optional(),
-  description: z.string().nullable().optional(),
-})
+const updateHousingSchema = z
+  .object({
+    name: z.string().min(1).max(100).optional(),
+    housing_type: z.enum(['dormitory', 'boarding_house', 'apartment', 'other']).optional(),
+    address: z.string().min(1).optional(),
+    latitude: z.number().nullable().optional(),
+    longitude: z.number().nullable().optional(),
+    monthly_price_min: z.number().positive().nullable().optional(),
+    monthly_price_max: z.number().positive().nullable().optional(),
+    contact_person: z.string().max(100).nullable().optional(),
+    contact_number: z.string().max(20).nullable().optional(),
+    proximity_to_campus_km: z.number().nonnegative().nullable().optional(),
+    description: z.string().trim().nullable().optional(),
+  })
+  .refine(
+    (data) =>
+      data.monthly_price_min == null ||
+      data.monthly_price_max == null ||
+      data.monthly_price_min <= data.monthly_price_max,
+    { message: 'Min price must be less than or equal to max price.', path: ['monthly_price_min'] },
+  )
 
 type Params = { params: Promise<{ id: string }> }
 

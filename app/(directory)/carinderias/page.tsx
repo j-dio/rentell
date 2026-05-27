@@ -32,7 +32,9 @@ export default async function CarinderiasPage({ searchParams }: PageProps) {
 
   return (
     <main className="max-w-screen-xl mx-auto px-6 py-8">
-      <h1 className="text-2xl font-bold mb-6">Carinderias</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Carinderias</h1>
+      </div>
 
       <div className="mb-6 max-w-lg">
         <Suspense fallback={<div className="h-10 animate-pulse rounded-lg bg-gray-100" />}>

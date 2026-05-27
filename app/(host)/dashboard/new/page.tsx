@@ -26,15 +26,24 @@ export default function NewListingPage() {
 
     const fd = new FormData(e.currentTarget)
 
+    const priceMin = fd.get('monthly_price_min') ? Number(fd.get('monthly_price_min')) : null
+    const priceMax = fd.get('monthly_price_max') ? Number(fd.get('monthly_price_max')) : null
+
+    if (priceMin != null && priceMax != null && priceMin > priceMax) {
+      setError('Min price cannot be greater than max price.')
+      setSubmitting(false)
+      return
+    }
+
     const body = {
       name: fd.get('name') as string,
       housing_type: fd.get('housing_type') as string,
       address: fd.get('address') as string,
       contact_person: (fd.get('contact_person') as string) || null,
       contact_number: (fd.get('contact_number') as string) || null,
-      description: (fd.get('description') as string) || null,
-      monthly_price_min: fd.get('monthly_price_min') ? Number(fd.get('monthly_price_min')) : null,
-      monthly_price_max: fd.get('monthly_price_max') ? Number(fd.get('monthly_price_max')) : null,
+      description: (fd.get('description') as string).trim() || null,
+      monthly_price_min: priceMin,
+      monthly_price_max: priceMax,
       proximity_to_campus_km: fd.get('proximity_to_campus_km')
         ? Number(fd.get('proximity_to_campus_km'))
         : null,
@@ -65,10 +74,10 @@ export default function NewListingPage() {
   return (
     <main className="max-w-2xl mx-auto px-4 py-10">
       <div className="mb-8">
-        <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Back to dashboard
+        <Link href="/listings" className="text-sm text-muted-foreground hover:text-foreground">
+          ← My Listings
         </Link>
-        <h1 className="text-2xl font-bold mt-3">New listing</h1>
+        <h1 className="text-2xl font-bold mt-3">New Housing Listing</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
