@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import type { MouseEvent } from 'react'
 import type { HousingListItem } from '@/lib/queries/housing'
+import RatingStars from '@/components/RatingStars'
 
 type Props = {
   housing: HousingListItem
@@ -83,12 +84,7 @@ export default function HousingCard({ housing, onSelect, isSelected }: Props) {
             <h3 className="font-bold text-foreground text-base leading-snug line-clamp-2 flex-1">
               {name}
             </h3>
-            {avg_rating && (
-              <span className="flex items-center gap-0.5 text-sm font-semibold shrink-0">
-                <span style={{ color: 'var(--gold)' }}>★</span>
-                <span className="text-foreground">{Number(avg_rating).toFixed(1)}</span>
-              </span>
-            )}
+            <RatingStars rating={avg_rating} />
           </div>
 
           {/* Address */}

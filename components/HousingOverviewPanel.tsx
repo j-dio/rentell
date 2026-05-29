@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import type { HousingListItem } from '@/lib/queries/housing'
 import FavoriteButton from '@/components/FavoriteButton'
+import RatingStars from '@/components/RatingStars'
 
 type Props = {
   housing: HousingListItem | null
@@ -93,12 +94,7 @@ export default function HousingOverviewPanel({ housing, onClose, isFavorited, is
             <h2 className="text-lg font-bold text-foreground leading-snug flex-1">
               {housing.name}
             </h2>
-            {housing.avg_rating && (
-              <span className="flex items-center gap-1 text-sm font-semibold shrink-0 mt-0.5">
-                <span style={{ color: 'var(--gold)' }}>★</span>
-                <span className="text-foreground">{Number(housing.avg_rating).toFixed(1)}</span>
-              </span>
-            )}
+            <RatingStars rating={housing.avg_rating} />
           </div>
 
           {/* Address */}
