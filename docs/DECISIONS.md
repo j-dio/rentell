@@ -371,6 +371,51 @@ directly instead of computing AVG inline. The column is nullable — NULL means 
 
 ---
 
+## #17 — Phase 11: separate `/api/conversations` route (not in original spec)
+
+**Date:** 2026-05-30
+**Status:** Accepted
+
+**Context:** The original Phase 11 spec listed only `app/api/messages/route.ts` and `app/api/messages/[id]/route.ts`. The "Message host" button on the housing detail page needs to create or retrieve a conversation and redirect to its thread — a distinct concern from sending a message body.
+
+**Decision:** Add `app/api/conversations/route.ts` (POST) for create/get conversation. Keep `app/api/messages/route.ts` (POST) solely for sending message bodies. This gives each endpoint a single, clear responsibility and keeps API semantics clean.
+
+**Rejected:** A single `POST /api/messages` with an `action: 'start' | 'send'` discriminated union — works but is non-idiomatic REST and creates a single endpoint that does two unrelated things.
+
+**Consequences:** `MessageHostButton` calls `/api/conversations`; `MessageThread`'s send form calls `/api/messages`. Both share `lib/queries/messages.ts`. Future callers that need one operation don't have to know about the other.
+
+---
+
+## #18 — Phase 11: server component + client wrapper split for thread page
+
+**Date:** 2026-05-30
+**Status:** Accepted
+
+**Context:** The thread view needs both server-rendered initial data (messages, conversation metadata) and client-side interactivity (polling, send form). Two approaches considered: (A) full client component fetching data in `useEffect`; (B) server page component passing data as props to a `'use client'` wrapper.
+
+**Decision:** Option B — `app/messages/[id]/page.tsx` is a server component; `components/MessageThread.tsx` is the `'use client'` wrapper. The server component fetches messages and calls `markConversationRead` on every render. `router.refresh()` in `MessageThread` re-triggers the server render every 3 seconds, which re-fetches messages and re-marks read automatically.
+
+**Rejected:** Option A (full client component) — would produce a blank flash on initial load, requires an extra API call just to resolve `currentUserId`, and deviates from every other data-fetching page in the codebase.
+
+**Consequences:** `markConversationRead` is called on every poll cycle (idempotent — WHERE `read_at IS NULL`). The `PATCH /api/messages/[id]` endpoint exists as a client-callable fallback but is not the primary read-marking path.
+
+---
+
+## #19 — Phase 11: unread badge in main nav pill, not UserNav
+
+**Date:** 2026-05-30
+**Status:** Accepted
+
+**Context:** The "Messages" link could live in the right-side `UserNav` (alongside Favorites) or in the main `NavPill`. `NavItem` had no concept of a badge before this phase.
+
+**Decision:** Add "Messages" to the main `NavPill` with an optional `badge?: number` field on `NavItem`. The badge renders as a small CTA-orange pill at the top-right of the nav item. `app/layout.tsx` fetches `getUnreadCount(userId)` alongside `getSession()` and passes it to `<SiteNav>`.
+
+**Rejected:** Badge in `UserNav` — would require a separate `useEffect` fetch on every page mount, inconsistent with how session-derived data flows (server → layout → component). The layout-RSC approach is simpler and consistent.
+
+**Consequences:** `getUnreadCount` adds one COUNT query to every layout render (authenticated pages only). The badge updates on page navigation but not within the 3-second poll cycle inside the thread — a known limitation; fixing it requires a client-side poll in the nav layout (deferred, see Phase 11 known limitations in PHASES.md).
+
+---
+
 ## Pending decisions
 
 | # | Topic | Status |
@@ -378,3 +423,4 @@ directly instead of computing AVG inline. The column is nullable — NULL means 
 | — | Whether users can edit or delete their own reviews | Open — pending PRD update |
 | — | `listing_type` normalization if a third listing type is added | Deferred to post-v1 |
 | — | Geocoding strategy (who enters lat/lng, any automation?) | Open — pending Phase 3 |
+| — | Phase 11: `UNIQUE(user_one, user_two, housing_id)` does not prevent duplicates for `housing_id IS NULL` — needs partial indexes (same fix as #15 for `favorite`) | Deferred — Phase 11 always passes a `housing_id` so safe for now |
