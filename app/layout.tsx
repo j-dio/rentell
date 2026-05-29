@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { getSession } from "@/lib/session";
+import { getUnreadCount } from "@/lib/queries/messages";
 import SiteNav from "@/components/SiteNav";
 
 const geistSans = localFont({
@@ -26,11 +27,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const user = await getSession();
+  const unreadCount = user ? await getUnreadCount(user.userId) : 0;
 
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <SiteNav user={user} />
+        <SiteNav user={user} unreadCount={unreadCount} />
         {children}
       </body>
     </html>

@@ -11,6 +11,7 @@ type NavItem = {
   href: string
   label: string
   match: (pathname: string) => boolean
+  badge?: number
 }
 
 const BASE_NAV: NavItem[] = [
@@ -40,6 +41,12 @@ const VISITS_NAV: NavItem = {
   href: '/visits',
   label: 'My Visits',
   match: (pathname) => pathname === '/visits',
+}
+
+const MESSAGES_NAV: NavItem = {
+  href: '/messages',
+  label: 'Messages',
+  match: (pathname) => pathname === '/messages' || pathname.startsWith('/messages/'),
 }
 
 function NavPill({ items }: { items: NavItem[] }) {
@@ -74,6 +81,11 @@ function NavPill({ items }: { items: NavItem[] }) {
               />
             )}
             <span className="relative z-10">{item.label}</span>
+            {item.badge != null && item.badge > 0 && (
+              <span className="absolute -top-1 -right-1 z-20 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--cta)] px-1 text-[10px] font-bold text-white leading-none">
+                {item.badge > 99 ? '99+' : item.badge}
+              </span>
+            )}
           </Link>
         )
       })}
@@ -83,11 +95,12 @@ function NavPill({ items }: { items: NavItem[] }) {
 
 type SiteNavProps = {
   user: SessionUser | null
+  unreadCount?: number
 }
 
-export default function SiteNav({ user }: SiteNavProps) {
+export default function SiteNav({ user, unreadCount = 0 }: SiteNavProps) {
   const navItems = user
-    ? [...BASE_NAV, LISTINGS_NAV, VISITS_NAV]
+    ? [...BASE_NAV, LISTINGS_NAV, VISITS_NAV, { ...MESSAGES_NAV, badge: unreadCount }]
     : BASE_NAV
 
   return (

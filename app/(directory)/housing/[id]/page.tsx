@@ -10,6 +10,7 @@ import NearbyList from '@/components/NearbyList'
 import ReviewList from '@/components/ReviewList'
 import ReviewForm from '@/components/ReviewForm'
 import VisitRequestForm from '@/components/VisitRequestForm'
+import MessageHostButton from '@/components/MessageHostButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -124,6 +125,13 @@ export default async function HousingDetailPage({ params }: Props) {
         <h2 className="text-lg font-semibold mb-3">Nearby Essentials</h2>
         <NearbyList type="essential" items={nearby_essentials} />
       </div>
+
+      {session && session.userId !== housing.owner_id && (
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Contact Host</h2>
+          <MessageHostButton hostId={housing.owner_id} housingId={id} />
+        </div>
+      )}
 
       {session && (
         <div>
