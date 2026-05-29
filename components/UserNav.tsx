@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import type { SessionUser } from '@/lib/session'
+import { getUserAvatarStyle } from '@/lib/userAvatar'
 
 interface UserNavProps {
   user: SessionUser
@@ -20,6 +21,9 @@ export default function UserNav({ user }: UserNavProps) {
     router.push('/login')
     router.refresh()
   }
+
+  const avatarStyle = getUserAvatarStyle(user.userId)
+  const initial = user.firstName.trim().charAt(0).toUpperCase() || '?'
 
   return (
     <div className="flex items-center gap-2 sm:gap-3">
@@ -47,9 +51,12 @@ export default function UserNav({ user }: UserNavProps) {
       </Link>
       <Link
         href="/profile"
-        className="max-w-[5.5rem] truncate text-sm text-muted-foreground hover:text-foreground transition-colors sm:max-w-none"
+        aria-label={`Profile: ${user.firstName} ${user.lastName}`}
+        title={`${user.firstName} ${user.lastName}`}
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold uppercase leading-none shadow-sm ring-1 ring-black/5 transition-opacity hover:opacity-90"
+        style={avatarStyle}
       >
-        {user.firstName} {user.lastName}
+        {initial}
       </Link>
       <Button variant="outline" size="sm" onClick={handleLogout} disabled={loading} className="px-2 sm:px-3">
         {loading ? (
