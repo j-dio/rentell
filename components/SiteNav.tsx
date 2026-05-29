@@ -129,8 +129,8 @@ export default function SiteNav({ user, unreadCount = 0 }: SiteNavProps) {
   )
 
   return (
-    <header className="sticky top-0 z-40 border-y border-primary/20 bg-[oklch(0.965_0.018_152)]/95 backdrop-blur-md lg:min-h-[var(--site-header-height)]">
-      <nav className="mx-auto grid max-w-screen-2xl grid-cols-[auto_1fr_auto] grid-rows-[auto_auto] items-center gap-x-3 gap-y-2 px-4 pb-2 sm:gap-x-4 sm:px-6 lg:grid-rows-1 lg:gap-x-6 lg:pb-0">
+    <header className="sticky top-0 z-40 border-y border-primary/20 bg-[oklch(0.965_0.018_152)]/95 backdrop-blur-md lg:flex lg:min-h-[var(--site-header-height)] lg:items-center">
+      <nav className="mx-auto grid w-full max-w-screen-2xl grid-cols-[auto_1fr_auto] grid-rows-[auto_auto] items-center gap-x-3 gap-y-2 px-4 py-2.5 sm:gap-x-4 sm:px-6 sm:py-3 lg:grid-rows-1 lg:gap-x-6 lg:py-3">
         <Link href="/" className="col-start-1 row-start-1 flex shrink-0 items-center">
           <Image
             src="/rentell-logo.svg"

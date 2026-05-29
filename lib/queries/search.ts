@@ -40,6 +40,7 @@ export async function searchHousing(
       h.monthly_price_min,
       h.monthly_price_max,
       h.proximity_to_campus_km,
+      h.description,
       (
         SELECT url
         FROM housing_image

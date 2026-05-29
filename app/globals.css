@@ -73,7 +73,7 @@
     --cta-foreground: #ffffff;
 
     /* Sticky site header — keep panel offsets in sync */
-    --site-header-height: 6.75rem;
+    --site-header-height: 7.25rem;
 
     /* Sidebar */
     --sidebar: oklch(0.97 0.01 152);
@@ -151,13 +151,13 @@
 
   @media (min-width: 640px) {
     :root {
-      --site-header-height: 7.25rem;
+      --site-header-height: 7.75rem;
     }
   }
 
   @media (min-width: 1024px) {
     :root {
-      --site-header-height: 4.5rem;
+      --site-header-height: 5rem;
     }
   }
 }

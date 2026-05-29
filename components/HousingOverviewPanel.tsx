@@ -126,6 +126,17 @@ export default function HousingOverviewPanel({ housing, onClose, isFavorited, is
             </div>
           )}
 
+          {housing.description?.trim() && (
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
+                About
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                {housing.description.trim()}
+              </p>
+            </div>
+          )}
+
           {/* Divider */}
           <div className="h-px bg-border" />
 
