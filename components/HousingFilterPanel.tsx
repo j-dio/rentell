@@ -91,7 +91,7 @@ export default function HousingFilterPanel({ amenities }: Props) {
     <div className="w-full bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
 
       {/* ── Row 1: main filters ── */}
-      <div className="px-5 pt-4 pb-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_10rem_14rem_9rem] gap-3">
+      <div className="grid grid-cols-1 gap-3 px-4 pt-4 pb-3 sm:px-5 sm:grid-cols-2 lg:grid-cols-[1fr_10rem_14rem_9rem]">
 
         {/* Search */}
         <div>
@@ -193,11 +193,10 @@ export default function HousingFilterPanel({ amenities }: Props) {
       <div className="h-px bg-border" />
 
       {/* ── Row 2: amenity pills + secondary controls ── */}
-      <div className="px-5 py-3 flex items-center gap-3 flex-wrap">
-
-        {/* Amenity pills */}
+      <div className="flex flex-col gap-3 px-4 py-3 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
+        {/* Amenity pills — full width on small screens so pills wrap horizontally */}
         {amenities.length > 0 && (
-          <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5 lg:flex-1">
             {amenities.map((name) => {
               const active = filters.selectedAmenities.includes(name)
               return (
@@ -205,7 +204,7 @@ export default function HousingFilterPanel({ amenities }: Props) {
                   key={name}
                   type="button"
                   onClick={() => toggleAmenity(name)}
-                  className={`h-7 px-3 rounded-full text-xs font-medium border transition-all active:scale-95 ${
+                  className={`h-7 shrink-0 whitespace-nowrap px-3 rounded-full text-xs font-medium border transition-all active:scale-95 ${
                     active
                       ? 'bg-primary text-primary-foreground border-primary shadow-sm'
                       : 'bg-card text-muted-foreground border-border hover:border-primary/50 hover:text-foreground'
@@ -219,8 +218,8 @@ export default function HousingFilterPanel({ amenities }: Props) {
           </div>
         )}
 
-        {/* Right-side controls */}
-        <div className="flex items-center gap-2.5 ml-auto shrink-0 flex-wrap justify-end">
+        {/* Secondary controls — own row on small screens, inline on large */}
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:gap-2.5">
 
           {/* Available only */}
           <button

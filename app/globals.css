@@ -6,6 +6,15 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  .nav-pill-scroll {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .nav-pill-scroll::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer base {
@@ -64,7 +73,7 @@
     --cta-foreground: #ffffff;
 
     /* Sticky site header — keep panel offsets in sync */
-    --site-header-height: 4rem;
+    --site-header-height: 6.75rem;
 
     /* Sidebar */
     --sidebar: oklch(0.97 0.01 152);
@@ -141,6 +150,12 @@
   }
 
   @media (min-width: 640px) {
+    :root {
+      --site-header-height: 7.25rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
     :root {
       --site-header-height: 4.5rem;
     }
