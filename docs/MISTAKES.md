@@ -58,6 +58,20 @@ indexed columns can be NULL.
 
 ---
 
+## 2026-05-30 — SELECT-then-INSERT race condition in getOrCreate patterns
+**Pattern:** `getOrCreateConversation` (and any similar upsert helper) used a SELECT to check for an existing row, then a separate INSERT if none was found. Two concurrent requests that both pass the SELECT before either INSERT commits both attempt the INSERT — the second hits the UNIQUE constraint and throws an unhandled DB error, crashing the route with a 500.
+**Fix:** Replace the two-step SELECT + INSERT with an atomic `INSERT ... ON CONFLICT DO NOTHING RETURNING ...` followed by a single fallback SELECT when `RETURNING` is empty (conflict occurred). This makes the entire operation a single round-trip with no race window.
+**Prevention:** Any helper function that follows the "check then insert" pattern (`getOrCreate`, `findOrCreate`, `upsert`) must use `ON CONFLICT` for atomicity. Never rely on an application-level SELECT to prevent constraint violations under concurrent load.
+
+---
+
+## 2026-05-30 — Parallel data fetch before authorization check leaks DB data to server memory
+**Pattern:** `Promise.all([getConversationById(...), getMessagesByConversation(...)])` ran both queries concurrently. `getMessagesByConversation` had no participant check and executed before the authorization result of `getConversationById` was known. If the user was not a participant, `notFound()` was called correctly — but the full message history had already been fetched from the DB and held in server memory, violating least-privilege data access.
+**Fix:** Sequence the authorization query first (`const conversation = await getConversationById(...)`), check the result (`if (!conversation) notFound()`), then fetch the data that requires authorization (`const messages = await getMessagesByConversation(...)`). Use `Promise.all` only when all parallel queries are equally authorized.
+**Prevention:** Never include data-fetching queries in a `Promise.all` if those queries return sensitive data that requires an authorization check from a sibling query in the same batch. Auth checks must be sequenced before the data they protect.
+
+---
+
 ## How to add an entry
 
 ```

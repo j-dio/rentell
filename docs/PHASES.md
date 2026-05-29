@@ -25,7 +25,7 @@
 | 8 | UI Polish | Day 5 PM | MVP | [x] Done (partial) |
 | 9 | Book a Visit | If time permits | Stretch | [x] Done |
 | 10 | Trigger Showcases | If time permits | Stretch | [x] Done |
-| 11 | Messaging UI | Post-submission | Stretch | [ ] Not started |
+| 11 | Messaging UI | Post-submission | Stretch | [x] Done |
 | 12 | Carinderia Management & Unified Listings | Post-submission | Stretch | [x] Done |
 
 ---
@@ -383,18 +383,37 @@ Build parameterized WHERE clause server-side. Never interpolate unsanitized user
 **Note:** `conversation` and `message` tables already exist in the DB from Phase 1. This phase builds only the UI and API layer.
 
 ### Files
-- `lib/queries/messages.ts` — `getOrCreateConversation`, `getMessages`, `sendMessage`, `markRead`
-- `app/api/messages/route.ts`, `app/api/messages/[id]/route.ts`
-- `app/messages/page.tsx` — inbox: list conversations
-- `app/messages/[id]/page.tsx` — thread view: message history + send form
-- `components/MessageBubble.tsx`, `components/ConversationList.tsx`
+
+**New files created:**
+- `lib/queries/messages.ts` — `getConversationsByUser`, `getConversationById`, `getMessagesByConversation`, `getOrCreateConversation`, `sendMessage`, `markConversationRead`, `getUnreadCount`
+- `app/api/conversations/route.ts` — POST: create or get existing conversation; returns `{ conversation_id }` *(added beyond original spec — needed for the housing-page entry point)*
+- `app/api/messages/route.ts` — POST: send a message to a conversation
+- `app/api/messages/[id]/route.ts` — PATCH: mark conversation messages as read (where `[id]` = `conversation_id`)
+- `app/messages/page.tsx` — inbox: server component listing all conversations with last-message preview, unread count badges
+- `app/messages/[id]/page.tsx` — thread: server component fetches messages + marks read on every render (including polls); renders `<MessageThread>`
+- `components/MessageBubble.tsx` — single chat bubble; sent messages right-aligned (primary green), received left-aligned (muted)
+- `components/ConversationList.tsx` — inbox list component with empty state and relative timestamps
+- `components/MessageThread.tsx` — `'use client'` wrapper; owns 3-second polling via `router.refresh()`, send form, scroll-to-bottom *(added beyond original spec)*
+- `components/MessageHostButton.tsx` — `'use client'` button on housing detail page; calls `/api/conversations` and redirects to thread *(added beyond original spec)*
+
+**Modified files:**
+- `components/SiteNav.tsx` — added `MESSAGES_NAV` to authenticated nav pill; extended `NavItem` with optional `badge?: number`; `NavPill` renders CTA-orange badge when `badge > 0`
+- `app/layout.tsx` — calls `getUnreadCount(userId)` after `getSession()`; passes count to `<SiteNav unreadCount={unreadCount} />`
+- `app/(directory)/housing/[id]/page.tsx` — added "Contact Host" section with `<MessageHostButton>`; hidden when viewer is the listing owner
+
+### Tables touched
+`conversation` (SELECT, INSERT), `message` (SELECT, INSERT, UPDATE `read_at`), `users` (JOIN for display names), `housing` (JOIN for listing name in thread header and inbox)
+
+### Known limitations
+- **Nav badge staleness:** `router.refresh()` from the thread page re-renders the page RSC but not the root layout RSC, so the unread badge updates on page navigation rather than within the 3-second poll cycle. Fixing this properly requires a separate client-side poll in the nav — deferred.
+- **UNIQUE constraint with `housing_id IS NULL`:** The Phase 1 `UNIQUE(user_one_id, user_two_id, housing_id)` constraint does not prevent duplicate rows when `housing_id IS NULL` (PostgreSQL treats NULLs as distinct in standard UNIQUE). Phase 11 always passes a `housing_id` so this is safe for now. A proper fix needs a DB migration to partial unique indexes (same pattern as `favorite` — see DECISIONS.md #15). Deferred.
 
 ### Acceptance criteria
-- [ ] User can start a conversation with a host from a housing detail page
-- [ ] Messages thread displays in chronological order
-- [ ] `read_at` updates when recipient views the message
-- [ ] `user_one_id < user_two_id` canonical ordering is enforced when creating conversations
-- [ ] User cannot read conversations they are not part of
+- [x] User can start a conversation with a host from a housing detail page
+- [x] Messages thread displays in chronological order
+- [x] `read_at` updates when recipient views the message (marked on every server render, including each poll cycle)
+- [x] `user_one_id < user_two_id` canonical ordering is enforced when creating conversations
+- [x] User cannot read conversations they are not part of (`getConversationById` participation check gates the thread page; non-participants get `notFound()`)
 
 ---
 
