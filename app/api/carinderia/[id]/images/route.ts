@@ -4,7 +4,7 @@ import { getSession } from '@/lib/session'
 import { addCarinderiaImage, removeCarinderiaImage } from '@/lib/queries/carinderia'
 
 const addImageSchema = z.object({
-  url: z.string().url(),
+  url: z.union([z.string().url(), z.string().startsWith('/api/images/')]),
   caption: z.string().max(200).nullable().optional(),
   is_primary: z.boolean().optional(),
 })

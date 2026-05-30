@@ -4,7 +4,7 @@ import { getSession } from '@/lib/session'
 import { addHousingImage, removeHousingImage } from '@/lib/queries/host'
 
 const addImageSchema = z.object({
-  url: z.string().url(),
+  url: z.union([z.string().url(), z.string().startsWith('/api/images/')]),
   caption: z.string().max(200).nullable().optional(),
   is_primary: z.boolean().optional(),
   sort_order: z.number().int().min(0).optional(),
