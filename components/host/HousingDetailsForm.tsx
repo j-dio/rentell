@@ -142,7 +142,6 @@ export default function HousingDetailsForm({
         <Label>Location *</Label>
         <MapboxLocationPicker
           onConfirm={setLocationPick}
-          onLocationChange={setLocationPick}
           initialLocation={initialLocation ?? undefined}
           confirmLabel={locationPick ? '✓ Location set — click to change' : 'Confirm location'}
         />
