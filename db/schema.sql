@@ -9,15 +9,14 @@ CREATE TABLE users (
   password_hash  VARCHAR(255)  NOT NULL,
   first_name     VARCHAR(50)   NOT NULL,
   last_name      VARCHAR(50)   NOT NULL,
-  phone_number   VARCHAR(20),
-  avatar_url     TEXT,
-  bio            TEXT,
-  is_host        BOOLEAN       NOT NULL DEFAULT false,
-  student_number VARCHAR(20)   UNIQUE,
-  course         VARCHAR(100),
-  year_level     SMALLINT,
-  hometown       VARCHAR(100),
-  created_at     TIMESTAMPTZ   NOT NULL DEFAULT now(),
+  phone_number              VARCHAR(20),
+  avatar_url                TEXT,
+  preferred_location_name   VARCHAR(255),
+  preferred_location_lat    NUMERIC(9,6),
+  preferred_location_lng    NUMERIC(9,6),
+  onboarding_completed      BOOLEAN       NOT NULL DEFAULT false,
+  is_host                   BOOLEAN       NOT NULL DEFAULT false,
+  created_at                TIMESTAMPTZ   NOT NULL DEFAULT now(),
   updated_at     TIMESTAMPTZ   NOT NULL DEFAULT now()
 );
 
@@ -41,7 +40,6 @@ CREATE TABLE housing (
   monthly_price_max       NUMERIC(10,2),
   contact_person          VARCHAR(100),
   contact_number          VARCHAR(20),
-  proximity_to_campus_km  NUMERIC(5,2),
   description             TEXT,
   created_at              TIMESTAMPTZ   NOT NULL DEFAULT now(),
   updated_at              TIMESTAMPTZ   NOT NULL DEFAULT now()
