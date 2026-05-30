@@ -10,6 +10,30 @@
       "items": {
         "shapes": [
           {
+            "id": "fe017dMaDVlf",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "image_blob" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "blob_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "" },
+              { "label": "Field2", "text": "data" },
+              { "label": "Type2", "text": "text" },
+              { "label": "Key3", "text": "" },
+              { "label": "Field3", "text": "mime_type" },
+              { "label": "Type3", "text": "varchar(50)" },
+              { "label": "Key4", "text": "" },
+              { "label": "Field4", "text": "size_bytes" },
+              { "label": "Type4", "text": "int" },
+              { "label": "Key5", "text": "" },
+              { "label": "Field5", "text": "created_at" },
+              { "label": "Type5", "text": "timestamptz" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
             "id": "FPN0jgWnzYoi",
             "class": "ERDEntityBlock4",
             "textAreas": [
@@ -198,23 +222,23 @@
               { "label": "Field5", "text": "last_name" },
               { "label": "Type5", "text": "varchar(50)" },
               { "label": "Key6", "text": "" },
-              { "label": "Field6", "text": "preferred_location_ name" },
-              { "label": "Type6", "text": "varchar(255)" },
+              { "label": "Field6", "text": "phone_number" },
+              { "label": "Type6", "text": "varchar(20)" },
               { "label": "Key7", "text": "" },
-              { "label": "Field7", "text": "preferred_location_ lat" },
-              { "label": "Type7", "text": "numeric(9,6)" },
+              { "label": "Field7", "text": "avatar_url" },
+              { "label": "Type7", "text": "text" },
               { "label": "Key8", "text": "" },
-              { "label": "Field8", "text": "preferred_location_lng" },
-              { "label": "Type8", "text": "numeric(9,6)" },
+              { "label": "Field8", "text": "preferred_location_ name" },
+              { "label": "Type8", "text": "varchar(255)" },
               { "label": "Key9", "text": "" },
-              { "label": "Field9", "text": "onboarding_completed" },
-              { "label": "Type9", "text": "boolean" },
+              { "label": "Field9", "text": "preferred_location_ lat" },
+              { "label": "Type9", "text": "numeric(9,6)" },
               { "label": "Key10", "text": "" },
-              { "label": "Field10", "text": "phone_number" },
-              { "label": "Type10", "text": "varchar(20)" },
+              { "label": "Field10", "text": "preferred_location_lng" },
+              { "label": "Type10", "text": "numeric(9,6)" },
               { "label": "Key11", "text": "" },
-              { "label": "Field11", "text": "avatar_url" },
-              { "label": "Type11", "text": "text" },
+              { "label": "Field11", "text": "onboarding_completed" },
+              { "label": "Type11", "text": "boolean" },
               { "label": "Key12", "text": "" },
               { "label": "Field12", "text": "is_host" },
               { "label": "Type12", "text": "boolean" },
@@ -331,10 +355,7 @@
               { "label": "Name", "text": "amenity" },
               { "label": "Key1", "text": "PK" },
               { "label": "Field1", "text": "name" },
-              { "label": "Type1", "text": "varchar(50)" },
-              { "label": "Key2", "text": "" },
-              { "label": "Field2", "text": "description" },
-              { "label": "Type2", "text": "text" }
+              { "label": "Type1", "text": "varchar(50)" }
             ],
             "customData": [],
             "linkedData": []
@@ -363,17 +384,14 @@
               { "label": "Field6", "text": "latitude" },
               { "label": "Type6", "text": "numeric(9,6)" },
               { "label": "Key7", "text": "" },
-              { "label": "Field7", "text": "longtitude" },
+              { "label": "Field7", "text": "longitude" },
               { "label": "Type7", "text": "numeric(9,6)" },
               { "label": "Key8", "text": "" },
-              { "label": "Field8", "text": "description" },
-              { "label": "Type8", "text": "text" },
+              { "label": "Field8", "text": "created_at" },
+              { "label": "Type8", "text": "timestamptz" },
               { "label": "Key9", "text": "" },
-              { "label": "Field9", "text": "created_at" },
-              { "label": "Type9", "text": "timestamptz" },
-              { "label": "Key10", "text": "" },
-              { "label": "Field10", "text": "updated_at" },
-              { "label": "Type10", "text": "timestamptz" }
+              { "label": "Field9", "text": "updated_at" },
+              { "label": "Type9", "text": "timestamptz" }
             ],
             "customData": [],
             "linkedData": []
@@ -424,7 +442,10 @@
               { "label": "Type13", "text": "timestamptz" },
               { "label": "Key14", "text": "" },
               { "label": "Field14", "text": "updated_at" },
-              { "label": "Type14", "text": "timestamptz" }
+              { "label": "Type14", "text": "timestamptz" },
+              { "label": "Key15", "text": "" },
+              { "label": "Field15", "text": "avg_rating" },
+              { "label": "Type15", "text": "numeric(3,2)" }
             ],
             "customData": [],
             "linkedData": []
@@ -863,11 +884,11 @@
           {
             "id": "wxQ0OK5H.8rl",
             "endpoint1": {
-              "style": "CFN ERD Exactly One Arrow",
+              "style": "CFN ERD Zero Or More Arrow",
               "connectedTo": "DJN0jjMD8W1U"
             },
             "endpoint2": {
-              "style": "CFN ERD Zero Or More Arrow",
+              "style": "CFN ERD Exactly One Arrow",
               "connectedTo": "3IN0wU3GSNF8"
             },
             "textAreas": [{ "label": "t0", "text": "linked" }],
