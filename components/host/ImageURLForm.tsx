@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import ImageDropZone from '@/components/ImageDropZone'
 
 type HousingImage = {
   image_id: number
@@ -25,36 +26,56 @@ export default function ImageURLForm({
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [deleting, setDeleting] = useState<number | null>(null)
+  const [showUrlForm, setShowUrlForm] = useState(false)
+  const [uploadCaption, setUploadCaption] = useState('')
+  const [uploadIsPrimary, setUploadIsPrimary] = useState(false)
+
+  async function addImage(
+    url: string,
+    caption: string | null,
+    isPrimary: boolean,
+    sortOrder: number,
+  ): Promise<HousingImage> {
+    const res = await fetch(`/api/host/housing/${housingId}/images`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, caption, is_primary: isPrimary, sort_order: sortOrder }),
+    })
+    if (!res.ok) {
+      const data = await res.json()
+      throw new Error(data.error?.formErrors?.[0] ?? data.error ?? 'Failed to add image')
+    }
+    return res.json()
+  }
+
+  async function handleFileUploaded(url: string) {
+    setError(null)
+    try {
+      const newImage = await addImage(url, uploadCaption.trim() || null, uploadIsPrimary, 0)
+      setImages((prev) => [...prev, newImage])
+      setUploadCaption('')
+      setUploadIsPrimary(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add image')
+    }
+  }
 
   async function handleAdd(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
     setSubmitting(true)
-
     const fd = new FormData(e.currentTarget)
-    const body = {
-      url: fd.get('url') as string,
-      caption: (fd.get('caption') as string) || null,
-      is_primary: fd.get('is_primary') === 'on',
-      sort_order: fd.get('sort_order') ? Number(fd.get('sort_order')) : 0,
-    }
-
     try {
-      const res = await fetch(`/api/host/housing/${housingId}/images`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-      if (!res.ok) {
-        const data = await res.json()
-        setError(data.error?.formErrors?.[0] ?? data.error ?? 'Failed to add image')
-        return
-      }
-      const newImage: HousingImage = await res.json()
+      const newImage = await addImage(
+        fd.get('url') as string,
+        (fd.get('caption') as string) || null,
+        fd.get('is_primary') === 'on',
+        fd.get('sort_order') ? Number(fd.get('sort_order')) : 0,
+      )
       setImages((prev) => [...prev, newImage])
       ;(e.target as HTMLFormElement).reset()
-    } catch {
-      setError('Network error. Please try again.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Network error. Please try again.')
     } finally {
       setSubmitting(false)
     }
@@ -95,7 +116,7 @@ export default function ImageURLForm({
                 unoptimized
                 className="w-12 h-12 object-cover rounded shrink-0"
               />
-              <span className="flex-1 text-sm truncate text-muted-foreground">{img.url}</span>
+              <span className="flex-1 text-sm truncate text-muted-foreground">{img.caption ?? img.url}</span>
               {img.is_primary && (
                 <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded shrink-0">Primary</span>
               )}
@@ -113,42 +134,77 @@ export default function ImageURLForm({
         </ul>
       )}
 
-      <form onSubmit={handleAdd} className="border rounded-lg p-4 space-y-4 bg-muted/30">
-        <p className="text-sm font-medium">Add an image URL</p>
-
+      <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
         {error && <p className="text-sm text-destructive">{error}</p>}
-
-        <div className="space-y-1">
-          <Label htmlFor="url">Image URL *</Label>
-          <Input
-            id="url"
-            name="url"
-            type="url"
-            required
-            placeholder="https://example.com/photo.jpg"
-          />
-        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <Label htmlFor="caption">Caption</Label>
-            <Input id="caption" name="caption" maxLength={200} placeholder="e.g. Front view" />
+            <Label>Caption (optional)</Label>
+            <Input
+              value={uploadCaption}
+              onChange={(e) => setUploadCaption(e.target.value)}
+              maxLength={200}
+              placeholder="e.g. Front view"
+            />
           </div>
-          <div className="space-y-1">
-            <Label htmlFor="sort_order">Sort order</Label>
-            <Input id="sort_order" name="sort_order" type="number" min={0} defaultValue={0} />
+          <div className="flex items-end pb-1">
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={uploadIsPrimary}
+                onChange={(e) => setUploadIsPrimary(e.target.checked)}
+                className="rounded"
+              />
+              Set as primary
+            </label>
           </div>
         </div>
 
-        <label className="flex items-center gap-2 text-sm cursor-pointer">
-          <input type="checkbox" name="is_primary" className="rounded" />
-          Set as primary image
-        </label>
+        <ImageDropZone onUploaded={handleFileUploaded} />
 
-        <Button type="submit" size="sm" disabled={submitting}>
-          {submitting ? 'Adding…' : 'Add image'}
-        </Button>
-      </form>
+        <button
+          type="button"
+          className="text-sm text-muted-foreground hover:text-foreground"
+          onClick={() => setShowUrlForm((v) => !v)}
+        >
+          {showUrlForm ? '▲ Hide URL input' : '▾ Or add by URL'}
+        </button>
+
+        {showUrlForm && (
+          <form onSubmit={handleAdd} className="space-y-3 pt-2 border-t">
+            <div className="space-y-1">
+              <Label htmlFor="url">Image URL *</Label>
+              <Input
+                id="url"
+                name="url"
+                type="url"
+                required
+                placeholder="https://example.com/photo.jpg"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label htmlFor="caption">Caption</Label>
+                <Input id="caption" name="caption" maxLength={200} placeholder="e.g. Front view" />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="sort_order">Sort order</Label>
+                <Input id="sort_order" name="sort_order" type="number" min={0} defaultValue={0} />
+              </div>
+            </div>
+
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" name="is_primary" className="rounded" />
+              Set as primary image
+            </label>
+
+            <Button type="submit" size="sm" disabled={submitting}>
+              {submitting ? 'Adding…' : 'Add image'}
+            </Button>
+          </form>
+        )}
+      </div>
     </div>
   )
 }
