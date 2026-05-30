@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/session'
 import sql from '@/lib/db'
 import HostToggle from './HostToggle'
+import LogoutButton from '@/components/LogoutButton'
 
 export default async function ProfilePage() {
   const session = await getSession()
@@ -46,6 +47,11 @@ export default async function ProfilePage() {
           Hosts can create and manage housing listings on RenTell.
         </p>
         <HostToggle isHost={user.is_host as boolean} />
+      </section>
+
+      <section className="space-y-2">
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Session</h2>
+        <LogoutButton />
       </section>
     </main>
   )

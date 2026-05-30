@@ -1,9 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import type { SessionUser } from '@/lib/session'
 import { getUserAvatarStyle } from '@/lib/userAvatar'
 
@@ -12,16 +9,6 @@ interface UserNavProps {
 }
 
 export default function UserNav({ user }: UserNavProps) {
-  const router = useRouter()
-  const [loading, setLoading] = useState(false)
-
-  async function handleLogout() {
-    setLoading(true)
-    await fetch('/api/auth/logout', { method: 'POST' })
-    router.push('/login')
-    router.refresh()
-  }
-
   const avatarStyle = getUserAvatarStyle(user.userId)
   const initial = user.firstName.trim().charAt(0).toUpperCase() || '?'
 
@@ -58,19 +45,6 @@ export default function UserNav({ user }: UserNavProps) {
       >
         {initial}
       </Link>
-      <Button variant="outline" size="sm" onClick={handleLogout} disabled={loading} className="px-2 sm:px-3">
-        {loading ? (
-          <>
-            <span className="sm:hidden">…</span>
-            <span className="hidden sm:inline">Logging out…</span>
-          </>
-        ) : (
-          <>
-            <span className="sm:hidden">Out</span>
-            <span className="hidden sm:inline">Log out</span>
-          </>
-        )}
-      </Button>
     </div>
   )
 }
