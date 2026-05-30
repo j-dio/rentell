@@ -36,7 +36,6 @@ export default async function HousingDetailPage({ params }: Props) {
     contact_number,
     monthly_price_min,
     monthly_price_max,
-    proximity_to_campus_km,
     description,
     avg_rating,
     rooms,
@@ -77,14 +76,6 @@ export default async function HousingDetailPage({ params }: Props) {
           <p className="text-sm font-medium text-muted-foreground">Price Range</p>
           <p className="font-semibold">{priceRange} / month</p>
         </div>
-        {proximity_to_campus_km && (
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-muted-foreground">Distance to Campus</p>
-            <p className="font-semibold">
-              {Number(proximity_to_campus_km).toFixed(1)} km
-            </p>
-          </div>
-        )}
         {contact_person && (
           <div className="space-y-1">
             <p className="text-sm font-medium text-muted-foreground">Contact Person</p>
