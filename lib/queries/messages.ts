@@ -57,7 +57,10 @@ export async function getConversationsByUser(userId: number): Promise<Conversati
       ORDER  BY created_at DESC
       LIMIT  1
     ) lm ON true
-    WHERE c.user_one_id = ${userId} OR c.user_two_id = ${userId}
+    WHERE (c.user_one_id = ${userId} OR c.user_two_id = ${userId})
+      AND EXISTS (
+        SELECT 1 FROM message WHERE conversation_id = c.conversation_id
+      )
     ORDER BY lm.created_at DESC NULLS LAST, c.created_at DESC
   `
 }
