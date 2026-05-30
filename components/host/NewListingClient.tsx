@@ -256,6 +256,7 @@ export default function NewListingClient({ allAmenities }: Props) {
           <Label>Location *</Label>
           <MapboxLocationPicker
             onConfirm={setLocationPick}
+            onLocationChange={setLocationPick}
             confirmLabel={locationPick ? '✓ Location set — click to change' : 'Confirm location'}
           />
         </div>

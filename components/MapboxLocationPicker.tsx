@@ -12,12 +12,14 @@ export type PickedLocation = { name: string; lat: number; lng: number }
 
 type Props = {
   onConfirm: (location: PickedLocation) => void
+  onLocationChange?: (location: PickedLocation) => void
   initialLocation?: PickedLocation
   confirmLabel?: string
 }
 
 export default function MapboxLocationPicker({
   onConfirm,
+  onLocationChange,
   initialLocation,
   confirmLabel = 'Confirm location',
 }: Props) {
@@ -84,7 +86,9 @@ export default function MapboxLocationPicker({
       })
     }
 
-    setPending({ name: s.place_name, lat, lng })
+    const picked = { name: s.place_name, lat, lng }
+    setPending(picked)
+    onLocationChange?.(picked)
     setQuery(s.place_name)
     setSuggestions([])
   }
