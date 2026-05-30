@@ -10,7 +10,6 @@ export async function getOwnHousing(ownerId: number) {
            h.address,
            h.monthly_price_min,
            h.monthly_price_max,
-           h.proximity_to_campus_km,
            h.created_at,
            (SELECT url FROM housing_image
             WHERE housing_id = h.housing_id
@@ -32,7 +31,6 @@ export interface CreateHousingInput {
   monthly_price_max?: number | null
   contact_person?: string | null
   contact_number?: string | null
-  proximity_to_campus_km?: number | null
   description?: string | null
 }
 
@@ -43,13 +41,13 @@ export async function createHousing(ownerId: number, data: CreateHousingInput) {
       latitude, longitude,
       monthly_price_min, monthly_price_max,
       contact_person, contact_number,
-      proximity_to_campus_km, description
+      description
     ) VALUES (
       ${ownerId}, ${data.name}, ${data.housing_type}, ${data.address},
       ${data.latitude ?? null}, ${data.longitude ?? null},
       ${data.monthly_price_min ?? null}, ${data.monthly_price_max ?? null},
       ${data.contact_person ?? null}, ${data.contact_number ?? null},
-      ${data.proximity_to_campus_km ?? null}, ${data.description ?? null}
+      ${data.description ?? null}
     )
     RETURNING housing_id
   `
@@ -59,18 +57,17 @@ export async function createHousing(ownerId: number, data: CreateHousingInput) {
 export async function updateHousing(housingId: number, ownerId: number, data: Partial<CreateHousingInput>) {
   await sql`
     UPDATE housing
-    SET name                    = COALESCE(${data.name ?? null}, name),
-        housing_type            = COALESCE(${data.housing_type ?? null}, housing_type),
-        address                 = COALESCE(${data.address ?? null}, address),
-        latitude                = ${data.latitude !== undefined ? data.latitude : sql`latitude`},
-        longitude               = ${data.longitude !== undefined ? data.longitude : sql`longitude`},
-        monthly_price_min       = ${data.monthly_price_min !== undefined ? data.monthly_price_min : sql`monthly_price_min`},
-        monthly_price_max       = ${data.monthly_price_max !== undefined ? data.monthly_price_max : sql`monthly_price_max`},
-        contact_person          = ${data.contact_person !== undefined ? data.contact_person : sql`contact_person`},
-        contact_number          = ${data.contact_number !== undefined ? data.contact_number : sql`contact_number`},
-        proximity_to_campus_km  = ${data.proximity_to_campus_km !== undefined ? data.proximity_to_campus_km : sql`proximity_to_campus_km`},
-        description             = ${data.description !== undefined ? data.description : sql`description`},
-        updated_at              = now()
+    SET name              = COALESCE(${data.name ?? null}, name),
+        housing_type      = COALESCE(${data.housing_type ?? null}, housing_type),
+        address           = COALESCE(${data.address ?? null}, address),
+        latitude          = ${data.latitude !== undefined ? data.latitude : sql`latitude`},
+        longitude         = ${data.longitude !== undefined ? data.longitude : sql`longitude`},
+        monthly_price_min = ${data.monthly_price_min !== undefined ? data.monthly_price_min : sql`monthly_price_min`},
+        monthly_price_max = ${data.monthly_price_max !== undefined ? data.monthly_price_max : sql`monthly_price_max`},
+        contact_person    = ${data.contact_person !== undefined ? data.contact_person : sql`contact_person`},
+        contact_number    = ${data.contact_number !== undefined ? data.contact_number : sql`contact_number`},
+        description       = ${data.description !== undefined ? data.description : sql`description`},
+        updated_at        = now()
     WHERE housing_id = ${housingId}
       AND owner_id   = ${ownerId}
   `
@@ -235,7 +232,7 @@ export async function linkCarinderia(housingId: number, ownerId: number, carinde
 export async function unlinkCarinderia(housingId: number, ownerId: number, carinderia_id: number) {
   const rows = await sql`
     DELETE FROM housing_carinderia
-    WHERE housing_id   = ${housingId}
+    WHERE housing_id    = ${housingId}
       AND carinderia_id = ${carinderia_id}
       AND housing_id IN (
         SELECT housing_id FROM housing
@@ -265,7 +262,7 @@ export async function linkEssential(housingId: number, ownerId: number, essentia
 export async function unlinkEssential(housingId: number, ownerId: number, essential_id: number) {
   const rows = await sql`
     DELETE FROM housing_essential
-    WHERE housing_id  = ${housingId}
+    WHERE housing_id   = ${housingId}
       AND essential_id = ${essential_id}
       AND housing_id IN (
         SELECT housing_id FROM housing
