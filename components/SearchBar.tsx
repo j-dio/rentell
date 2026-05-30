@@ -7,7 +7,7 @@ type Props = {
   placeholder?: string
 }
 
-export default function SearchBar({ placeholder = 'Search...' }: Props) {
+export default function SearchBar({ placeholder = 'Name, address, description…' }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [value, setValue] = useState(searchParams.get('q') ?? '')
@@ -16,8 +16,7 @@ export default function SearchBar({ placeholder = 'Search...' }: Props) {
     setValue(searchParams.get('q') ?? '')
   }, [searchParams])
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  function apply() {
     const params = new URLSearchParams(searchParams.toString())
     if (value.trim()) {
       params.set('q', value.trim())
@@ -27,6 +26,11 @@ export default function SearchBar({ placeholder = 'Search...' }: Props) {
     router.push(`?${params.toString()}`)
   }
 
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    apply()
+  }
+
   function handleClear() {
     setValue('')
     const params = new URLSearchParams(searchParams.toString())
@@ -34,45 +38,69 @@ export default function SearchBar({ placeholder = 'Search...' }: Props) {
     router.push(`?${params.toString()}`)
   }
 
+  const hasActiveQuery = !!searchParams.get('q')?.trim()
+
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 w-full">
-      <div className="relative flex-1">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
-            />
-          </svg>
-        </div>
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder={placeholder}
-          className="w-full rounded-lg border border-gray-300 bg-white pl-9 pr-9 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-        {value && (
-          <button
-            type="button"
-            onClick={handleClear}
-            aria-label="Clear search"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    <div className="w-full overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+      <form onSubmit={handleSubmit} className="px-4 pt-4 pb-3 sm:px-5">
+        <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          Search
+        </p>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="relative min-w-0 flex-1">
+            <svg
+              className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2.5}
+                d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+              />
             </svg>
-          </button>
-        )}
-      </div>
-      <button
-        type="submit"
-        className="px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors shrink-0"
-      >
-        Search
-      </button>
-    </form>
+            <input
+              type="text"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder={placeholder}
+              className="h-10 w-full rounded-lg border border-border bg-muted pl-8 pr-9 text-sm text-foreground placeholder-muted-foreground transition-colors focus:border-transparent focus:bg-card focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+            {value && (
+              <button
+                type="button"
+                onClick={handleClear}
+                aria-label="Clear search"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+
+          <div className="flex shrink-0 items-center justify-end gap-2">
+            {hasActiveQuery && (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="h-7 rounded-full border border-border px-3 text-xs text-muted-foreground transition-all hover:border-destructive/40 hover:text-destructive active:scale-95"
+              >
+                Clear
+              </button>
+            )}
+            <button
+              type="submit"
+              className="h-7 rounded-full bg-primary px-4 text-xs font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95"
+            >
+              Apply
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
   )
 }

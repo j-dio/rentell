@@ -36,8 +36,8 @@ export default async function CarinderiasPage({ searchParams }: PageProps) {
         <h1 className="text-2xl font-bold">Carinderias</h1>
       </div>
 
-      <div className="mb-6 max-w-lg">
-        <Suspense fallback={<div className="h-10 animate-pulse rounded-lg bg-gray-100" />}>
+      <div className="mb-6">
+        <Suspense fallback={<div className="h-[4.75rem] w-full animate-pulse rounded-2xl bg-muted" />}>
           <SearchBar placeholder="Search by name or address…" />
         </Suspense>
       </div>
