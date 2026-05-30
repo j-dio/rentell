@@ -1,0 +1,974 @@
+{
+  "id": "abed1950-7305-4981-bdb6-68d90527d946",
+  "title": "Copy of Rentell Physical ERD",
+  "product": "lucidchart",
+  "pages": [
+    {
+      "id": "0_0",
+      "title": "Physical ERD",
+      "index": 0,
+      "items": {
+        "shapes": [
+          {
+            "id": "FPN0jgWnzYoi",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "room_image" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "image_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "FK" },
+              { "label": "Field2", "text": "room_id" },
+              { "label": "Type2", "text": "int" },
+              { "label": "Key3", "text": "" },
+              { "label": "Field3", "text": "url" },
+              { "label": "Type3", "text": "text" },
+              { "label": "Key4", "text": "" },
+              { "label": "Field4", "text": "caption" },
+              { "label": "Type4", "text": "varchar(200)" },
+              { "label": "Key5", "text": "" },
+              { "label": "Field5", "text": "is_primary" },
+              { "label": "Type5", "text": "boolean" },
+              { "label": "Key6", "text": "" },
+              { "label": "Field6", "text": "created_at" },
+              { "label": "Type6", "text": "timestamptz" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "OVN0nkILMbBC",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "conversation" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "conversation_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "FK" },
+              { "label": "Field2", "text": "user_one_id" },
+              { "label": "Type2", "text": "int" },
+              { "label": "Key3", "text": "FK" },
+              { "label": "Field3", "text": "user_two_id" },
+              { "label": "Type3", "text": "int" },
+              { "label": "Key4", "text": "FK" },
+              { "label": "Field4", "text": "housing_id" },
+              { "label": "Type4", "text": "int" },
+              { "label": "Key5", "text": "" },
+              { "label": "Field5", "text": "created_at" },
+              { "label": "Type5", "text": "timestamptz" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": ".MN05OSbq0Gt",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "housing_carinderia" },
+              { "label": "Key1", "text": "PK,FK" },
+              { "label": "Field1", "text": "housing_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "PK,FK" },
+              { "label": "Field2", "text": "carinderia_id" },
+              { "label": "Type2", "text": "int " },
+              { "label": "Key3", "text": "" },
+              { "label": "Field3", "text": "distance_km" },
+              { "label": "Type3", "text": "numeric(5,2)" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "CCN0dxq9_PIn",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "room" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "room_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "FK" },
+              { "label": "Field2", "text": "housing_id" },
+              { "label": "Type2", "text": "int" },
+              { "label": "Key3", "text": "" },
+              { "label": "Field3", "text": "room_number" },
+              { "label": "Type3", "text": "varchar(20)" },
+              { "label": "Key4", "text": "" },
+              { "label": "Field4", "text": "room_type" },
+              { "label": "Type4", "text": "varchar(30)" },
+              { "label": "Key5", "text": "" },
+              { "label": "Field5", "text": "capacity" },
+              { "label": "Type5", "text": "smallint" },
+              { "label": "Key6", "text": "" },
+              { "label": "Field6", "text": "available_slots " },
+              { "label": "Type6", "text": "smallint" },
+              { "label": "Key7", "text": "" },
+              { "label": "Field7", "text": "monthly_price" },
+              { "label": "Type7", "text": "numeric(10,2)" },
+              { "label": "Key8", "text": "" },
+              { "label": "Field8", "text": "created_at" },
+              { "label": "Type8", "text": "timestamptz" },
+              { "label": "Key9", "text": "" },
+              { "label": "Field9", "text": "updated_at" },
+              { "label": "Type9", "text": "timestamptz" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "JGN09r5J6m4z",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "carinderia" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "carinderia_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "FK" },
+              { "label": "Field2", "text": "added_by" },
+              { "label": "Type2", "text": "int" },
+              { "label": "Key3", "text": "" },
+              { "label": "Field3", "text": "name" },
+              { "label": "Type3", "text": "varchar(100)" },
+              { "label": "Key4", "text": "" },
+              { "label": "Field4", "text": "address" },
+              { "label": "Type4", "text": "text" },
+              { "label": "Key5", "text": "" },
+              { "label": "Field5", "text": "latitude" },
+              { "label": "Type5", "text": "numeric(9,6)" },
+              { "label": "Key6", "text": "" },
+              { "label": "Field6", "text": "longitude" },
+              { "label": "Type6", "text": "numeric(9,6)" },
+              { "label": "Key7", "text": "" },
+              { "label": "Field7", "text": "description" },
+              { "label": "Type7", "text": "text" },
+              { "label": "Key8", "text": "" },
+              { "label": "Field8", "text": "created_at" },
+              { "label": "Type8", "text": "timestamptz" },
+              { "label": "Key9", "text": "" },
+              { "label": "Field9", "text": "updated_at" },
+              { "label": "Type9", "text": "timestamptz" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "gRN0DdYbUBCQ",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "favorite" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "favorite_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "FK" },
+              { "label": "Field2", "text": "user_id" },
+              { "label": "Type2", "text": "int" },
+              { "label": "Key3", "text": "" },
+              { "label": "Field3", "text": "listing_type" },
+              { "label": "Type3", "text": "varchar(20)" },
+              { "label": "Key4", "text": "FK" },
+              { "label": "Field4", "text": "housing_id" },
+              { "label": "Type4", "text": "int" },
+              { "label": "Key5", "text": "FK" },
+              { "label": "Field5", "text": "carinderia_id" },
+              { "label": "Type5", "text": "int" },
+              { "label": "Key6", "text": "" },
+              { "label": "Field6", "text": "created_at" },
+              { "label": "Type6", "text": "timestamptz" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "5hN0j5LOUy5_",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "users" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "user_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "" },
+              { "label": "Field2", "text": "email" },
+              { "label": "Type2", "text": "varchar(100)" },
+              { "label": "Key3", "text": "" },
+              { "label": "Field3", "text": "password_hash" },
+              { "label": "Type3", "text": "varchar(255)" },
+              { "label": "Key4", "text": "" },
+              { "label": "Field4", "text": "first_name" },
+              { "label": "Type4", "text": "varchar(50)" },
+              { "label": "Key5", "text": "" },
+              { "label": "Field5", "text": "last_name" },
+              { "label": "Type5", "text": "varchar(50)" },
+              { "label": "Key6", "text": "" },
+              { "label": "Field6", "text": "preferred_location_ name" },
+              { "label": "Type6", "text": "varchar(255)" },
+              { "label": "Key7", "text": "" },
+              { "label": "Field7", "text": "preferred_location_ lat" },
+              { "label": "Type7", "text": "numeric(9,6)" },
+              { "label": "Key8", "text": "" },
+              { "label": "Field8", "text": "preferred_location_lng" },
+              { "label": "Type8", "text": "numeric(9,6)" },
+              { "label": "Key9", "text": "" },
+              { "label": "Field9", "text": "onboarding_completed" },
+              { "label": "Type9", "text": "boolean" },
+              { "label": "Key10", "text": "" },
+              { "label": "Field10", "text": "phone_number" },
+              { "label": "Type10", "text": "varchar(20)" },
+              { "label": "Key11", "text": "" },
+              { "label": "Field11", "text": "avatar_url" },
+              { "label": "Type11", "text": "text" },
+              { "label": "Key12", "text": "" },
+              { "label": "Field12", "text": "is_host" },
+              { "label": "Type12", "text": "boolean" },
+              { "label": "Key13", "text": "" },
+              { "label": "Field13", "text": "created_at" },
+              { "label": "Type13", "text": "timestamptz" },
+              { "label": "Key14", "text": "" },
+              { "label": "Field14", "text": "updated_at" },
+              { "label": "Type14", "text": "timestamptz" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "BTN0CNBg3d~r",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "visit" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "visit_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "FK" },
+              { "label": "Field2", "text": "visitor_id" },
+              { "label": "Type2", "text": "int" },
+              { "label": "Key3", "text": "FK" },
+              { "label": "Field3", "text": "housing_id" },
+              { "label": "Type3", "text": "int" },
+              { "label": "Key4", "text": "" },
+              { "label": "Field4", "text": "scheduled_at" },
+              { "label": "Type4", "text": "timestamptz" },
+              { "label": "Key5", "text": "" },
+              { "label": "Field5", "text": "status" },
+              { "label": "Type5", "text": "varchar(20)" },
+              { "label": "Key6", "text": "" },
+              { "label": "Field6", "text": "note" },
+              { "label": "Type6", "text": "text" },
+              { "label": "Key7", "text": "" },
+              { "label": "Field7", "text": "created_at" },
+              { "label": "Type7", "text": "timestamptz" },
+              { "label": "Key8", "text": "" },
+              { "label": "Field8", "text": "updated_at" },
+              { "label": "Type8", "text": "timestamptz" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "AKN062-Wcgct",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "housing_essential" },
+              { "label": "Key1", "text": "PK, FK" },
+              { "label": "Field1", "text": "housing_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "PK,FK" },
+              { "label": "Field2", "text": "essential_id" },
+              { "label": "Type2", "text": "int " },
+              { "label": "Key3", "text": "" },
+              { "label": "Field3", "text": "distance_km" },
+              { "label": "Type3", "text": "numeric(5,2)" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "DJN0jjMD8W1U",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "housing_amenity" },
+              { "label": "Key1", "text": "PK,FK" },
+              { "label": "Field1", "text": "housing_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "PK,FK" },
+              { "label": "Field2", "text": "amenity_name" },
+              { "label": "Type2", "text": "varchar(50)" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "nNN0wd.p~5qM",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "housing_image" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "image_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "FK" },
+              { "label": "Field2", "text": "housing_id" },
+              { "label": "Type2", "text": "int" },
+              { "label": "Key3", "text": "" },
+              { "label": "Field3", "text": "url" },
+              { "label": "Type3", "text": "text" },
+              { "label": "Key4", "text": "" },
+              { "label": "Field4", "text": "caption" },
+              { "label": "Type4", "text": "varchar(200)" },
+              { "label": "Key5", "text": "" },
+              { "label": "Field5", "text": "is_primary" },
+              { "label": "Type5", "text": "boolean" },
+              { "label": "Key6", "text": "" },
+              { "label": "Field6", "text": "sort_order" },
+              { "label": "Type6", "text": "smallint" },
+              { "label": "Key7", "text": "" },
+              { "label": "Field7", "text": "created_at" },
+              { "label": "Type7", "text": "timestamptz" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "3IN0wU3GSNF8",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "amenity" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "name" },
+              { "label": "Type1", "text": "varchar(50)" },
+              { "label": "Key2", "text": "" },
+              { "label": "Field2", "text": "description" },
+              { "label": "Type2", "text": "text" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "1GN02TnBQP3Y",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "essential" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "essential_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "FK" },
+              { "label": "Field2", "text": "added_by" },
+              { "label": "Type2", "text": "int" },
+              { "label": "Key3", "text": "" },
+              { "label": "Field3", "text": "name" },
+              { "label": "Type3", "text": "varchar(100)" },
+              { "label": "Key4", "text": "" },
+              { "label": "Field4", "text": "type" },
+              { "label": "Type4", "text": "varchar(50)" },
+              { "label": "Key5", "text": "" },
+              { "label": "Field5", "text": "address" },
+              { "label": "Type5", "text": "text" },
+              { "label": "Key6", "text": "" },
+              { "label": "Field6", "text": "latitude" },
+              { "label": "Type6", "text": "numeric(9,6)" },
+              { "label": "Key7", "text": "" },
+              { "label": "Field7", "text": "longtitude" },
+              { "label": "Type7", "text": "numeric(9,6)" },
+              { "label": "Key8", "text": "" },
+              { "label": "Field8", "text": "description" },
+              { "label": "Type8", "text": "text" },
+              { "label": "Key9", "text": "" },
+              { "label": "Field9", "text": "created_at" },
+              { "label": "Type9", "text": "timestamptz" },
+              { "label": "Key10", "text": "" },
+              { "label": "Field10", "text": "updated_at" },
+              { "label": "Type10", "text": "timestamptz" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "FxN0-EGlwITY",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "housing" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "housing_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "FK" },
+              { "label": "Field2", "text": "owner_id" },
+              { "label": "Type2", "text": "int" },
+              { "label": "Key3", "text": "" },
+              { "label": "Field3", "text": "name" },
+              { "label": "Type3", "text": "varchar(100)" },
+              { "label": "Key4", "text": "" },
+              { "label": "Field4", "text": "housing_type" },
+              { "label": "Type4", "text": "varchar(50)" },
+              { "label": "Key5", "text": "" },
+              { "label": "Field5", "text": "address" },
+              { "label": "Type5", "text": "text" },
+              { "label": "Key6", "text": "" },
+              { "label": "Field6", "text": "latitude" },
+              { "label": "Type6", "text": "numeric(9,6)" },
+              { "label": "Key7", "text": "" },
+              { "label": "Field7", "text": "longitude" },
+              { "label": "Type7", "text": "numeric(9,6)" },
+              { "label": "Key8", "text": "" },
+              { "label": "Field8", "text": "monthly_price_min" },
+              { "label": "Type8", "text": "numeric(10,2)" },
+              { "label": "Key9", "text": "" },
+              { "label": "Field9", "text": "monthly_price_max" },
+              { "label": "Type9", "text": "numeric(10,2)" },
+              { "label": "Key10", "text": "" },
+              { "label": "Field10", "text": "contact_person" },
+              { "label": "Type10", "text": "varchar(100)" },
+              { "label": "Key11", "text": "" },
+              { "label": "Field11", "text": "contact_number" },
+              { "label": "Type11", "text": "varchar(20)" },
+              { "label": "Key12", "text": "" },
+              { "label": "Field12", "text": "description" },
+              { "label": "Type12", "text": "text" },
+              { "label": "Key13", "text": "" },
+              { "label": "Field13", "text": "created_at" },
+              { "label": "Type13", "text": "timestamptz" },
+              { "label": "Key14", "text": "" },
+              { "label": "Field14", "text": "updated_at" },
+              { "label": "Type14", "text": "timestamptz" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "wPN0epi8qOq.",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "carinderia_image" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "image_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "FK" },
+              { "label": "Field2", "text": "carinderia_id" },
+              { "label": "Type2", "text": "int" },
+              { "label": "Key3", "text": "" },
+              { "label": "Field3", "text": "url" },
+              { "label": "Type3", "text": "text" },
+              { "label": "Key4", "text": "" },
+              { "label": "Field4", "text": "caption" },
+              { "label": "Type4", "text": "varchar(200)" },
+              { "label": "Key5", "text": "" },
+              { "label": "Field5", "text": "is_primary" },
+              { "label": "Type5", "text": "boolean" },
+              { "label": "Key6", "text": "" },
+              { "label": "Field6", "text": "created_at" },
+              { "label": "Type6", "text": "timestamptz" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "lUN0glymhN8P",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "housing_visiting_hours" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "FK" },
+              { "label": "Field2", "text": "housing_id" },
+              { "label": "Type2", "text": "int" },
+              { "label": "Key3", "text": "" },
+              { "label": "Field3", "text": "day_of_week" },
+              { "label": "Type3", "text": "smallint" },
+              { "label": "Key4", "text": "" },
+              { "label": "Field4", "text": "start_time" },
+              { "label": "Type4", "text": "time" },
+              { "label": "Key5", "text": "" },
+              { "label": "Field5", "text": "end_time" },
+              { "label": "Type5", "text": "time" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "sVN0-zalzRRL",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "message" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "message_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "FK" },
+              { "label": "Field2", "text": "conversation_id" },
+              { "label": "Type2", "text": "int" },
+              { "label": "Key3", "text": "FK" },
+              { "label": "Field3", "text": "sender_id" },
+              { "label": "Type3", "text": "int" },
+              { "label": "Key4", "text": "" },
+              { "label": "Field4", "text": "body" },
+              { "label": "Type4", "text": "text" },
+              { "label": "Key5", "text": "" },
+              { "label": "Field5", "text": "created_at" },
+              { "label": "Type5", "text": "timestamptz" },
+              { "label": "Key6", "text": "" },
+              { "label": "Field6", "text": "read_at" },
+              { "label": "Type6", "text": "timestamptz" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "2tN0G6kaPF6x",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "session" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "session_id" },
+              { "label": "Type1", "text": "varchar(64)" },
+              { "label": "Key2", "text": "FK" },
+              { "label": "Field2", "text": "user_id" },
+              { "label": "Type2", "text": "int " },
+              { "label": "Key3", "text": "" },
+              { "label": "Field3", "text": "expires_at" },
+              { "label": "Type3", "text": "timestamptz" },
+              { "label": "Key4", "text": "" },
+              { "label": "Field4", "text": "created_at" },
+              { "label": "Type4", "text": "timestamptz" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "YQN0RmMZBQTm",
+            "class": "ERDEntityBlock4",
+            "textAreas": [
+              { "label": "Name", "text": "review" },
+              { "label": "Key1", "text": "PK" },
+              { "label": "Field1", "text": "review_id" },
+              { "label": "Type1", "text": "int" },
+              { "label": "Key2", "text": "FK" },
+              { "label": "Field2", "text": "reviewer_id" },
+              { "label": "Type2", "text": "int" },
+              { "label": "Key3", "text": "" },
+              { "label": "Field3", "text": "listing_type" },
+              { "label": "Type3", "text": "varchar(20)" },
+              { "label": "Key4", "text": "FK" },
+              { "label": "Field4", "text": "housing_id" },
+              { "label": "Type4", "text": "int" },
+              { "label": "Key5", "text": "FK" },
+              { "label": "Field5", "text": "carinderia_id" },
+              { "label": "Type5", "text": "int" },
+              { "label": "Key6", "text": "" },
+              { "label": "Field6", "text": "rating" },
+              { "label": "Type6", "text": "smallint" },
+              { "label": "Key7", "text": "" },
+              { "label": "Field7", "text": "comment" },
+              { "label": "Type7", "text": "text" },
+              { "label": "Key8", "text": "" },
+              { "label": "Field8", "text": "created_at" },
+              { "label": "Type8", "text": "timestamptz" },
+              { "label": "Key9", "text": "" },
+              { "label": "Field9", "text": "updated_at" },
+              { "label": "Type9", "text": "timestamptz" }
+            ],
+            "customData": [],
+            "linkedData": []
+          }
+        ],
+        "lines": [
+          {
+            "id": "lWQ0oAX9mQL_",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "5hN0j5LOUy5_"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "gRN0DdYbUBCQ"
+            },
+            "textAreas": [{ "label": "t0", "text": "saves" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "pBQ0q5g9lKR3",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "5hN0j5LOUy5_"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "OVN0nkILMbBC"
+            },
+            "textAreas": [{ "label": "t0", "text": "user_two" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "_1Q0L-sYfoOv",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "FxN0-EGlwITY"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "YQN0RmMZBQTm"
+            },
+            "textAreas": [{ "label": "t0", "text": "reviewed in" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "GAR03.jicXrZ",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "CCN0dxq9_PIn"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "FPN0jgWnzYoi"
+            },
+            "textAreas": [{ "label": "t0", "text": "has" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "IOO0WGB~YL91",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "5hN0j5LOUy5_"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "FxN0-EGlwITY"
+            },
+            "textAreas": [{ "label": "t0", "text": "owns" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "hCQ0cp4kK9s.",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "5hN0j5LOUy5_"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "OVN0nkILMbBC"
+            },
+            "textAreas": [{ "label": "t0", "text": "user_one" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "XmR01Z3TLUEO",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "5hN0j5LOUy5_"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "1GN02TnBQP3Y"
+            },
+            "textAreas": [{ "label": "t0", "text": "adds" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "XgR0wKWfuEj5",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "1GN02TnBQP3Y"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "AKN062-Wcgct"
+            },
+            "textAreas": [{ "label": "t0", "text": "linked" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "xJQ0Bw~3hQzi",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "FxN0-EGlwITY"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "OVN0nkILMbBC"
+            },
+            "textAreas": [{ "label": "t0", "text": "about" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "OTQ0loT9~I7l",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "FxN0-EGlwITY"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "BTN0CNBg3d~r"
+            },
+            "textAreas": [{ "label": "t0", "text": "receives" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "h.Q0lyG4Unex",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "JGN09r5J6m4z"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": ".MN05OSbq0Gt"
+            },
+            "textAreas": [{ "label": "t0", "text": "linked" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "MiR0mUL0d.Fg",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "FxN0-EGlwITY"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "DJN0jjMD8W1U"
+            },
+            "textAreas": [{ "label": "t0", "text": "has" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "L2Q0jdnpLHXo",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "JGN09r5J6m4z"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "YQN0RmMZBQTm"
+            },
+            "textAreas": [{ "label": "t0", "text": "reviewed in" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": ".YQ0gxdaHPfI",
+            "endpoint1": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "gRN0DdYbUBCQ"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "JGN09r5J6m4z"
+            },
+            "textAreas": [{ "label": "t0", "text": "saved as" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "VGQ0a.5k65v-",
+            "endpoint1": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "sVN0-zalzRRL"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "OVN0nkILMbBC"
+            },
+            "textAreas": [{ "label": "t0", "text": "contains " }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "NFQ0kw0hszGu",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "5hN0j5LOUy5_"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "sVN0-zalzRRL"
+            },
+            "textAreas": [{ "label": "t0", "text": "sends" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "T8Q0I5HRepf7",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "FxN0-EGlwITY"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "nNN0wd.p~5qM"
+            },
+            "textAreas": [{ "label": "t0", "text": "has" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "L-Q0.UyRLASa",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "FxN0-EGlwITY"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": ".MN05OSbq0Gt"
+            },
+            "textAreas": [{ "label": "t0", "text": "near" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "RNO04mesaB_w",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "5hN0j5LOUy5_"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "JGN09r5J6m4z"
+            },
+            "textAreas": [{ "label": "t0", "text": "adds" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "h7Q09t8dpHnn",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "JGN09r5J6m4z"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "wPN0epi8qOq."
+            },
+            "textAreas": [{ "label": "t0", "text": "has" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "teR0_JzrXKGG",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "FxN0-EGlwITY"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "AKN062-Wcgct"
+            },
+            "textAreas": [{ "label": "t0", "text": "near" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "wxQ0OK5H.8rl",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "DJN0jjMD8W1U"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "3IN0wU3GSNF8"
+            },
+            "textAreas": [{ "label": "t0", "text": "linked" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "15Q0jQR-FN7i",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "5hN0j5LOUy5_"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "YQN0RmMZBQTm"
+            },
+            "textAreas": [{ "label": "t0", "text": "writes" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "NkR0GoovrxI9",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "FxN0-EGlwITY"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "CCN0dxq9_PIn"
+            },
+            "textAreas": [{ "label": "t0", "text": "contains" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "XKQ0MdCgjfhA",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "5hN0j5LOUy5_"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "BTN0CNBg3d~r"
+            },
+            "textAreas": [{ "label": "t0", "text": "schedules" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "7HO0xeA8k7o_",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "5hN0j5LOUy5_"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "2tN0G6kaPF6x"
+            },
+            "textAreas": [
+              { "label": "t0", "text": "" },
+              { "label": "t1", "text": "authenticates" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "~UQ0pmLAIUcn",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "FxN0-EGlwITY"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "lUN0glymhN8P"
+            },
+            "textAreas": [{ "label": "t0", "text": "has" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "jXQ043682ldP",
+            "endpoint1": {
+              "style": "CFN ERD Exactly One Arrow",
+              "connectedTo": "FxN0-EGlwITY"
+            },
+            "endpoint2": {
+              "style": "CFN ERD Zero Or More Arrow",
+              "connectedTo": "gRN0DdYbUBCQ"
+            },
+            "textAreas": [{ "label": "t0", "text": "saved as" }],
+            "customData": [],
+            "linkedData": []
+          }
+        ],
+        "groups": [],
+        "layers": []
+      },
+      "customData": [],
+      "linkedData": []
+    }
+  ],
+  "data": { "collections": [] },
+  "accountId": 216360278
+}

@@ -18,16 +18,16 @@ VALUES
 -- ============================================================
 -- 2. Amenity catalog
 -- ============================================================
-INSERT INTO amenity (name, description)
+INSERT INTO amenity (name)
 VALUES
-  ('WiFi',           'Wireless internet connection'),
-  ('AC',             'Air conditioning'),
-  ('Water',          'Running water 24/7'),
-  ('Parking',        'Motorcycle or bicycle parking'),
-  ('CCTV',          'Security cameras on premises'),
-  ('Laundry',        'In-unit or shared washing machine'),
-  ('Kitchen',        'Shared kitchen access'),
-  ('Security Guard', '24/7 security personnel');
+  ('WiFi'),
+  ('AC'),
+  ('Water'),
+  ('Parking'),
+  ('CCTV'),
+  ('Laundry'),
+  ('Kitchen'),
+  ('Security Guard');
 
 -- ============================================================
 -- 3. Housing (3 listings owned by host)

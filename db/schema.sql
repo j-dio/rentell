@@ -86,8 +86,7 @@ CREATE TABLE essential (
 
 -- 3. Catalog
 CREATE TABLE amenity (
-  name         VARCHAR(50)  PRIMARY KEY,
-  description  TEXT
+  name  VARCHAR(50)  PRIMARY KEY
 );
 
 -- 4. Junctions
