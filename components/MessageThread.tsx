@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import MessageBubble from '@/components/MessageBubble'
 import type { Message } from '@/lib/queries/messages'
 
@@ -121,24 +120,40 @@ export default function MessageThread({
       {/* Send form */}
       <div className="border-t pt-4 mt-4">
         {error && <p className="text-sm text-destructive mb-2">{error}</p>}
-        <form onSubmit={handleSubmit} className="flex gap-2 items-end">
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault()
-                doSend()
-              }
-            }}
-            rows={2}
-            maxLength={4000}
-            placeholder="Type a message… (Enter to send, Shift+Enter for new line)"
-            className="flex-1 border rounded-md px-3 py-2 text-sm bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-          <Button type="submit" size="sm" disabled={submitting || !body.trim()}>
-            {submitting ? 'Sending…' : 'Send'}
-          </Button>
+        <form onSubmit={handleSubmit}>
+          <div className="flex items-end gap-2 rounded-2xl border border-border bg-card px-3 py-2 shadow-sm transition-all focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/15">
+            <textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  doSend()
+                }
+              }}
+              rows={2}
+              maxLength={4000}
+              placeholder="Type a message… (Enter ↵ to send)"
+              className="flex-1 resize-none bg-transparent py-1 text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none"
+            />
+            <button
+              type="submit"
+              disabled={submitting || !body.trim()}
+              aria-label="Send message"
+              className="mb-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-all hover:bg-primary/85 active:scale-95 disabled:cursor-not-allowed disabled:opacity-35"
+            >
+              {submitting ? (
+                <svg className="size-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" />
+                  <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              ) : (
+                <svg className="size-4 translate-x-px" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                </svg>
+              )}
+            </button>
+          </div>
         </form>
       </div>
     </div>
