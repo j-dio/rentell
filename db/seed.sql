@@ -34,7 +34,7 @@ VALUES
 -- ============================================================
 INSERT INTO housing (owner_id, name, housing_type, address, latitude, longitude,
                      monthly_price_min, monthly_price_max, contact_person,
-                     contact_number, proximity_to_campus_km, description)
+                     contact_number, description)
 VALUES
   (
     (SELECT user_id FROM users WHERE email = 'host@rentell.test'),
@@ -43,7 +43,7 @@ VALUES
     '12 Gorordo Ave, Lahug, Cebu City',
     10.325600, 123.906700,
     2500.00, 4500.00,
-    'Maria Santos', '09281234567', 0.8,
+    'Maria Santos', '09281234567',
     'A well-maintained dormitory close to the main campus. All rooms come with WiFi and 24/7 water supply. Curfew at 10PM.'
   ),
   (
@@ -53,7 +53,7 @@ VALUES
     '45 Leon Kilat St, Cebu City',
     10.296800, 123.898900,
     1500.00, 3000.00,
-    'Maria Santos', '09281234567', 1.5,
+    'Maria Santos', '09281234567',
     'Affordable boarding house with shared kitchen and laundry. Walking distance to jeepney routes. Good for students on a budget.'
   ),
   (
@@ -63,7 +63,7 @@ VALUES
     '88 Pope John Paul II Ave, Mabolo, Cebu City',
     10.318400, 123.912300,
     5000.00, 8000.00,
-    'Maria Santos', '09281234567', 2.1,
+    'Maria Santos', '09281234567',
     'Modern studio and one-bedroom apartments with full amenities. Ideal for upperclassmen or graduate students who prefer privacy.'
   );
 
@@ -242,7 +242,7 @@ VALUES
 -- ============================================================
 INSERT INTO housing (owner_id, name, housing_type, address, latitude, longitude,
                      monthly_price_min, monthly_price_max, contact_person,
-                     contact_number, proximity_to_campus_km, description)
+                     contact_number, description)
 VALUES
   (
     (SELECT user_id FROM users WHERE email = 'host@rentell.test'),
@@ -251,7 +251,7 @@ VALUES
     '33 V. Rama Ave, Cebu City',
     10.321500, 123.903200,
     2000.00, 3500.00,
-    'Maria Santos', '09281234567', 0.5,
+    'Maria Santos', '09281234567',
     'Quiet and well-secured dormitory with separate male and female floors. Water and electricity included in monthly rate. Curfew at 10PM on weekdays.'
   ),
   (
@@ -261,7 +261,7 @@ VALUES
     '7 Fuente Osmeña, Cebu City',
     10.315200, 123.892400,
     1800.00, 2800.00,
-    'Maria Santos', '09281234567', 1.2,
+    'Maria Santos', '09281234567',
     'Centrally located near Fuente Osmeña circle. Common kitchen available. Near public transport routes. Ideal for students with classes in different campuses.'
   ),
   (
@@ -271,7 +271,7 @@ VALUES
     '14 Capitol Site, Cebu City',
     10.310800, 123.895600,
     4500.00, 7000.00,
-    'Maria Santos', '09281234567', 1.8,
+    'Maria Santos', '09281234567',
     'Newly renovated studio and one-bedroom units. Each unit has its own comfort room and kitchenette. AC included. Gated compound with parking.'
   ),
   (
@@ -281,7 +281,7 @@ VALUES
     '3 F. Ramos St, Cebu City',
     10.323800, 123.908900,
     2200.00, 4000.00,
-    'Maria Santos', '09281234567', 0.6,
+    'Maria Santos', '09281234567',
     'Safe and affordable dorm just minutes from campus. CCTV-monitored common areas. Accepts both male and female tenants on separate floors. WiFi included.'
   ),
   (
@@ -291,7 +291,7 @@ VALUES
     '20 Barrio Luz, Cebu City',
     10.307400, 123.901200,
     1500.00, 2500.00,
-    'Maria Santos', '09281234567', 2.3,
+    'Maria Santos', '09281234567',
     'Budget-friendly rooms in a quiet residential neighborhood. Shared kitchen and bathroom. Close to the public market for affordable grocery runs.'
   ),
   (
@@ -301,7 +301,7 @@ VALUES
     '55 Salinas Drive, Lahug, Cebu City',
     10.328900, 123.909500,
     6000.00, 9000.00,
-    'Maria Santos', '09281234567', 1.1,
+    'Maria Santos', '09281234567',
     'Premium furnished suites with city view. Full AC, fast fiber WiFi, and covered parking. Pet-friendly upon request. Suitable for grad students and young professionals.'
   ),
   (
@@ -311,7 +311,7 @@ VALUES
     '18 M.J. Cuenco Ave, Cebu City',
     10.319600, 123.904100,
     2800.00, 4200.00,
-    'Maria Santos', '09281234567', 0.9,
+    'Maria Santos', '09281234567',
     'Well-established student dorm with a strong community culture. Monthly meetings, curfew strictly enforced. Common study area and TV lounge on each floor.'
   ),
   (
@@ -321,7 +321,7 @@ VALUES
     '4 Urgello St, Cebu City',
     10.322100, 123.907800,
     1200.00, 2000.00,
-    'Maria Santos', '09281234567', 0.7,
+    'Maria Santos', '09281234567',
     'Most affordable option near campus. Bedspacer and shared rooms available. Basic amenities included. Perfect for students on the tightest budget. No curfew.'
   );
 
