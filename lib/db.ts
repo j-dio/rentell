@@ -1,14 +1,16 @@
-import postgres from 'postgres'
+import { neon } from '@neondatabase/serverless'
 
 if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL is not set')
 }
 
-const sql = postgres(process.env.DATABASE_URL, {
-  ssl: 'require',
-  connect_timeout: 30,
-  idle_timeout: 20,
-  max_lifetime: 1800,
-})
+const _sql = neon(process.env.DATABASE_URL)
+
+function sql<T = Record<string, any>[]>(
+  strings: TemplateStringsArray,
+  ...values: unknown[]
+): Promise<T> {
+  return _sql(strings, ...values) as unknown as Promise<T>
+}
 
 export default sql
