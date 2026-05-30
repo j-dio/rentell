@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import ImageDropZone from '@/components/ImageDropZone'
 
 type CarinderiaImage = {
   image_id: number
@@ -24,42 +25,61 @@ export default function CarinderiaImageForm({
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [deleting, setDeleting] = useState<number | null>(null)
+  const [showUrlForm, setShowUrlForm] = useState(false)
+  const [uploadCaption, setUploadCaption] = useState('')
+  const [uploadIsPrimary, setUploadIsPrimary] = useState(false)
+
+  async function addImage(
+    url: string,
+    caption: string | null,
+    isPrimary: boolean,
+  ): Promise<CarinderiaImage> {
+    const res = await fetch(`/api/carinderia/${carinderiaId}/images`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, caption, is_primary: isPrimary }),
+    })
+    if (!res.ok) {
+      const data = await res.json()
+      const e = data.error
+      throw new Error(
+        typeof e === 'string'
+          ? e
+          : e?.formErrors?.[0] ??
+            (Object.values(e?.fieldErrors ?? {}) as string[][])?.[0]?.[0] ??
+            'Failed to add image',
+      )
+    }
+    return res.json()
+  }
+
+  async function handleFileUploaded(url: string) {
+    setError(null)
+    try {
+      const newImage = await addImage(url, uploadCaption.trim() || null, uploadIsPrimary)
+      setImages((prev) => [...prev, newImage])
+      setUploadCaption('')
+      setUploadIsPrimary(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add image')
+    }
+  }
 
   async function handleAdd(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
     setSubmitting(true)
-
     const fd = new FormData(e.currentTarget)
-    const body = {
-      url: fd.get('url') as string,
-      caption: (fd.get('caption') as string).trim() || null,
-      is_primary: fd.get('is_primary') === 'on',
-    }
-
     try {
-      const res = await fetch(`/api/carinderia/${carinderiaId}/images`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-      if (!res.ok) {
-        const data = await res.json()
-        const e = data.error
-        setError(
-          typeof e === 'string'
-            ? e
-            : e?.formErrors?.[0] ??
-              (Object.values(e?.fieldErrors ?? {}) as string[][])?.[0]?.[0] ??
-              'Failed to add image',
-        )
-        return
-      }
-      const newImage: CarinderiaImage = await res.json()
+      const newImage = await addImage(
+        fd.get('url') as string,
+        (fd.get('caption') as string).trim() || null,
+        fd.get('is_primary') === 'on',
+      )
       setImages((prev) => [...prev, newImage])
       ;(e.target as HTMLFormElement).reset()
-    } catch {
-      setError('Network error. Please try again.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Network error. Please try again.')
     } finally {
       setSubmitting(false)
     }
@@ -100,7 +120,7 @@ export default function CarinderiaImageForm({
                 unoptimized
                 className="w-12 h-12 object-cover rounded shrink-0"
               />
-              <span className="flex-1 text-sm truncate text-muted-foreground">{img.url}</span>
+              <span className="flex-1 text-sm truncate text-muted-foreground">{img.caption ?? img.url}</span>
               {img.is_primary && (
                 <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded shrink-0">
                   Primary
@@ -120,36 +140,76 @@ export default function CarinderiaImageForm({
         </ul>
       )}
 
-      <form onSubmit={handleAdd} className="border rounded-lg p-4 space-y-4 bg-muted/30">
-        <p className="text-sm font-medium">Add an image URL</p>
-
+      <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
         {error && <p className="text-sm text-destructive">{error}</p>}
 
-        <div className="space-y-1">
-          <Label htmlFor="ci-url">Image URL *</Label>
-          <Input
-            id="ci-url"
-            name="url"
-            type="url"
-            required
-            placeholder="https://example.com/photo.jpg"
-          />
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <Label>Caption (optional)</Label>
+            <Input
+              value={uploadCaption}
+              onChange={(e) => setUploadCaption(e.target.value)}
+              maxLength={200}
+              placeholder="e.g. Inside the canteen"
+            />
+          </div>
+          <div className="flex items-end pb-1">
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={uploadIsPrimary}
+                onChange={(e) => setUploadIsPrimary(e.target.checked)}
+                className="rounded"
+              />
+              Set as primary
+            </label>
+          </div>
         </div>
 
-        <div className="space-y-1">
-          <Label htmlFor="ci-caption">Caption</Label>
-          <Input id="ci-caption" name="caption" maxLength={200} placeholder="e.g. Inside the canteen" />
-        </div>
+        <ImageDropZone onUploaded={handleFileUploaded} />
 
-        <label className="flex items-center gap-2 text-sm cursor-pointer">
-          <input type="checkbox" name="is_primary" className="rounded" />
-          Set as primary image
-        </label>
+        <button
+          type="button"
+          className="text-sm text-muted-foreground hover:text-foreground"
+          onClick={() => setShowUrlForm((v) => !v)}
+        >
+          {showUrlForm ? '▲ Hide URL input' : '▾ Or add by URL'}
+        </button>
 
-        <Button type="submit" size="sm" disabled={submitting}>
-          {submitting ? 'Adding…' : 'Add image'}
-        </Button>
-      </form>
+        {showUrlForm && (
+          <form onSubmit={handleAdd} className="space-y-3 pt-2 border-t">
+            <div className="space-y-1">
+              <Label htmlFor="ci-url">Image URL *</Label>
+              <Input
+                id="ci-url"
+                name="url"
+                type="url"
+                required
+                placeholder="https://example.com/photo.jpg"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="ci-caption">Caption</Label>
+              <Input
+                id="ci-caption"
+                name="caption"
+                maxLength={200}
+                placeholder="e.g. Inside the canteen"
+              />
+            </div>
+
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" name="is_primary" className="rounded" />
+              Set as primary image
+            </label>
+
+            <Button type="submit" size="sm" disabled={submitting}>
+              {submitting ? 'Adding…' : 'Add image'}
+            </Button>
+          </form>
+        )}
+      </div>
     </div>
   )
 }
