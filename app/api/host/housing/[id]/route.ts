@@ -58,8 +58,11 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
   }
 
-  const deleted = await deleteHousing(housingId, session.userId)
-  if (!deleted) return NextResponse.json({ error: 'Not found or forbidden' }, { status: 403 })
-
-  return NextResponse.json({ success: true })
+  try {
+    const deleted = await deleteHousing(housingId, session.userId)
+    if (!deleted) return NextResponse.json({ error: 'Not found or forbidden' }, { status: 403 })
+    return NextResponse.json({ success: true })
+  } catch {
+    return NextResponse.json({ error: 'Failed to delete listing' }, { status: 500 })
+  }
 }

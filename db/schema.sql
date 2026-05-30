@@ -216,7 +216,7 @@ CREATE TABLE conversation (
   conversation_id  INT           PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   user_one_id      INT           NOT NULL REFERENCES users(user_id),
   user_two_id      INT           NOT NULL REFERENCES users(user_id),
-  housing_id       INT           REFERENCES housing(housing_id),
+  housing_id       INT           REFERENCES housing(housing_id) ON DELETE CASCADE,
   created_at       TIMESTAMPTZ   NOT NULL DEFAULT now(),
   CHECK (user_one_id < user_two_id),
   UNIQUE (user_one_id, user_two_id, housing_id)
