@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import CarinderiaImageForm from '@/components/CarinderiaImageForm'
 import StepIndicator from '@/components/StepIndicator'
+import MapboxLocationPicker, { PickedLocation } from '@/components/MapboxLocationPicker'
 
 type Step = 'form' | 'images'
 
@@ -21,9 +22,18 @@ export default function NewCarinderiaPage() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
+  const [location, setLocation] = useState<PickedLocation | null>(null)
+  const [showPicker, setShowPicker] = useState(false)
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
+
+    if (!location) {
+      setError('Please pick a location on the map.')
+      return
+    }
+
     setSubmitting(true)
 
     const fd = new FormData(e.currentTarget)
@@ -31,8 +41,10 @@ export default function NewCarinderiaPage() {
 
     const body = {
       name,
-      address: (fd.get('address') as string).trim(),
+      address: location.name,
       description: (fd.get('description') as string).trim() || null,
+      latitude: location.lat,
+      longitude: location.lng,
     }
 
     try {
@@ -145,13 +157,28 @@ export default function NewCarinderiaPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="address">Address *</Label>
-          <Input
-            id="address"
-            name="address"
-            required
-            placeholder="e.g. 12 Colon St, Cebu City"
-          />
+          <Label>Location *</Label>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setShowPicker((v) => !v)}
+          >
+            {location ? 'Change location' : 'Pick location on map'}
+          </Button>
+          {location && (
+            <p className="text-xs text-muted-foreground">{location.name}</p>
+          )}
+          {showPicker && (
+            <div className="mt-2">
+              <MapboxLocationPicker
+                onConfirm={(loc) => {
+                  setLocation(loc)
+                  setShowPicker(false)
+                }}
+                confirmLabel="Use this location"
+              />
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">

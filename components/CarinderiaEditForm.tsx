@@ -5,12 +5,15 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import MapboxLocationPicker, { PickedLocation } from '@/components/MapboxLocationPicker'
 
 type Props = {
   carinderiaId: number
   initialName: string
   initialAddress: string
   initialDescription: string | null
+  initialLatitude?: number | null
+  initialLongitude?: number | null
 }
 
 export default function CarinderiaEditForm({
@@ -18,11 +21,21 @@ export default function CarinderiaEditForm({
   initialName,
   initialAddress,
   initialDescription,
+  initialLatitude,
+  initialLongitude,
 }: Props) {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+
+  const existingLocation =
+    initialLatitude != null && initialLongitude != null
+      ? { name: initialAddress, lat: initialLatitude, lng: initialLongitude }
+      : null
+
+  const [location, setLocation] = useState<PickedLocation | null>(existingLocation)
+  const [showPicker, setShowPicker] = useState(false)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -33,8 +46,10 @@ export default function CarinderiaEditForm({
     const fd = new FormData(e.currentTarget)
     const body = {
       name: (fd.get('name') as string).trim(),
-      address: (fd.get('address') as string).trim(),
+      address: location?.name ?? initialAddress,
       description: (fd.get('description') as string).trim() || null,
+      latitude: location?.lat,
+      longitude: location?.lng,
     }
 
     try {
@@ -89,13 +104,30 @@ export default function CarinderiaEditForm({
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="ce-address">Address *</Label>
-        <Input
-          id="ce-address"
-          name="address"
-          required
-          defaultValue={initialAddress}
-        />
+        <Label>Location</Label>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setShowPicker((v) => !v)}
+        >
+          {location ? 'Change location' : 'Pick location on map'}
+        </Button>
+        {location && (
+          <p className="text-xs text-muted-foreground">{location.name}</p>
+        )}
+        {showPicker && (
+          <div className="mt-2">
+            <MapboxLocationPicker
+              onConfirm={(loc) => {
+                setLocation(loc)
+                setShowPicker(false)
+              }}
+              initialLocation={existingLocation ?? undefined}
+              confirmLabel="Use this location"
+            />
+          </div>
+        )}
       </div>
 
       <div className="space-y-1.5">

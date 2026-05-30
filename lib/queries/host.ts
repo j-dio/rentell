@@ -216,13 +216,27 @@ export async function removeVisitingHours(id: number, housingId: number, ownerId
 
 // ── Nearby Carinderias ────────────────────────────────────────────────────────
 
-export async function linkCarinderia(housingId: number, ownerId: number, carinderia_id: number, distance_km?: number | null) {
+export async function linkCarinderia(housingId: number, ownerId: number, carinderiaId: number) {
   const rows = await sql`
     INSERT INTO housing_carinderia (housing_id, carinderia_id, distance_km)
-    SELECT ${housingId}, ${carinderia_id}, ${distance_km ?? null}
-    FROM housing
-    WHERE housing_id = ${housingId}
-      AND owner_id   = ${ownerId}
+    SELECT
+      h.housing_id,
+      c.carinderia_id,
+      CASE
+        WHEN h.latitude IS NOT NULL AND h.longitude IS NOT NULL
+          AND c.latitude IS NOT NULL AND c.longitude IS NOT NULL
+        THEN ROUND((6371 * acos(LEAST(1.0,
+          cos(radians(h.latitude::float)) * cos(radians(c.latitude::float))
+          * cos(radians(c.longitude::float) - radians(h.longitude::float))
+          + sin(radians(h.latitude::float)) * sin(radians(c.latitude::float))
+        )))::numeric, 1)
+        ELSE NULL
+      END
+    FROM housing h
+    CROSS JOIN carinderia c
+    WHERE h.housing_id    = ${housingId}
+      AND h.owner_id      = ${ownerId}
+      AND c.carinderia_id = ${carinderiaId}
     ON CONFLICT (housing_id, carinderia_id) DO UPDATE SET distance_km = EXCLUDED.distance_km
     RETURNING housing_id
   `
@@ -246,13 +260,27 @@ export async function unlinkCarinderia(housingId: number, ownerId: number, carin
 
 // ── Nearby Essentials ─────────────────────────────────────────────────────────
 
-export async function linkEssential(housingId: number, ownerId: number, essential_id: number, distance_km?: number | null) {
+export async function linkEssential(housingId: number, ownerId: number, essentialId: number) {
   const rows = await sql`
     INSERT INTO housing_essential (housing_id, essential_id, distance_km)
-    SELECT ${housingId}, ${essential_id}, ${distance_km ?? null}
-    FROM housing
-    WHERE housing_id = ${housingId}
-      AND owner_id   = ${ownerId}
+    SELECT
+      h.housing_id,
+      e.essential_id,
+      CASE
+        WHEN h.latitude IS NOT NULL AND h.longitude IS NOT NULL
+          AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL
+        THEN ROUND((6371 * acos(LEAST(1.0,
+          cos(radians(h.latitude::float)) * cos(radians(e.latitude::float))
+          * cos(radians(e.longitude::float) - radians(h.longitude::float))
+          + sin(radians(h.latitude::float)) * sin(radians(e.latitude::float))
+        )))::numeric, 1)
+        ELSE NULL
+      END
+    FROM housing h
+    CROSS JOIN essential e
+    WHERE h.housing_id   = ${housingId}
+      AND h.owner_id     = ${ownerId}
+      AND e.essential_id = ${essentialId}
     ON CONFLICT (housing_id, essential_id) DO UPDATE SET distance_km = EXCLUDED.distance_km
     RETURNING housing_id
   `

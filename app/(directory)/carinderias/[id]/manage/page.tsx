@@ -56,6 +56,8 @@ export default async function ManageCarinderiaPage({ params }: Props) {
           initialName={carinderia.name}
           initialAddress={carinderia.address}
           initialDescription={carinderia.description}
+          initialLatitude={carinderia.latitude != null ? parseFloat(carinderia.latitude) : null}
+          initialLongitude={carinderia.longitude != null ? parseFloat(carinderia.longitude) : null}
         />
       </section>
 

@@ -12,12 +12,10 @@ const linkSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('carinderia'),
     carinderia_id: z.number().int().positive(),
-    distance_km: z.number().nonnegative().nullable().optional(),
   }),
   z.object({
     type: z.literal('essential'),
     essential_id: z.number().int().positive(),
-    distance_km: z.number().nonnegative().nullable().optional(),
   }),
 ])
 
@@ -53,9 +51,9 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   let result
   if (parsed.data.type === 'carinderia') {
-    result = await linkCarinderia(housingId, session.userId, parsed.data.carinderia_id, parsed.data.distance_km)
+    result = await linkCarinderia(housingId, session.userId, parsed.data.carinderia_id)
   } else {
-    result = await linkEssential(housingId, session.userId, parsed.data.essential_id, parsed.data.distance_km)
+    result = await linkEssential(housingId, session.userId, parsed.data.essential_id)
   }
 
   if (!result) return NextResponse.json({ error: 'Not found or forbidden' }, { status: 403 })

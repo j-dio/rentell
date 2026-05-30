@@ -81,6 +81,8 @@ export type CreateCarinderiaData = {
   name: string
   address: string
   description?: string | null
+  latitude?: number | null
+  longitude?: number | null
 }
 
 export async function createCarinderia(
@@ -88,12 +90,14 @@ export async function createCarinderia(
   data: CreateCarinderiaData,
 ): Promise<{ carinderia_id: number }> {
   const [row] = await sql<{ carinderia_id: number }[]>`
-    INSERT INTO carinderia (added_by, name, address, description)
+    INSERT INTO carinderia (added_by, name, address, description, latitude, longitude)
     VALUES (
       ${addedBy},
       ${data.name},
       ${data.address},
-      ${data.description ?? null}
+      ${data.description ?? null},
+      ${data.latitude ?? null},
+      ${data.longitude ?? null}
     )
     RETURNING carinderia_id
   `
@@ -125,13 +129,15 @@ export async function getOwnCarinderias(userId: number): Promise<CarinderiaListI
 export async function updateCarinderia(
   carinderiaId: number,
   userId: number,
-  data: { name?: string; address?: string; description?: string | null },
+  data: { name?: string; address?: string; description?: string | null; latitude?: number | null; longitude?: number | null },
 ): Promise<boolean> {
   const rows = await sql`
     UPDATE carinderia
     SET name        = COALESCE(${data.name ?? null}, name),
         address     = COALESCE(${data.address ?? null}, address),
         description = ${data.description !== undefined ? data.description : sql`description`},
+        latitude    = ${data.latitude !== undefined ? data.latitude : sql`latitude`},
+        longitude   = ${data.longitude !== undefined ? data.longitude : sql`longitude`},
         updated_at  = now()
     WHERE carinderia_id = ${carinderiaId}
       AND added_by      = ${userId}
