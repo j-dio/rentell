@@ -42,6 +42,7 @@ export default function HousingDetailsForm({
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [locationPick, setLocationPick] = useState<PickedLocation | null>(initialLocation)
+  const [editingLocation, setEditingLocation] = useState(!initialLocation)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -140,11 +141,27 @@ export default function HousingDetailsForm({
 
       <div className="space-y-1.5">
         <Label>Location *</Label>
-        <MapboxLocationPicker
-          onConfirm={setLocationPick}
-          initialLocation={initialLocation ?? undefined}
-          confirmLabel={locationPick ? '✓ Location set — click to change' : 'Confirm location'}
-        />
+        {editingLocation || !locationPick ? (
+          <div className="space-y-2">
+            <MapboxLocationPicker
+              onConfirm={(loc) => { setLocationPick(loc); setEditingLocation(false) }}
+              initialLocation={locationPick ?? undefined}
+              confirmLabel="Confirm location"
+            />
+            {locationPick && (
+              <Button type="button" variant="outline" size="sm" onClick={() => setEditingLocation(false)}>
+                Cancel
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <p className="text-sm flex-1 text-foreground">{locationPick.name}</p>
+            <Button type="button" variant="outline" size="sm" onClick={() => setEditingLocation(true)}>
+              Edit location
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
