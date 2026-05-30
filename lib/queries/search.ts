@@ -7,10 +7,9 @@ export type HousingSearchParams = {
   housingType?: string
   priceMin?: number
   priceMax?: number
-  maxProximity?: number
   amenities?: string[]
   availableOnly?: boolean
-  sortBy?: 'proximity' | 'avg_rating'
+  sortBy?: 'avg_rating'
 }
 
 export type CarinderiaSearchParams = {
@@ -25,9 +24,7 @@ export async function searchHousing(
   const amenityCount = amenities?.length ?? 0
 
   const orderByClause =
-    params.sortBy === 'proximity'
-      ? sql`ORDER BY h.proximity_to_campus_km ASC NULLS LAST`
-      : params.sortBy === 'avg_rating'
+    params.sortBy === 'avg_rating'
       ? sql`ORDER BY avg_rating DESC NULLS LAST`
       : sql`ORDER BY h.created_at DESC`
 
@@ -39,7 +36,6 @@ export async function searchHousing(
       h.address,
       h.monthly_price_min,
       h.monthly_price_max,
-      h.proximity_to_campus_km,
       (
         SELECT url
         FROM housing_image
@@ -63,9 +59,6 @@ export async function searchHousing(
       ${params.housingType ? sql`AND h.housing_type = ${params.housingType}` : sql``}
       ${params.priceMin != null ? sql`AND h.monthly_price_min >= ${params.priceMin}` : sql``}
       ${params.priceMax != null ? sql`AND h.monthly_price_min <= ${params.priceMax}` : sql``}
-      ${params.maxProximity != null
-        ? sql`AND h.proximity_to_campus_km <= ${params.maxProximity}`
-        : sql``}
       ${amenities ? sql`AND h.housing_id IN (
         SELECT housing_id
         FROM housing_amenity

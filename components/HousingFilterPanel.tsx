@@ -11,7 +11,6 @@ const HOUSING_TYPES = [
 
 const SORT_OPTIONS = [
   { value: '',           label: 'Newest first' },
-  { value: 'proximity',  label: 'Nearest campus' },
   { value: 'avg_rating', label: 'Highest rated' },
 ]
 
@@ -24,7 +23,6 @@ type FilterState = {
   type:              string
   priceMin:          string
   priceMax:          string
-  proximity:         string
   selectedAmenities: string[]
   availableOnly:     boolean
   sort:              string
@@ -36,7 +34,6 @@ function readFromParams(sp: ReturnType<typeof useSearchParams>): FilterState {
     type:              sp.get('type')      ?? '',
     priceMin:          sp.get('price_min') ?? '',
     priceMax:          sp.get('price_max') ?? '',
-    proximity:         sp.get('proximity') ?? '',
     selectedAmenities: sp.getAll('amenities'),
     availableOnly:     sp.get('available') === 'true',
     sort:              sp.get('sort')      ?? '',
@@ -71,7 +68,6 @@ export default function HousingFilterPanel({ amenities }: Props) {
     if (filters.type)          params.set('type',       filters.type)
     if (filters.priceMin)      params.set('price_min',  filters.priceMin)
     if (filters.priceMax)      params.set('price_max',  filters.priceMax)
-    if (filters.proximity)     params.set('proximity',  filters.proximity)
     if (filters.availableOnly) params.set('available',  'true')
     if (filters.sort)          params.set('sort',       filters.sort)
     for (const a of filters.selectedAmenities) params.append('amenities', a)
@@ -84,7 +80,7 @@ export default function HousingFilterPanel({ amenities }: Props) {
 
   const hasActiveFilters = !!(
     filters.q || filters.type || filters.priceMin || filters.priceMax ||
-    filters.proximity || filters.selectedAmenities.length || filters.availableOnly || filters.sort
+    filters.selectedAmenities.length || filters.availableOnly || filters.sort
   )
 
   return (
@@ -167,26 +163,6 @@ export default function HousingFilterPanel({ amenities }: Props) {
           </div>
         </div>
 
-        {/* Proximity */}
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
-            Max distance
-          </p>
-          <div className="relative">
-            <input
-              type="number"
-              min={0}
-              step={0.1}
-              placeholder="Any"
-              value={filters.proximity}
-              onChange={(e) => set('proximity', e.target.value)}
-              className="w-full h-10 pl-3 pr-9 rounded-lg border border-border bg-muted text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent focus:bg-card transition-colors"
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium pointer-events-none select-none">
-              km
-            </span>
-          </div>
-        </div>
       </div>
 
       {/* Divider */}

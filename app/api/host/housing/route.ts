@@ -13,7 +13,6 @@ const createHousingSchema = z.object({
   monthly_price_max: z.number().positive().nullable().optional(),
   contact_person: z.string().max(100).nullable().optional(),
   contact_number: z.string().max(20).nullable().optional(),
-  proximity_to_campus_km: z.number().nonnegative().nullable().optional(),
   description: z.string().nullable().optional(),
 })
 

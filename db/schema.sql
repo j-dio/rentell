@@ -41,7 +41,6 @@ CREATE TABLE housing (
   monthly_price_max       NUMERIC(10,2),
   contact_person          VARCHAR(100),
   contact_number          VARCHAR(20),
-  proximity_to_campus_km  NUMERIC(5,2),
   description             TEXT,
   created_at              TIMESTAMPTZ   NOT NULL DEFAULT now(),
   updated_at              TIMESTAMPTZ   NOT NULL DEFAULT now()

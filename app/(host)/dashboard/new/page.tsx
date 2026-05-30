@@ -35,9 +35,6 @@ export default function NewListingPage() {
       description: (fd.get('description') as string) || null,
       monthly_price_min: fd.get('monthly_price_min') ? Number(fd.get('monthly_price_min')) : null,
       monthly_price_max: fd.get('monthly_price_max') ? Number(fd.get('monthly_price_max')) : null,
-      proximity_to_campus_km: fd.get('proximity_to_campus_km')
-        ? Number(fd.get('proximity_to_campus_km'))
-        : null,
     }
 
     try {
@@ -111,11 +108,6 @@ export default function NewListingPage() {
             <Label htmlFor="monthly_price_max">Max price (₱/mo)</Label>
             <Input id="monthly_price_max" name="monthly_price_max" type="number" min={1} step="0.01" placeholder="e.g. 4000" />
           </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="proximity_to_campus_km">Distance to campus (km)</Label>
-          <Input id="proximity_to_campus_km" name="proximity_to_campus_km" type="number" min={0} step="0.01" placeholder="e.g. 0.5" />
         </div>
 
         <div className="grid grid-cols-2 gap-4">

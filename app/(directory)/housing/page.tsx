@@ -16,12 +16,10 @@ export default async function HousingPage({ searchParams }: PageProps) {
   const query        = typeof raw.q         === 'string' ? raw.q         : undefined
   const housingType  = typeof raw.type      === 'string' ? raw.type      : undefined
   const sortParam    = typeof raw.sort      === 'string' ? raw.sort      : undefined
-  const sortBy       = sortParam === 'proximity' || sortParam === 'avg_rating'
-                         ? sortParam : undefined
+  const sortBy       = sortParam === 'avg_rating' ? sortParam : undefined
 
   const priceMin     = typeof raw.price_min  === 'string' ? (Number(raw.price_min)  || undefined) : undefined
   const priceMax     = typeof raw.price_max  === 'string' ? (Number(raw.price_max)  || undefined) : undefined
-  const maxProximity = typeof raw.proximity  === 'string' ? (Number(raw.proximity)  || undefined) : undefined
 
   const amenities    = typeof raw.amenities === 'string'
                          ? [raw.amenities]
@@ -32,7 +30,7 @@ export default async function HousingPage({ searchParams }: PageProps) {
   const availableOnly = raw.available === 'true'
 
   const [listings, amenityRows] = await Promise.all([
-    searchHousing({ query, housingType, priceMin, priceMax, maxProximity, amenities, availableOnly, sortBy }),
+    searchHousing({ query, housingType, priceMin, priceMax, amenities, availableOnly, sortBy }),
     sql<{ name: string }[]>`SELECT name FROM amenity ORDER BY name ASC`,
   ])
 
@@ -54,7 +52,7 @@ export default async function HousingPage({ searchParams }: PageProps) {
   }
 
   const hasFilters = !!(
-    query || housingType || priceMin || priceMax || maxProximity ||
+    query || housingType || priceMin || priceMax ||
     amenities?.length || availableOnly || sortBy
   )
 
