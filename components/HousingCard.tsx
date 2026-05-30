@@ -19,7 +19,7 @@ export default function HousingCard({ housing, onSelect, isSelected }: Props) {
     address,
     monthly_price_min,
     monthly_price_max,
-    proximity_to_campus_km,
+    distance_km,
     primary_image_url,
     avg_rating,
   } = housing
@@ -107,9 +107,9 @@ export default function HousingCard({ housing, onSelect, isSelected }: Props) {
             )}
 
             {/* Distance */}
-            {proximity_to_campus_km && (
+            {distance_km && (
               <span className="text-xs text-secondary-foreground bg-secondary px-2 py-0.5 rounded-full shrink-0">
-                {Number(proximity_to_campus_km).toFixed(1)} km
+                {Number(distance_km).toFixed(1)} km
               </span>
             )}
           </div>

@@ -27,8 +27,8 @@ export async function POST(request: Request) {
 
   const { email, password } = result.data
 
-  const rows = await sql<{ user_id: number; password_hash: string }[]>`
-    SELECT user_id, password_hash
+  const rows = await sql<{ user_id: number; password_hash: string; onboarding_completed: boolean }[]>`
+    SELECT user_id, password_hash, onboarding_completed
     FROM users
     WHERE email = ${email}
   `
@@ -51,5 +51,5 @@ export async function POST(request: Request) {
 
   await createSession(user.user_id)
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ success: true, onboardingCompleted: user.onboarding_completed })
 }

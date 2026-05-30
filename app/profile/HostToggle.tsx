@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
 export default function HostToggle({ isHost }: { isHost: boolean }) {
   const router = useRouter()
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [justBecameHost, setJustBecameHost] = useState(false)
 
   async function toggle() {
     setPending(true)
@@ -20,10 +22,11 @@ export default function HostToggle({ isHost }: { isHost: boolean }) {
         return
       }
       if (!isHost) {
-        router.push('/dashboard')
+        setJustBecameHost(true)
       } else {
-        router.refresh()
+        setJustBecameHost(false)
       }
+      router.refresh()
     } catch {
       setError('Network error. Please try again.')
     } finally {
@@ -46,7 +49,16 @@ export default function HostToggle({ isHost }: { isHost: boolean }) {
         </Button>
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}
-      {isHost && (
+      {justBecameHost && isHost && (
+        <p className="text-sm text-green-700">
+          You&apos;re now a host!{' '}
+          <Link href="/dashboard/new" className="underline font-medium">
+            Add your first listing
+          </Link>
+          .
+        </p>
+      )}
+      {isHost && !justBecameHost && (
         <p className="text-xs text-muted-foreground">
           Your listings remain in the directory while your host account is active.
         </p>

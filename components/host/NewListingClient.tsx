@@ -10,6 +10,7 @@ import StepIndicator from '@/components/StepIndicator'
 import ImageURLForm from '@/components/host/ImageURLForm'
 import RoomForm from '@/components/host/RoomForm'
 import AmenityTagForm from '@/components/host/AmenityTagForm'
+import MapboxLocationPicker, { type PickedLocation } from '@/components/MapboxLocationPicker'
 
 const STEPS = ['Basic Info', 'Add Photos', 'Add Rooms', 'Tag Amenities']
 
@@ -33,6 +34,7 @@ export default function NewListingClient({ allAmenities }: Props) {
   const [housingName, setHousingName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [locationPick, setLocationPick] = useState<PickedLocation | null>(null)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -50,18 +52,23 @@ export default function NewListingClient({ allAmenities }: Props) {
       return
     }
 
+    if (!locationPick) {
+      setError('Please select a location for your listing.')
+      setSubmitting(false)
+      return
+    }
+
     const body = {
       name,
       housing_type: fd.get('housing_type') as string,
-      address: (fd.get('address') as string).trim(),
+      address: locationPick.name,
+      latitude: locationPick.lat,
+      longitude: locationPick.lng,
       contact_person: (fd.get('contact_person') as string).trim() || null,
       contact_number: (fd.get('contact_number') as string).trim() || null,
       description: (fd.get('description') as string).trim() || null,
       monthly_price_min: priceMin,
       monthly_price_max: priceMax,
-      proximity_to_campus_km: fd.get('proximity_to_campus_km')
-        ? Number(fd.get('proximity_to_campus_km'))
-        : null,
     }
 
     try {
@@ -246,8 +253,11 @@ export default function NewListingClient({ allAmenities }: Props) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="address">Address *</Label>
-          <Input id="address" name="address" required placeholder="e.g. 45 Osmena Blvd, Cebu City" />
+          <Label>Location *</Label>
+          <MapboxLocationPicker
+            onConfirm={setLocationPick}
+            confirmLabel={locationPick ? '✓ Location set — click to change' : 'Confirm location'}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -259,11 +269,6 @@ export default function NewListingClient({ allAmenities }: Props) {
             <Label htmlFor="monthly_price_max">Max price (₱/mo)</Label>
             <Input id="monthly_price_max" name="monthly_price_max" type="number" min={1} step="0.01" placeholder="e.g. 4000" />
           </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="proximity_to_campus_km">Distance to campus (km)</Label>
-          <Input id="proximity_to_campus_km" name="proximity_to_campus_km" type="number" min={0} step="0.01" placeholder="e.g. 0.5" />
         </div>
 
         <div className="grid grid-cols-2 gap-4">

@@ -42,7 +42,7 @@ export default function LoginPage() {
         return
       }
 
-      router.push(from)
+      router.push(data.onboardingCompleted ? from : '/onboarding')
       router.refresh()
     } catch {
       setError('Something went wrong. Please try again.')

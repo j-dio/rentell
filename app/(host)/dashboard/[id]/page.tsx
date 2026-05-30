@@ -84,12 +84,15 @@ export default async function ManageListingPage({ params }: Params) {
           housingId={housingId}
           initialName={housing.name}
           initialType={housing.housing_type}
-          initialAddress={housing.address}
+          initialLocation={
+            housing.latitude && housing.longitude
+              ? { name: housing.address, lat: Number(housing.latitude), lng: Number(housing.longitude) }
+              : null
+          }
           initialPriceMin={housing.monthly_price_min}
           initialPriceMax={housing.monthly_price_max}
           initialContactPerson={housing.contact_person}
           initialContactNumber={housing.contact_number}
-          initialProximity={housing.proximity_to_campus_km}
           initialDescription={housing.description}
         />
       </section>

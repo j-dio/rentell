@@ -11,20 +11,20 @@ const HOUSING_TYPES = [
 
 const SORT_OPTIONS = [
   { value: '',           label: 'Newest first' },
-  { value: 'proximity',  label: 'Nearest campus' },
+  { value: 'proximity',  label: 'Nearest to my location' },
   { value: 'avg_rating', label: 'Highest rated' },
 ]
 
 const CHEVRON_SVG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`
 
-type Props = { amenities: string[] }
+type Props = { amenities: string[]; hasUserLocation: boolean }
 
 type FilterState = {
   q:                 string
   type:              string
   priceMin:          string
   priceMax:          string
-  proximity:         string
+  distance:          string
   selectedAmenities: string[]
   availableOnly:     boolean
   sort:              string
@@ -36,14 +36,14 @@ function readFromParams(sp: ReturnType<typeof useSearchParams>): FilterState {
     type:              sp.get('type')      ?? '',
     priceMin:          sp.get('price_min') ?? '',
     priceMax:          sp.get('price_max') ?? '',
-    proximity:         sp.get('proximity') ?? '',
+    distance:          sp.get('distance') ?? '',
     selectedAmenities: sp.getAll('amenities'),
     availableOnly:     sp.get('available') === 'true',
     sort:              sp.get('sort')      ?? '',
   }
 }
 
-export default function HousingFilterPanel({ amenities }: Props) {
+export default function HousingFilterPanel({ amenities, hasUserLocation }: Props) {
   const router     = useRouter()
   const searchParams = useSearchParams()
   const [filters, setFilters] = useState<FilterState>(() => readFromParams(searchParams))
@@ -71,7 +71,7 @@ export default function HousingFilterPanel({ amenities }: Props) {
     if (filters.type)          params.set('type',       filters.type)
     if (filters.priceMin)      params.set('price_min',  filters.priceMin)
     if (filters.priceMax)      params.set('price_max',  filters.priceMax)
-    if (filters.proximity)     params.set('proximity',  filters.proximity)
+    if (filters.distance)      params.set('distance',   filters.distance)
     if (filters.availableOnly) params.set('available',  'true')
     if (filters.sort)          params.set('sort',       filters.sort)
     for (const a of filters.selectedAmenities) params.append('amenities', a)
@@ -84,7 +84,7 @@ export default function HousingFilterPanel({ amenities }: Props) {
 
   const hasActiveFilters = !!(
     filters.q || filters.type || filters.priceMin || filters.priceMax ||
-    filters.proximity || filters.selectedAmenities.length || filters.availableOnly || filters.sort
+    filters.distance || filters.selectedAmenities.length || filters.availableOnly || filters.sort
   )
 
   return (
@@ -167,26 +167,28 @@ export default function HousingFilterPanel({ amenities }: Props) {
           </div>
         </div>
 
-        {/* Proximity */}
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
-            Max distance
-          </p>
-          <div className="relative">
-            <input
-              type="number"
-              min={0}
-              step={0.1}
-              placeholder="Any"
-              value={filters.proximity}
-              onChange={(e) => set('proximity', e.target.value)}
-              className="w-full h-10 pl-3 pr-9 rounded-lg border border-border bg-muted text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent focus:bg-card transition-colors"
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium pointer-events-none select-none">
-              km
-            </span>
+        {/* Distance */}
+        {hasUserLocation && (
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
+              Max distance
+            </p>
+            <div className="relative">
+              <input
+                type="number"
+                min={0}
+                step={0.1}
+                placeholder="Any"
+                value={filters.distance}
+                onChange={(e) => set('distance', e.target.value)}
+                className="w-full h-10 pl-3 pr-9 rounded-lg border border-border bg-muted text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent focus:bg-card transition-colors"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium pointer-events-none select-none">
+                km
+              </span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Divider */}
@@ -252,9 +254,11 @@ export default function HousingFilterPanel({ amenities }: Props) {
               paddingRight: '26px',
             }}
           >
-            {SORT_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
+            {SORT_OPTIONS
+              .filter((o) => o.value !== 'proximity' || hasUserLocation)
+              .map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
           </select>
 
           {/* Clear */}

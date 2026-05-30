@@ -7,7 +7,7 @@ export type HousingListItem = {
   address: string
   monthly_price_min: string | null
   monthly_price_max: string | null
-  proximity_to_campus_km: string | null
+  distance_km: string | null
   description: string | null
   primary_image_url: string | null
   avg_rating: string | null
@@ -57,7 +57,6 @@ export type HousingDetail = {
   monthly_price_max: string | null
   contact_person: string | null
   contact_number: string | null
-  proximity_to_campus_km: string | null
   description: string | null
   created_at: Date
   updated_at: Date
@@ -78,7 +77,7 @@ export async function getAllHousing(): Promise<HousingListItem[]> {
       h.address,
       h.monthly_price_min,
       h.monthly_price_max,
-      h.proximity_to_campus_km,
+      NULL::numeric AS distance_km,
       h.description,
       (
         SELECT url
@@ -107,7 +106,6 @@ export async function getHousingById(id: number): Promise<HousingDetail | null> 
       h.monthly_price_max,
       h.contact_person,
       h.contact_number,
-      h.proximity_to_campus_km,
       h.description,
       h.created_at,
       h.updated_at,

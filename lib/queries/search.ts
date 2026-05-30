@@ -7,26 +7,51 @@ export type HousingSearchParams = {
   housingType?: string
   priceMin?: number
   priceMax?: number
-  maxProximity?: number
+  maxDistance?: number
   amenities?: string[]
   availableOnly?: boolean
   sortBy?: 'proximity' | 'avg_rating'
+  userLat?: number
+  userLng?: number
 }
 
 export type CarinderiaSearchParams = {
   query?: string
 }
 
-export async function searchHousing(
-  params: HousingSearchParams
-): Promise<HousingListItem[]> {
+export async function searchHousing(params: HousingSearchParams): Promise<HousingListItem[]> {
   const q = params.query?.trim() ? `%${params.query.trim()}%` : null
   const amenities = params.amenities?.length ? params.amenities : null
   const amenityCount = amenities?.length ?? 0
+  const hasLoc = params.userLat != null && params.userLng != null
+  const lat = params.userLat ?? 0
+  const lng = params.userLng ?? 0
+
+  const distanceSelect = hasLoc
+    ? sql`,
+        CASE WHEN h.latitude IS NOT NULL AND h.longitude IS NOT NULL
+          THEN ROUND((6371 * acos(LEAST(1.0,
+            cos(radians(${lat}::float)) * cos(radians(h.latitude::float))
+            * cos(radians(h.longitude::float) - radians(${lng}::float))
+            + sin(radians(${lat}::float)) * sin(radians(h.latitude::float))
+          )))::numeric, 1)
+          ELSE NULL
+        END AS distance_km`
+    : sql`, NULL::numeric AS distance_km`
+
+  const distanceFilter =
+    hasLoc && params.maxDistance != null
+      ? sql`AND h.latitude IS NOT NULL AND h.longitude IS NOT NULL
+            AND (6371 * acos(LEAST(1.0,
+              cos(radians(${lat}::float)) * cos(radians(h.latitude::float))
+              * cos(radians(h.longitude::float) - radians(${lng}::float))
+              + sin(radians(${lat}::float)) * sin(radians(h.latitude::float))
+            ))) <= ${params.maxDistance}`
+      : sql``
 
   const orderByClause =
-    params.sortBy === 'proximity'
-      ? sql`ORDER BY h.proximity_to_campus_km ASC NULLS LAST`
+    params.sortBy === 'proximity' && hasLoc
+      ? sql`ORDER BY distance_km ASC NULLS LAST`
       : params.sortBy === 'avg_rating'
       ? sql`ORDER BY avg_rating DESC NULLS LAST`
       : sql`ORDER BY h.created_at DESC`
@@ -39,7 +64,6 @@ export async function searchHousing(
       h.address,
       h.monthly_price_min,
       h.monthly_price_max,
-      h.proximity_to_campus_km,
       h.description,
       (
         SELECT url
@@ -54,6 +78,7 @@ export async function searchHousing(
         WHERE housing_id = h.housing_id
           AND listing_type = 'housing'
       ) AS avg_rating
+      ${distanceSelect}
     FROM housing h
     WHERE 1=1
       ${q ? sql`AND (
@@ -64,9 +89,7 @@ export async function searchHousing(
       ${params.housingType ? sql`AND h.housing_type = ${params.housingType}` : sql``}
       ${params.priceMin != null ? sql`AND h.monthly_price_min >= ${params.priceMin}` : sql``}
       ${params.priceMax != null ? sql`AND h.monthly_price_min <= ${params.priceMax}` : sql``}
-      ${params.maxProximity != null
-        ? sql`AND h.proximity_to_campus_km <= ${params.maxProximity}`
-        : sql``}
+      ${distanceFilter}
       ${amenities ? sql`AND h.housing_id IN (
         SELECT housing_id
         FROM housing_amenity

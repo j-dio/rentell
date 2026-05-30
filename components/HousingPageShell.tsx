@@ -15,6 +15,7 @@ type Props = {
   isLoggedIn: boolean
   allAmenities: string[]
   hasFilters: boolean
+  hasUserLocation: boolean
 }
 
 export default function HousingPageShell({
@@ -23,6 +24,7 @@ export default function HousingPageShell({
   isLoggedIn,
   allAmenities,
   hasFilters,
+  hasUserLocation,
 }: Props) {
   const [selected, setSelected] = useState<HousingListItem | null>(null)
   const isOpen = !!selected
@@ -48,7 +50,7 @@ export default function HousingPageShell({
 
         {/* Filter panel */}
         <Suspense fallback={<div className="w-full h-28 animate-pulse rounded-2xl bg-muted" />}>
-          <HousingFilterPanel amenities={allAmenities} />
+          <HousingFilterPanel amenities={allAmenities} hasUserLocation={hasUserLocation} />
         </Suspense>
 
         {/* Grid or empty state */}
