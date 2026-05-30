@@ -7,6 +7,8 @@ const createCarinderiaSchema = z.object({
   name: z.string().trim().min(1).max(100),
   address: z.string().trim().min(1),
   description: z.string().trim().nullable().optional(),
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
 })
 
 export async function POST(req: NextRequest) {

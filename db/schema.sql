@@ -79,7 +79,6 @@ CREATE TABLE essential (
   address       TEXT          NOT NULL,
   latitude      NUMERIC(9,6),
   longitude     NUMERIC(9,6),
-  description   TEXT,
   created_at    TIMESTAMPTZ   NOT NULL DEFAULT now(),
   updated_at    TIMESTAMPTZ   NOT NULL DEFAULT now()
 );

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import MapboxLocationPicker, { PickedLocation } from '@/components/MapboxLocationPicker'
 
 type Carinderia = { carinderia_id: number; name: string; address: string }
 type Essential  = { essential_id: number; name: string; type: string; address: string }
@@ -26,11 +27,17 @@ export default function NearbyAttachForm({
   const [error, setError] = useState<string | null>(null)
   const [unlinking, setUnlinking] = useState<string | null>(null)
 
+  // Essential create-and-link state
+  const [essentialName, setEssentialName] = useState('')
+  const [essentialType, setEssentialType] = useState('')
+  const [essentialLocation, setEssentialLocation] = useState<PickedLocation | null>(null)
+  const [showEssentialPicker, setShowEssentialPicker] = useState(false)
+  const [addingEssential, setAddingEssential] = useState(false)
+
   const linkedCSet = new Set(linkedCarinderiaIds)
   const linkedESet = new Set(linkedEssentialIds)
 
   const availableCarinderias = allCarinderias.filter((c) => !linkedCSet.has(c.carinderia_id))
-  const availableEssentials  = allEssentials.filter((e) => !linkedESet.has(e.essential_id))
 
   async function handleLink(type: 'carinderia' | 'essential', e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -38,11 +45,10 @@ export default function NearbyAttachForm({
 
     const fd = new FormData(e.currentTarget)
     const id = Number(fd.get(`${type}_id`))
-    const distance_km = fd.get('distance_km') ? Number(fd.get('distance_km')) : null
 
     const body = type === 'carinderia'
-      ? { type, carinderia_id: id, distance_km }
-      : { type, essential_id: id, distance_km }
+      ? { type, carinderia_id: id }
+      : { type, essential_id: id }
 
     try {
       const res = await fetch(`/api/host/housing/${housingId}/nearby`, {
@@ -90,6 +96,56 @@ export default function NearbyAttachForm({
     }
   }
 
+  async function handleCreateAndLinkEssential(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setError(null)
+
+    if (!essentialName.trim()) { setError('Name is required.'); return }
+    if (!essentialType.trim()) { setError('Type is required.'); return }
+
+    setAddingEssential(true)
+    try {
+      const createRes = await fetch('/api/host/essentials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: essentialName.trim(),
+          type: essentialType.trim(),
+          address: essentialLocation?.name ?? '',
+          latitude: essentialLocation?.lat ?? null,
+          longitude: essentialLocation?.lng ?? null,
+        }),
+      })
+      if (!createRes.ok) {
+        const data = await createRes.json()
+        setError(data.error ?? 'Failed to create essential')
+        return
+      }
+      const { essential_id } = await createRes.json()
+
+      const linkRes = await fetch(`/api/host/housing/${housingId}/nearby`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'essential', essential_id }),
+      })
+      if (!linkRes.ok) {
+        const data = await linkRes.json()
+        setError(data.error ?? 'Essential created but failed to link')
+        return
+      }
+
+      setEssentialName('')
+      setEssentialType('')
+      setEssentialLocation(null)
+      setShowEssentialPicker(false)
+      router.refresh()
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setAddingEssential(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       {error && <p className="text-sm text-destructive">{error}</p>}
@@ -121,26 +177,20 @@ export default function NearbyAttachForm({
         {availableCarinderias.length > 0 && (
           <form onSubmit={(e) => handleLink('carinderia', e)} className="border rounded-lg p-4 space-y-3 bg-muted/30">
             <p className="text-sm font-medium">Link a carinderia</p>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label htmlFor="carinderia_id">Carinderia *</Label>
-                <select
-                  id="carinderia_id"
-                  name="carinderia_id"
-                  required
-                  defaultValue=""
-                  className="w-full border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-                  <option value="" disabled>Select</option>
-                  {availableCarinderias.map((c) => (
-                    <option key={c.carinderia_id} value={c.carinderia_id}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="c_distance_km">Distance (km)</Label>
-                <Input id="c_distance_km" name="distance_km" type="number" min={0} step="0.01" placeholder="e.g. 0.3" />
-              </div>
+            <div className="space-y-1">
+              <Label htmlFor="carinderia_id">Carinderia *</Label>
+              <select
+                id="carinderia_id"
+                name="carinderia_id"
+                required
+                defaultValue=""
+                className="w-full border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="" disabled>Select</option>
+                {availableCarinderias.map((c) => (
+                  <option key={c.carinderia_id} value={c.carinderia_id}>{c.name}</option>
+                ))}
+              </select>
             </div>
             <Button type="submit" size="sm">Link carinderia</Button>
           </form>
@@ -171,33 +221,64 @@ export default function NearbyAttachForm({
           </ul>
         )}
 
-        {availableEssentials.length > 0 && (
-          <form onSubmit={(e) => handleLink('essential', e)} className="border rounded-lg p-4 space-y-3 bg-muted/30">
-            <p className="text-sm font-medium">Link an essential</p>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label htmlFor="essential_id">Essential *</Label>
-                <select
-                  id="essential_id"
-                  name="essential_id"
-                  required
-                  defaultValue=""
-                  className="w-full border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-                  <option value="" disabled>Select</option>
-                  {availableEssentials.map((e) => (
-                    <option key={e.essential_id} value={e.essential_id}>{e.name} ({e.type})</option>
-                  ))}
-                </select>
+        {/* Create and link a new essential */}
+        <form onSubmit={handleCreateAndLinkEssential} className="border rounded-lg p-4 space-y-3 bg-muted/30">
+          <p className="text-sm font-medium">Create and link a new essential</p>
+
+          <div className="space-y-1">
+            <Label htmlFor="essential_name">Name *</Label>
+            <Input
+              id="essential_name"
+              value={essentialName}
+              onChange={(e) => setEssentialName(e.target.value)}
+              required
+              maxLength={100}
+              placeholder="e.g. Rose Pharmacy"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="essential_type">Type *</Label>
+            <Input
+              id="essential_type"
+              value={essentialType}
+              onChange={(e) => setEssentialType(e.target.value)}
+              required
+              placeholder="e.g. Pharmacy, Convenience Store"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <Label>Location</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowEssentialPicker((v) => !v)}
+            >
+              {essentialLocation ? 'Change location' : 'Pick location on map'}
+            </Button>
+            {essentialLocation && (
+              <p className="text-xs text-muted-foreground">{essentialLocation.name}</p>
+            )}
+            {showEssentialPicker && (
+              <div className="mt-2">
+                <MapboxLocationPicker
+                  onConfirm={(loc) => {
+                    setEssentialLocation(loc)
+                    setShowEssentialPicker(false)
+                  }}
+                  confirmLabel="Use this location"
+                />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="e_distance_km">Distance (km)</Label>
-                <Input id="e_distance_km" name="distance_km" type="number" min={0} step="0.01" placeholder="e.g. 0.5" />
-              </div>
-            </div>
-            <Button type="submit" size="sm">Link essential</Button>
-          </form>
-        )}
+            )}
+          </div>
+
+          <Button type="submit" size="sm" disabled={addingEssential}>
+            {addingEssential ? 'Adding…' : 'Add essential'}
+          </Button>
+        </form>
+
       </div>
     </div>
   )

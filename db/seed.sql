@@ -162,31 +162,28 @@ VALUES
 -- ============================================================
 -- 8. Essentials
 -- ============================================================
-INSERT INTO essential (added_by, name, type, address, latitude, longitude, description)
+INSERT INTO essential (added_by, name, type, address, latitude, longitude)
 VALUES
   (
     (SELECT user_id FROM users WHERE email = 'student@rentell.test'),
     'Quick Wash Laundry',
     'laundry',
     '8 Gorordo Ave, Lahug, Cebu City',
-    10.325300, 123.906500,
-    'Self-service and drop-off laundry. ₱35/kg. Open 7AM–9PM.'
+    10.325300, 123.906500
   ),
   (
     (SELECT user_id FROM users WHERE email = 'student@rentell.test'),
     'Mercury Drug - Gorordo',
     'pharmacy',
     '20 Gorordo Ave, Lahug, Cebu City',
-    10.325800, 123.907100,
-    '24-hour pharmacy with complete OTC and prescription medicines.'
+    10.325800, 123.907100
   ),
   (
     (SELECT user_id FROM users WHERE email = 'host@rentell.test'),
     'BDO ATM - Lahug',
     'atm',
     '15 Archbishop Reyes Ave, Cebu City',
-    10.324900, 123.905800,
-    'BDO ATM available 24/7. Accepts all major networks.'
+    10.324900, 123.905800
   );
 
 -- ============================================================

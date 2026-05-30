@@ -7,6 +7,8 @@ const updateCarinderiaSchema = z.object({
   name: z.string().trim().min(1).max(100).optional(),
   address: z.string().trim().min(1).optional(),
   description: z.string().trim().nullable().optional(),
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
 })
 
 type Params = { params: Promise<{ id: string }> }
