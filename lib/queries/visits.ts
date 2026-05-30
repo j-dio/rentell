@@ -39,6 +39,29 @@ export async function getVisitsByHousing(housingId: number): Promise<Visit[]> {
   `
 }
 
+export type IncomingVisit = Visit & { housing_name: string }
+
+export async function getIncomingVisitsByHost(ownerId: number): Promise<IncomingVisit[]> {
+  return sql<IncomingVisit[]>`
+    SELECT
+      v.visit_id,
+      v.visitor_id,
+      u.first_name || ' ' || u.last_name AS visitor_name,
+      v.housing_id,
+      h.name AS housing_name,
+      v.scheduled_at,
+      v.status,
+      v.note,
+      v.created_at,
+      v.updated_at
+    FROM visit v
+    JOIN users u ON u.user_id = v.visitor_id
+    JOIN housing h ON h.housing_id = v.housing_id
+    WHERE h.owner_id = ${ownerId}
+    ORDER BY v.scheduled_at ASC
+  `
+}
+
 export async function getVisitsByUser(userId: number): Promise<Visit[]> {
   return sql<Visit[]>`
     SELECT
