@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import MapboxLocationPicker, { type PickedLocation } from '@/components/MapboxLocationPicker'
 
 const HOUSING_TYPES = [
   { value: 'dormitory', label: 'Dormitory' },
@@ -17,12 +18,11 @@ type Props = {
   housingId: number
   initialName: string
   initialType: string
-  initialAddress: string
+  initialLocation: PickedLocation | null
   initialPriceMin: string | null
   initialPriceMax: string | null
   initialContactPerson: string | null
   initialContactNumber: string | null
-  initialProximity: string | null
   initialDescription: string | null
 }
 
@@ -30,18 +30,18 @@ export default function HousingDetailsForm({
   housingId,
   initialName,
   initialType,
-  initialAddress,
+  initialLocation,
   initialPriceMin,
   initialPriceMax,
   initialContactPerson,
   initialContactNumber,
-  initialProximity,
   initialDescription,
 }: Props) {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [locationPick, setLocationPick] = useState<PickedLocation | null>(initialLocation)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -59,17 +59,22 @@ export default function HousingDetailsForm({
       return
     }
 
+    if (!locationPick) {
+      setError('Please select a location.')
+      setSaving(false)
+      return
+    }
+
     const body = {
       name: (fd.get('name') as string).trim(),
       housing_type: fd.get('housing_type') as string,
-      address: (fd.get('address') as string).trim(),
+      address: locationPick.name,
+      latitude: locationPick.lat,
+      longitude: locationPick.lng,
       monthly_price_min: priceMin,
       monthly_price_max: priceMax,
       contact_person: (fd.get('contact_person') as string).trim() || null,
       contact_number: (fd.get('contact_number') as string).trim() || null,
-      proximity_to_campus_km: fd.get('proximity_to_campus_km')
-        ? Number(fd.get('proximity_to_campus_km'))
-        : null,
       description: (fd.get('description') as string).trim() || null,
     }
 
@@ -134,8 +139,12 @@ export default function HousingDetailsForm({
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="hd-address">Address *</Label>
-        <Input id="hd-address" name="address" required defaultValue={initialAddress} />
+        <Label>Location *</Label>
+        <MapboxLocationPicker
+          onConfirm={setLocationPick}
+          initialLocation={initialLocation ?? undefined}
+          confirmLabel={locationPick ? '✓ Location set — click to change' : 'Confirm location'}
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -163,19 +172,6 @@ export default function HousingDetailsForm({
             placeholder="e.g. 4000"
           />
         </div>
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="hd-proximity">Distance to campus (km)</Label>
-        <Input
-          id="hd-proximity"
-          name="proximity_to_campus_km"
-          type="number"
-          min={0}
-          step="0.01"
-          defaultValue={initialProximity ?? ''}
-          placeholder="e.g. 0.5"
-        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
