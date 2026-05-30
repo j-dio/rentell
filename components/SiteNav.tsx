@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import UserNav from '@/components/UserNav'
 import type { SessionUser } from '@/lib/session'
@@ -104,8 +105,35 @@ type SiteNavProps = {
 }
 
 export default function SiteNav({ user, unreadCount = 0 }: SiteNavProps) {
+  const [liveUnread, setLiveUnread] = useState(unreadCount)
+  const pathname = usePathname()
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    if (!user) return
+
+    async function fetchUnread() {
+      try {
+        const res = await fetch('/api/messages/unread-count')
+        if (res.ok) {
+          const data = await res.json()
+          setLiveUnread(data.count)
+        }
+      } catch {
+        // silently ignore — stale count is fine
+      }
+    }
+
+    fetchUnread()
+
+    intervalRef.current = setInterval(fetchUnread, 30_000)
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [pathname, user])
+
   const navItems = user
-    ? [...BASE_NAV, LISTINGS_NAV, VISITS_NAV, { ...MESSAGES_NAV, badge: unreadCount }]
+    ? [...BASE_NAV, LISTINGS_NAV, VISITS_NAV, { ...MESSAGES_NAV, badge: liveUnread }]
     : BASE_NAV
 
   const authActions = user ? (
