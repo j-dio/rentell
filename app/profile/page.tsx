@@ -4,6 +4,7 @@ import sql from '@/lib/db'
 import HostToggle from './HostToggle'
 import LogoutButton from '@/components/LogoutButton'
 import ProfileLocationEdit from './ProfileLocationEdit'
+import ProfileAccountEdit from './ProfileAccountEdit'
 
 export default async function ProfilePage() {
   const session = await getSession()
@@ -32,11 +33,12 @@ export default async function ProfilePage() {
 
       <section className="border rounded-lg p-6 space-y-3">
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Account</h2>
-        <dl className="space-y-2 text-sm">
-          <Row label="Name" value={`${user.first_name} ${user.last_name}`} />
-          <Row label="Email" value={user.email} />
-          {user.phone_number && <Row label="Phone" value={user.phone_number} />}
-        </dl>
+        <ProfileAccountEdit
+          firstName={user.first_name as string}
+          lastName={user.last_name as string}
+          email={user.email as string}
+          phoneNumber={user.phone_number as string | null}
+        />
       </section>
 
       <section className="border rounded-lg p-6 space-y-4">
@@ -60,14 +62,5 @@ export default async function ProfilePage() {
         <LogoutButton />
       </section>
     </main>
-  )
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex gap-4">
-      <dt className="w-32 shrink-0 text-muted-foreground">{label}</dt>
-      <dd className="flex-1">{value}</dd>
-    </div>
   )
 }
