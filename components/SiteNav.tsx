@@ -132,6 +132,10 @@ export default function SiteNav({ user, unreadCount = 0 }: SiteNavProps) {
     }
   }, [pathname, user])
 
+  // The landing page (/) renders its own cinematic overlay navigation, so the
+  // global header is hidden there to avoid a double nav.
+  if (pathname === '/') return null
+
   const navItems = user
     ? [...BASE_NAV, LISTINGS_NAV, VISITS_NAV, { ...MESSAGES_NAV, badge: liveUnread }]
     : BASE_NAV
