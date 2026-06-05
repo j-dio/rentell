@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import {
   Globe,
   Search,
@@ -582,22 +582,156 @@ const STEPS = [
     n: '01',
     title: 'Search near campus',
     copy: 'Set your university and filter by distance, budget, and the room type you actually need.',
+    hint: 'Filter by walkable, bikeable, or jeepney distance.',
+    cta: 'Browse housing',
+    href: '/housing',
   },
   {
     icon: CalendarCheck,
     n: '02',
     title: 'Schedule a visit',
     copy: 'Request a property visit directly in the app and track every request in one place.',
+    hint: 'No chasing landlords on Messenger.',
+    cta: 'View my visits',
+    href: '/visits',
   },
   {
     icon: Heart,
     n: '03',
     title: 'Save & decide',
     copy: 'Bookmark favorites, compare them side by side, and move in when it feels right.',
+    hint: 'Compare saved listings at your own pace.',
+    cta: 'Open favorites',
+    href: '/favorites',
   },
 ]
 
+function HowItWorksStep({
+  step,
+  index,
+  isActive,
+  isDimmed,
+  onActivate,
+}: {
+  step: (typeof STEPS)[number]
+  index: number
+  isActive: boolean
+  isDimmed: boolean
+  onActivate: (index: number | null) => void
+}) {
+  const Icon = step.icon
+
+  return (
+    <motion.div
+      variants={rise}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: '-60px' }}
+      custom={index}
+      animate={{ opacity: isDimmed ? 0.45 : 1, scale: isDimmed ? 0.985 : 1 }}
+      transition={{ duration: 0.35, ease: easeOut }}
+      onMouseEnter={() => onActivate(index)}
+      onMouseLeave={() => onActivate(null)}
+      onFocus={() => onActivate(index)}
+      onBlur={() => onActivate(null)}
+      className="relative bg-[#0c0d0c]"
+    >
+      <Link
+        href={step.href}
+        className={`group/step relative block h-full p-9 outline-none transition-colors duration-500 ${
+          isActive ? 'bg-[#121412]' : 'hover:bg-[#101210]'
+        }`}
+      >
+        <span
+          aria-hidden
+          className={`pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--gold)] to-transparent transition-opacity duration-500 ${
+            isActive ? 'opacity-100' : 'opacity-0 group-hover/step:opacity-60'
+          }`}
+        />
+
+        <span
+          aria-hidden
+          className={`pointer-events-none absolute -right-4 -top-6 select-none text-[7rem] font-extralight leading-none transition-all duration-700 sm:text-[8rem] ${
+            isActive
+              ? 'text-[var(--gold)]/15'
+              : 'text-white/5 group-hover/step:text-white/12'
+          }`}
+        >
+          {step.n}
+        </span>
+
+        <div className="relative mb-10 flex items-center justify-between">
+          <motion.span
+            animate={{
+              scale: isActive ? 1.08 : 1,
+              borderColor: isActive
+                ? 'rgba(245, 162, 24, 0.55)'
+                : 'rgba(255, 255, 255, 0.15)',
+              backgroundColor: isActive
+                ? 'rgba(245, 162, 24, 0.08)'
+                : 'rgba(255, 255, 255, 0)',
+            }}
+            transition={{ type: 'spring', stiffness: 380, damping: 24 }}
+            className="flex h-12 w-12 items-center justify-center rounded-full border text-[var(--gold)]"
+          >
+            <motion.span
+              animate={{ rotate: isActive ? 8 : 0 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 20 }}
+            >
+              <Icon className="h-5 w-5" strokeWidth={1.5} />
+            </motion.span>
+          </motion.span>
+
+          <span
+            className={`relative text-5xl font-extralight transition-colors duration-500 ${
+              isActive ? 'text-white/25' : 'text-white/10 group-hover/step:text-white/18'
+            }`}
+          >
+            {step.n}
+          </span>
+        </div>
+
+        <h3
+          className={`relative text-xl font-light transition-colors duration-300 ${
+            isActive ? 'text-white' : 'text-white/90 group-hover/step:text-white'
+          }`}
+        >
+          {step.title}
+        </h3>
+        <p className="relative mt-3 text-[14px] font-light leading-relaxed text-white/55 transition-colors duration-300 group-hover/step:text-white/65">
+          {step.copy}
+        </p>
+
+        <p
+          className={`relative mt-4 text-[12px] font-light leading-snug transition-all duration-500 ${
+            isActive
+              ? 'max-h-12 translate-y-0 text-[var(--gold)]/80 opacity-100'
+              : 'max-h-0 -translate-y-1 overflow-hidden text-white/0 opacity-0 group-hover/step:max-h-12 group-hover/step:translate-y-0 group-hover/step:text-white/45 group-hover/step:opacity-100'
+          }`}
+        >
+          {step.hint}
+        </p>
+
+        <span
+          className={`relative mt-6 inline-flex items-center gap-2 text-sm font-medium transition-all duration-500 ${
+            isActive
+              ? 'translate-y-0 text-white opacity-100'
+              : 'translate-y-2 text-white/0 opacity-0 group-hover/step:translate-y-0 group-hover/step:text-white group-hover/step:opacity-100'
+          }`}
+        >
+          {step.cta}
+          <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover/step:translate-x-0.5 group-hover/step:-translate-y-0.5" />
+        </span>
+      </Link>
+    </motion.div>
+  )
+}
+
 function HowItWorks() {
+  const [activeStep, setActiveStep] = useState<number | null>(null)
+  const activeHint =
+    activeStep !== null ? STEPS[activeStep].hint : null
+
   return (
     <section className="border-t border-white/10 bg-[#0a0b0a] px-6 py-24 sm:px-10 lg:py-32">
       <div className="mx-auto max-w-screen-2xl">
@@ -609,38 +743,45 @@ function HowItWorks() {
           className="mb-16 flex flex-col justify-between gap-6 md:flex-row md:items-end"
         >
           <h2 className="max-w-xl text-[clamp(2rem,4.5vw,3.5rem)] font-extralight leading-[1.02] tracking-tight text-white">
-            The way student renters
-            <br />
-            <span className="text-white/55">actually move.</span>
+            <span className="group/headline block cursor-default">
+              The way student renters
+              <br />
+              <span className="text-white/55 transition-colors duration-500 group-hover/headline:text-white/75">
+                <HeroHoverWord>actually</HeroHoverWord>{' '}
+                <HeroHoverWord accent>move.</HeroHoverWord>
+              </span>
+            </span>
           </h2>
-          <p className="max-w-sm text-[15px] font-light leading-relaxed text-white/55">
-            Built from the ground up for how Filipino students search, decide,
-            and settle in — calm, transparent, and on your schedule.
-          </p>
+          <div className="max-w-sm">
+            <p className="text-[15px] font-light leading-relaxed text-white/55 transition-colors duration-500">
+              Built from the ground up for how Filipino students search, decide,
+              and settle in — calm, transparent, and on your schedule.
+            </p>
+            <p
+              className={`mt-3 text-[13px] font-light leading-snug transition-all duration-500 ${
+                activeHint
+                  ? 'max-h-12 translate-y-0 text-[var(--gold)]/75 opacity-100'
+                  : 'max-h-0 -translate-y-1 overflow-hidden text-white/0 opacity-0'
+              }`}
+            >
+              {activeHint}
+            </p>
+          </div>
         </motion.div>
 
-        <div className="grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 md:grid-cols-3">
+        <div
+          className="grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 transition-shadow duration-500 md:grid-cols-3"
+          onMouseLeave={() => setActiveStep(null)}
+        >
           {STEPS.map((step, i) => (
-            <motion.div
+            <HowItWorksStep
               key={step.n}
-              variants={rise}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: '-60px' }}
-              custom={i}
-              className="group relative bg-[#0c0d0c] p-9 transition-colors hover:bg-[#101210]"
-            >
-              <div className="mb-10 flex items-center justify-between">
-                <span className="flex h-12 w-12 items-center justify-center rounded-full border border-white/15 text-[var(--gold)] transition-colors group-hover:border-[var(--gold)]/50">
-                  <step.icon className="h-5 w-5" strokeWidth={1.5} />
-                </span>
-                <span className="text-5xl font-extralight text-white/10">{step.n}</span>
-              </div>
-              <h3 className="text-xl font-light text-white">{step.title}</h3>
-              <p className="mt-3 text-[14px] font-light leading-relaxed text-white/55">
-                {step.copy}
-              </p>
-            </motion.div>
+              step={step}
+              index={i}
+              isActive={activeStep === i}
+              isDimmed={activeStep !== null && activeStep !== i}
+              onActivate={setActiveStep}
+            />
           ))}
         </div>
       </div>
