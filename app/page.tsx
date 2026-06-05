@@ -109,6 +109,193 @@ const STATS = [
 
 const ICON_BTNS = [Globe, SlidersHorizontal, Search]
 
+function HeroEyebrowChip({
+  icon: Icon,
+  label,
+  hint,
+}: {
+  icon: typeof House
+  label: string
+  hint: string
+}) {
+  return (
+    <span className="group/chip relative inline-flex cursor-default items-center gap-1.5">
+      <Icon
+        className="h-3 w-3 opacity-0 transition-all duration-300 group-hover/chip:opacity-100 group-hover/chip:text-[var(--gold)]"
+        strokeWidth={1.75}
+        aria-hidden
+      />
+      <span className="transition-colors duration-300 group-hover/chip:text-white">
+        {label}
+      </span>
+      <span className="pointer-events-none absolute -bottom-7 left-0 whitespace-nowrap text-[10px] font-normal normal-case tracking-normal text-white/0 transition-all duration-300 group-hover/chip:text-white/70">
+        {hint}
+      </span>
+    </span>
+  )
+}
+
+function HeroHoverWord({
+  children,
+  accent = false,
+}: {
+  children: string
+  accent?: boolean
+}) {
+  return (
+    <motion.span
+      className={`inline-block cursor-default px-[0.06em] transition-[color,text-shadow] duration-300 hover:[text-shadow:0_0_48px_rgba(245,162,24,0.45)] ${
+        accent ? 'hover:text-[var(--gold)]' : 'hover:text-white'
+      }`}
+      whileHover={{ y: -6 }}
+      transition={{ type: 'spring', stiffness: 420, damping: 22 }}
+    >
+      {children}
+    </motion.span>
+  )
+}
+
+function HeroMaskLine({
+  text,
+  hint,
+  imageSrc,
+  className = '',
+}: {
+  text: string
+  hint: string
+  imageSrc: string
+  className?: string
+}) {
+  return (
+    <motion.span
+      variants={rise}
+      initial="hidden"
+      animate="show"
+      custom={2}
+      className={`group/mask block cursor-default ${className}`}
+    >
+      <span className="relative block">
+        <span className="block transition-opacity duration-500 group-hover/mask:opacity-0">
+          {text}
+        </span>
+        <span
+          aria-hidden
+          className="lp-text-mask absolute inset-0 block bg-cover bg-center opacity-0 transition-opacity duration-500 group-hover/mask:opacity-100"
+          style={{ backgroundImage: `url(${imageSrc})` }}
+        >
+          {text}
+        </span>
+      </span>
+      <span className="pointer-events-none block min-h-[2.75rem] max-w-md pt-2 text-[13px] font-light leading-snug tracking-normal text-white/0 transition-colors duration-500 group-hover/mask:text-white/60 sm:min-h-[3rem] sm:text-sm">
+        {hint}
+      </span>
+    </motion.span>
+  )
+}
+
+function HeroNearCampus() {
+  return (
+    <motion.div
+      variants={rise}
+      initial="hidden"
+      animate="show"
+      custom={3}
+      className="group/campus relative mt-2 hidden cursor-default justify-end pr-2 lg:flex"
+    >
+      {/* Distance rings — suggest proximity radius on hover */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute right-8 top-1/2 h-32 w-32 -translate-y-1/2 rounded-full border border-[var(--gold)]/0 opacity-0 transition-all duration-700 group-hover/campus:border-[var(--gold)]/25 group-hover/campus:opacity-100"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute right-8 top-1/2 h-44 w-44 -translate-y-1/2 rounded-full border border-white/0 opacity-0 transition-all delay-100 duration-700 group-hover/campus:border-white/10 group-hover/campus:opacity-100"
+      />
+
+      <Compass
+        className="pointer-events-none absolute right-full top-1/2 mr-4 h-7 w-7 -translate-y-1/2 text-[var(--gold)] opacity-0 transition-all duration-500 group-hover/campus:rotate-12 group-hover/campus:opacity-100"
+        strokeWidth={1.25}
+        aria-hidden
+      />
+
+      <p className="relative text-right text-[clamp(3rem,9vw,7.5rem)] font-extralight leading-none tracking-[-0.04em] transition-all duration-700 group-hover/campus:tracking-[-0.02em]">
+        {/* Ghost outline — visible by default, fades on hover */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white/15 to-white/40 bg-clip-text text-transparent transition-opacity duration-700 group-hover/campus:opacity-0"
+        >
+          Near Campus
+        </span>
+
+        {/* Interactive fill — invisible until hover, then solid with per-word lift */}
+        <span className="relative text-white/0 transition-colors duration-700 group-hover/campus:text-white">
+          <HeroHoverWord>Near</HeroHoverWord>{' '}
+          <HeroHoverWord accent>Campus</HeroHoverWord>
+        </span>
+      </p>
+
+      <span className="pointer-events-none absolute right-2 top-full mt-3 max-w-[16rem] text-right text-[13px] font-light leading-snug tracking-normal text-white/0 transition-all duration-500 group-hover/campus:text-white/55">
+        Filter by distance to your university — walkable, bikeable, or a jeepney
+        away.
+      </span>
+    </motion.div>
+  )
+}
+
+function HeroHeadline() {
+  return (
+    <>
+      <motion.p
+        variants={rise}
+        initial="hidden"
+        animate="show"
+        custom={0}
+        className="group/eyebrow mb-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] font-medium uppercase tracking-[0.28em] text-[var(--gold)]"
+      >
+        <span className="h-px w-8 bg-[var(--gold)]/60 transition-all duration-500 group-hover/eyebrow:w-12 group-hover/eyebrow:bg-[var(--gold)]" />
+        <HeroEyebrowChip
+          icon={House}
+          label="Student housing"
+          hint="Boarding houses, dorms & apartments"
+        />
+        <span className="text-[var(--gold)]/50">&amp;</span>
+        <HeroEyebrowChip
+          icon={UtensilsCrossed}
+          label="dining"
+          hint="Carinderias near where you live"
+        />
+        <span className="text-[var(--gold)]/50">· Philippines</span>
+      </motion.p>
+
+      <h1 className="font-sans text-white">
+        <motion.span
+          variants={rise}
+          initial="hidden"
+          animate="show"
+          custom={1}
+          className="group/line block"
+        >
+          <span className="block text-[clamp(3rem,10vw,8.5rem)] font-extralight leading-[0.92] tracking-[-0.03em] transition-[letter-spacing] duration-500 hover:tracking-[-0.01em]">
+            <HeroHoverWord accent>Student</HeroHoverWord>{' '}
+            <HeroHoverWord>Living</HeroHoverWord>
+          </span>
+          <span className="pointer-events-none block min-h-[2.75rem] max-w-lg pt-2 text-[13px] font-light leading-snug tracking-normal text-white/0 transition-colors duration-500 group-hover/line:text-white/55 sm:min-h-[3rem] sm:text-sm">
+            Long-term stays built for university life — not staycations, not
+            Airbnb.
+          </span>
+        </motion.span>
+
+        <HeroMaskLine
+          text="Made Effortless"
+          hint="Filter by campus, save favorites, and schedule visits — all without a phone call."
+          imageSrc="/hero-housing.png?v=2"
+          className="text-[clamp(3rem,10vw,8.5rem)] font-light leading-[0.92] tracking-[-0.03em] text-white/95"
+        />
+      </h1>
+    </>
+  )
+}
+
 function Hero() {
   const ref = useRef<HTMLElement>(null)
   const { scrollYProgress } = useScroll({
@@ -177,50 +364,9 @@ function Hero() {
         className="absolute inset-0 z-10 flex flex-col justify-center"
       >
         <div className="mx-auto w-full max-w-screen-2xl px-6 sm:px-10">
-          <motion.p
-            variants={rise}
-            initial="hidden"
-            animate="show"
-            custom={0}
-            className="mb-6 flex items-center gap-3 text-[12px] font-medium uppercase tracking-[0.28em] text-[var(--gold)]"
-          >
-            <span className="h-px w-8 bg-[var(--gold)]/60" />
-            Student housing &amp; dining · Philippines
-          </motion.p>
+          <HeroHeadline />
 
-          <h1 className="font-sans text-white">
-            <motion.span
-              variants={rise}
-              initial="hidden"
-              animate="show"
-              custom={1}
-              className="block text-[clamp(3rem,10vw,8.5rem)] font-extralight leading-[0.92] tracking-[-0.03em]"
-            >
-              Student Living
-            </motion.span>
-            <motion.span
-              variants={rise}
-              initial="hidden"
-              animate="show"
-              custom={2}
-              className="mt-1 block text-[clamp(3rem,10vw,8.5rem)] font-light leading-[0.92] tracking-[-0.03em] text-white/95"
-            >
-              Made Effortless
-            </motion.span>
-          </h1>
-
-          {/* Oversized accent word, echoing the reference's "Experiences" */}
-          <motion.div
-            variants={rise}
-            initial="hidden"
-            animate="show"
-            custom={3}
-            className="pointer-events-none mt-2 hidden justify-end pr-2 lg:flex"
-          >
-            <span className="bg-gradient-to-r from-white/15 to-white/40 bg-clip-text text-[clamp(3rem,9vw,7.5rem)] font-extralight leading-none tracking-[-0.04em] text-transparent">
-              Near Campus
-            </span>
-          </motion.div>
+          <HeroNearCampus />
         </div>
       </motion.div>
 
