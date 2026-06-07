@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import CarinderiaImageForm from '@/components/CarinderiaImageForm'
 import StepIndicator from '@/components/StepIndicator'
 import MapboxLocationPicker, { PickedLocation } from '@/components/MapboxLocationPicker'
+import { signUpRedirect } from '@/lib/auth-redirect'
 
 type Step = 'form' | 'images'
 
@@ -56,7 +57,7 @@ export default function NewCarinderiaPage() {
 
       if (!res.ok) {
         if (res.status === 401) {
-          router.push('/login?next=/carinderias/new')
+          router.push(signUpRedirect('/carinderias/new'))
           return
         }
         const data = await res.json()

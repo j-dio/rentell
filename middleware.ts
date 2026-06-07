@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
+import { signUpRedirect } from '@/lib/auth-redirect'
 
 const COOKIE_NAME = 'session'
 
@@ -11,6 +12,8 @@ const PROTECTED_PREFIXES = [
   '/host',
   '/listings',
   '/carinderias/new',
+  '/dashboard',
+  '/onboarding',
 ]
 
 function getSecret(): Uint8Array {
@@ -26,20 +29,19 @@ export async function middleware(request: NextRequest) {
   if (!isProtected) return NextResponse.next()
 
   const token = request.cookies.get(COOKIE_NAME)?.value
-  if (!token) return redirectToLogin(request)
+  if (!token) return redirectToSignUp(request)
 
   try {
     await jwtVerify(token, getSecret())
     return NextResponse.next()
   } catch {
-    return redirectToLogin(request)
+    return redirectToSignUp(request)
   }
 }
 
-function redirectToLogin(request: NextRequest): NextResponse {
-  const loginUrl = new URL('/login', request.url)
-  loginUrl.searchParams.set('from', request.nextUrl.pathname)
-  return NextResponse.redirect(loginUrl)
+function redirectToSignUp(request: NextRequest): NextResponse {
+  const registerUrl = new URL(signUpRedirect(request.nextUrl.pathname), request.url)
+  return NextResponse.redirect(registerUrl)
 }
 
 export const config = {
@@ -52,5 +54,8 @@ export const config = {
     '/listings/:path*',
     '/listings',
     '/carinderias/new',
+    '/dashboard/:path*',
+    '/dashboard',
+    '/onboarding',
   ],
 }

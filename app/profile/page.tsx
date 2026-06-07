@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { redirectToSignUp } from '@/lib/auth-redirect'
 import { getSession } from '@/lib/session'
 import sql from '@/lib/db'
 import HostToggle from './HostToggle'
@@ -8,7 +9,7 @@ import ProfileAccountEdit from './ProfileAccountEdit'
 
 export default async function ProfilePage() {
   const session = await getSession()
-  if (!session) redirect('/login')
+  if (!session) redirectToSignUp('/profile')
 
   const [user] = await sql`
     SELECT first_name, last_name, email, phone_number,

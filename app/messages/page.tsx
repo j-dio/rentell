@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+import { redirectToSignUp } from '@/lib/auth-redirect'
 import { getSession } from '@/lib/session'
 import { getConversationsByUser } from '@/lib/queries/messages'
 import ConversationList from '@/components/ConversationList'
@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function MessagesPage() {
   const session = await getSession()
-  if (!session) redirect('/login')
+  if (!session) redirectToSignUp('/messages')
 
   const conversations = await getConversationsByUser(session.userId)
 

@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
+import { redirectToSignUp } from '@/lib/auth-redirect'
 import { getSession } from '@/lib/session'
 import { getHousingById } from '@/lib/queries/housing'
 import sql from '@/lib/db'
@@ -20,12 +21,12 @@ type Amenity      = { name: string }
 type Params = { params: Promise<{ id: string }> }
 
 export default async function ManageListingPage({ params }: Params) {
-  const session = await getSession()
-  if (!session) redirect('/login')
-  if (!session.isHost) redirect('/profile')
-
   const { id } = await params
   const housingId = Number(id)
+
+  const session = await getSession()
+  if (!session) redirectToSignUp(`/dashboard/${id}`)
+  if (!session.isHost) redirect('/profile')
   if (!Number.isInteger(housingId) || housingId < 1) notFound()
 
   const housing = await getHousingById(housingId)

@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
+import { redirectToSignUp } from '@/lib/auth-redirect'
 import { getSession } from '@/lib/session'
 import { getHousingById } from '@/lib/queries/housing'
 import { getVisitsByHousing } from '@/lib/queries/visits'
@@ -17,11 +18,12 @@ const STATUS_STYLES: Record<string, string> = {
 type Params = { params: Promise<{ id: string }> }
 
 export default async function OwnerVisitsPage({ params }: Params) {
+  const { id } = await params
+
   const session = await getSession()
-  if (!session) redirect('/login')
+  if (!session) redirectToSignUp(`/dashboard/${id}/visits`)
   if (!session.isHost) redirect('/profile')
 
-  const { id } = await params
   const housingId = Number(id)
   if (!Number.isInteger(housingId) || housingId < 1) notFound()
 

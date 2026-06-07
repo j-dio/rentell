@@ -1,4 +1,5 @@
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
+import { redirectToSignUp } from '@/lib/auth-redirect'
 import { getSession } from '@/lib/session'
 import {
   getConversationById,
@@ -16,7 +17,7 @@ export default async function ThreadPage({ params }: Props) {
   if (!Number.isInteger(conversationId) || conversationId < 1) notFound()
 
   const session = await getSession()
-  if (!session) redirect('/login')
+  if (!session) redirectToSignUp(`/messages/${conversationId}`)
 
   // Auth check first — messages are only fetched once participation is confirmed.
   const conversation = await getConversationById(conversationId, session.userId)

@@ -10,7 +10,11 @@ import MapboxLocationPicker, { type PickedLocation } from '@/components/MapboxLo
 
 type Step = 'welcome' | 'location' | 'phone'
 
-export default function OnboardingClient() {
+export default function OnboardingClient({
+  redirectTo = '/',
+}: {
+  redirectTo?: string
+}) {
   const router = useRouter()
   const [step, setStep] = useState<Step>('welcome')
   const [saving, setSaving] = useState(false)
@@ -40,7 +44,7 @@ export default function OnboardingClient() {
         body: JSON.stringify({ phone_number: phone.trim() || null }),
       })
       if (!res.ok) { setError('Something went wrong. Please try again.'); return }
-      router.push('/')
+      router.push(redirectTo)
       router.refresh()
     } catch {
       setError('Network error.')

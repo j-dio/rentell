@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { redirectToSignUp } from '@/lib/auth-redirect'
 import { getSession } from '@/lib/session'
 import { getVisitsByUser, getIncomingVisitsByHost } from '@/lib/queries/visits'
 import CancelVisitButton from '@/components/CancelVisitButton'
@@ -15,7 +15,7 @@ const STATUS_STYLES: Record<string, string> = {
 
 export default async function VisitsPage() {
   const session = await getSession()
-  if (!session) redirect('/login')
+  if (!session) redirectToSignUp('/visits')
 
   const [myVisits, incomingVisits] = await Promise.all([
     getVisitsByUser(session.userId),

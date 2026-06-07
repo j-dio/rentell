@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import { redirectToSignUp } from '@/lib/auth-redirect'
 import { getSession } from '@/lib/session'
 import { getOwnHousing } from '@/lib/queries/host'
 import { getOwnCarinderias } from '@/lib/queries/carinderia'
@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function ListingsPage() {
   const session = await getSession()
-  if (!session) redirect('/login')
+  if (!session) redirectToSignUp('/listings')
 
   const [carinderias, housingListings] = await Promise.all([
     getOwnCarinderias(session.userId),

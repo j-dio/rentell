@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { safeRedirectPath } from '@/lib/auth-redirect'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -11,6 +12,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 export default function RegisterPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const from = safeRedirectPath(searchParams.get('from'))
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -41,7 +44,11 @@ export default function RegisterPage() {
         return
       }
 
-      router.push('/onboarding')
+      const onboardingUrl =
+        from === '/'
+          ? '/onboarding'
+          : `/onboarding?from=${encodeURIComponent(from)}`
+      router.push(onboardingUrl)
       router.refresh()
     } catch {
       setError('Something went wrong. Please try again.')

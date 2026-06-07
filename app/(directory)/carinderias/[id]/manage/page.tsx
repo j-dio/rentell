@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
+import { redirectToSignUp } from '@/lib/auth-redirect'
 import { getSession } from '@/lib/session'
 import { getCarinderiaById } from '@/lib/queries/carinderia'
 import CarinderiaEditForm from '@/components/CarinderiaEditForm'
@@ -11,11 +12,11 @@ import DeleteCarinderiaButton from '@/components/DeleteCarinderiaButton'
 type Props = { params: Promise<{ id: string }> }
 
 export default async function ManageCarinderiaPage({ params }: Props) {
-  const session = await getSession()
-  if (!session) redirect(`/login`)
-
   const { id } = await params
   const carinderiaId = Number(id)
+
+  const session = await getSession()
+  if (!session) redirectToSignUp(`/carinderias/${id}/manage`)
   if (isNaN(carinderiaId)) notFound()
 
   const carinderia = await getCarinderiaById(carinderiaId)

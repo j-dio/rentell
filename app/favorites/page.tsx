@@ -1,12 +1,12 @@
-import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { redirectToSignUp } from '@/lib/auth-redirect'
 import { getSession } from '@/lib/session'
 import { getFavoritesByUser } from '@/lib/queries/favorites'
 import { Card, CardContent } from '@/components/ui/card'
 
 export default async function FavoritesPage() {
   const session = await getSession()
-  if (!session) redirect('/login')
+  if (!session) redirectToSignUp('/favorites')
 
   const favorites = await getFavoritesByUser(session.userId)
 
