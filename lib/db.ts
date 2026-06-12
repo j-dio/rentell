@@ -6,7 +6,8 @@ if (!process.env.DATABASE_URL) {
 
 const _sql = neon(process.env.DATABASE_URL)
 
-function sql<T = Record<string, unknown>[]>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function sql<T = Record<string, any>[]>(
   strings: TemplateStringsArray,
   ...values: unknown[]
 ): Promise<T> {
