@@ -25,7 +25,7 @@ export default function AmenityTagForm({ housingId, allAmenities, taggedAmenitie
     // Optimistic update
     setTagged((prev) => {
       const next = new Set(prev)
-      isTagged ? next.delete(amenityName) : next.add(amenityName)
+      if (isTagged) { next.delete(amenityName) } else { next.add(amenityName) }
       return next
     })
 
@@ -39,7 +39,7 @@ export default function AmenityTagForm({ housingId, allAmenities, taggedAmenitie
         // Revert optimistic update on failure
         setTagged((prev) => {
           const next = new Set(prev)
-          isTagged ? next.add(amenityName) : next.delete(amenityName)
+          if (isTagged) { next.add(amenityName) } else { next.delete(amenityName) }
           return next
         })
         const data = await res.json()
@@ -49,7 +49,7 @@ export default function AmenityTagForm({ housingId, allAmenities, taggedAmenitie
       // Revert optimistic update on network error
       setTagged((prev) => {
         const next = new Set(prev)
-        isTagged ? next.add(amenityName) : next.delete(amenityName)
+        if (isTagged) { next.add(amenityName) } else { next.delete(amenityName) }
         return next
       })
       setError('Network error. Please try again.')

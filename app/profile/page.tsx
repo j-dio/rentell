@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation'
 import { redirectToSignUp } from '@/lib/auth-redirect'
 import { getSession } from '@/lib/session'
 import sql from '@/lib/db'

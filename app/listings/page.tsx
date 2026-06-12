@@ -23,7 +23,7 @@ export default async function ListingsPage() {
       <div>
         <h1 className="text-2xl font-bold">My Listings</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Manage everything you've listed on RenTell.
+          Manage everything you&apos;ve listed on RenTell.
         </p>
       </div>
 
@@ -108,7 +108,7 @@ export default async function ListingsPage() {
           <div>
             <h2 className="text-lg font-semibold">Carinderia Listings</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Food stalls and canteens you've added
+              Food stalls and canteens you&apos;ve added
             </p>
           </div>
           <Link
