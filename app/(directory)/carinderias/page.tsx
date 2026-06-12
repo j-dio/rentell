@@ -15,10 +15,13 @@ type PageProps = {
 export default async function CarinderiasPage({ searchParams }: PageProps) {
   const query = typeof searchParams.q === 'string' ? searchParams.q : undefined
 
-  const [listings, session] = await Promise.all([
+  const [listingsResult, sessionResult] = await Promise.allSettled([
     searchCarinderias({ query }),
     getSession(),
   ])
+
+  const listings = listingsResult.status === 'fulfilled' ? listingsResult.value : []
+  const session = sessionResult.status === 'fulfilled' ? sessionResult.value : null
 
   const favoritedIds = new Set<number>()
   if (session) {
